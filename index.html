@@ -1,40 +1,41 @@
 <html>
-<head><link rel="stylesheet" type="text/css" href="https://formit3d.github.io/FormItExamplePlugins/SharedPluginFiles/FormItPluginStyling.css">
-<title>Properties Plus</title>
-<META NAME="Title" CONTENT="Properties Plus">
-<META NAME="Author" CONTENT="Autodesk FormIt">
-<script type="text/javascript" src="https://formit3d.github.io/FormItExamplePlugins/SharedPluginFiles/FormItInterface.js"></script>
-<script type="text/javascript" src="https://formit3d.github.io/FormItExamplePlugins/SharedPluginFiles/PluginUtils.js"></script>
-<script type="text/javascript" src="https://formit3d.github.io/FormItExamplePlugins/SharedPluginFiles/FormItPluginUI.js"></script>
-<script type="text/javascript" src="https://formit3d.github.io/FormItWorkflowPlugins/Utils.js"></script>
-<script type="text/javascript" src="PropertiesPlus_Web.js"></script>
-<script type="text/javascript">
-    FormItInterface.Initialize(function () {
-        FormItInterface.SubscribeMessage("FormIt.Message.kSelectionsChanged", function(msg)
+<head>
+    <link rel="stylesheet" type="text/css" href="https://formit3d.github.io/FormItExamplePlugins/SharedPluginFiles/FormItPluginStyling.css">
+    <title>Properties Plus</title>
+    <META NAME="Title" CONTENT="Properties Plus">
+    <META NAME="Author" CONTENT="Autodesk FormIt">
+    <script type="text/javascript" src="https://formit3d.github.io/FormItExamplePlugins/SharedPluginFiles/FormItInterface.js"></script>
+    <script type="text/javascript" src="https://formit3d.github.io/FormItExamplePlugins/SharedPluginFiles/PluginUtils18_0.js"></script>
+    <script type="text/javascript" src="https://formit3d.github.io/FormItExamplePlugins/SharedPluginFiles/FormItPluginUI.js"></script>
+    <script type="text/javascript" src="https://formit3d.github.io/FormItWorkflowPlugins/Utils.js"></script>
+    <script type="text/javascript" src="PropertiesPlus_Web.js"></script>
+    <script type="text/javascript">
+        FormItInterface.Initialize(function () {
+
+            FormItInterface.SubscribeMessage("FormIt.Message.kSelectionsChanged", function(msg)
             {
                 var jsonMessage = JSON.parse(msg);
                 // This callback will be invoked whenever the signal is emitted on the C++/QML side.
                 //FormItInterface.ConsoleLog("(Web Side) Message: " + JSON.stringify(jsonMessage));
 
-                // when the FormIt selection changes, automatically update the plugin UI
-                PropertiesPlus.updateUI();
+                // only perform the calculations and update the UI if the user has checked the box
+                if (PropertiesPlus.doRecomputeOnSelection())
+                {
+                    // when the FormIt selection changes, automatically update the plugin UI
+                    PropertiesPlus.updateUI();
+                }
             });
 
-        // initialize the UI
-        // this must be called from here, to ensure the HTML page is loaded
-        // before scripts try to access the window document
-        PropertiesPlus.initializeUI();
+            // initialize the UI
+            // this must be called from here, to ensure the HTML page is loaded
+            // before scripts try to access the window document
+            PropertiesPlus.initializeUI();
+            PropertiesPlus.updateUI();
 
-    }); // DOMContentLoaded
-</script>
+        }); // DOMContentLoaded
+    </script>
 </head>
 <body>
-    <div class='headerContainer'>
-        <h1>Properties Plus</h1> 
-        <p>
-            Select geometry to view and modify additional properties.<br>
-        </p>
-    </div> 
 </body>
 
 </html>

@@ -41,7 +41,7 @@ if (typeof PropertiesPlus == 'undefined')
 "WSM.nPointMeshType = 34;"
 "WSM.nNumObjectTypes = 35;"
 
-// instantiate the items we want to count
+// instantiate the items we want to quantify
 var objectCount = 0;
 
 var vertexCount = 0;
@@ -84,6 +84,14 @@ var singleGroupFamilyDetailsContainerDiv;
 var singleGroupInstanceDetailsContainerDiv;
 var multiGroupInstanceDetailsContainerDiv;
 
+// ID for the top-level checkbox that controls whether Properties Plus recomputes on selection
+var recomputeOnSelectionInputID = 'recomputeOnSelectionInput';
+
+// IDs for containers which may be toggled in certain cases
+var disabledStateContainerID = 'disabledStateContainer';
+var selectionInfoContainerID = 'selectionInfoContainer';
+var infoCardsContainerID = 'infoCardsContainer';
+
 // IDs for inputs whose value will be updated when selection changes
 var singleGroupFamilyNameInputID = 'singleGroupFamilyNameInput';
 var singleGroupInstanceNameInputID = 'singleGroupInstanceNameInput';
@@ -93,7 +101,7 @@ var singleGroupInstancePosZInputID = 'singleGroupInstancePosZInput';
 var multiGroupFamilyNameInputID = 'multiGroupFamilyNameInput';
 var multiGroupInstanceNameInputID = 'multiGroupInstanceNameInput';
 
-// a flag to display work-in-progress features
+// flag to display work-in-progress features
 var displayWIP = false;
 
 // rename a Group family
@@ -123,17 +131,66 @@ PropertiesPlus.submitGroupInstanceRename = function()
 PropertiesPlus.initializeUI = function()
 {
     // create an overall container for all objects that comprise the "content" of the plugin
-    // everything between the header and footer
+    // everything above the footer
     var contentContainer = document.createElement('div');
     contentContainer.id = 'contentContainer';
     contentContainer.className = 'contentContainer'
     window.document.body.appendChild(contentContainer);
 
+    // create the overall header
+    var headerContainer = new FormIt.PluginUI.HeaderModule('Properties Plus', 'Select geometry to view and modify additional properties.', 'headerContainer');
+    contentContainer.appendChild(headerContainer.element);
+
     //
-    // create the selection count container - this is always visible
+    // create the on/off checkbox to disable calculations (in case of large selections)
+    // 
+    var computeOnSelectionCheckboxModule = new FormIt.PluginUI.CheckboxModule('Update on Selection Change', 'computOnSelectionCheckboxModule', 'multiModuleContainer', recomputeOnSelectionInputID);
+    contentContainer.appendChild(computeOnSelectionCheckboxModule.element);
+    
+    var computeOnSelectionCheckboxInput = document.getElementById(recomputeOnSelectionInputID);
+    computeOnSelectionCheckboxInput.checked = true;
+    // when the user checks or unchecks, update the UI as required
+    computeOnSelectionCheckboxInput.onclick = function()
+    {
+        if (this.checked)
+        {
+            PropertiesPlus.setUIStateToEnabled();
+        }
+        else
+        {
+            PropertiesPlus.setUIStateToDisabled();
+        }
+    }
+
+    //
+    // create the "disabled state" container, which tells the user to check the box to re-enable updates
+    //
+    var disabledStateContainerDiv = document.createElement('div');
+    disabledStateContainerDiv.id = disabledStateContainerID;
+    disabledStateContainerDiv.className = 'hide';
+
+    var disabledStateMessageDiv = document.createElement('div');
+    disabledStateMessageDiv.className = 'infoList';
+    disabledStateMessageDiv.innerHTML = "Check the box to see updates.";
+    disabledStateContainerDiv.appendChild(disabledStateMessageDiv);
+
+    contentContainer.appendChild(disabledStateContainerDiv);
+
+    // 
+    // create the info cards container
+    // stores all info cards in one place for easier toggling
+    // 
+    var infoCardsContainer = document.createElement('div');
+    infoCardsContainer.id = 'infoCardsContainer';
+    infoCardsContainer.className = 'show';
+
+    contentContainer.appendChild(infoCardsContainer);
+
+    //
+    // create the selection count container
     //
     var selectionInfoContainerDiv = document.createElement('div');
-    selectionInfoContainerDiv.id = 'selectionInfoContainer';
+    selectionInfoContainerDiv.id = selectionInfoContainerID;
     selectionInfoContainerDiv.className = 'infoContainer';
 
     var selectionInfoHeaderDiv = document.createElement('div');
@@ -149,7 +206,7 @@ PropertiesPlus.initializeUI = function()
     objectCountHorizontalRule = document.createElement('hr'); // horizontal line
     objectCountHorizontalRule.className = 'hide';
 
-    contentContainer.appendChild(selectionInfoContainerDiv);
+    infoCardsContainer.appendChild(selectionInfoContainerDiv);
     selectionInfoContainerDiv.appendChild(selectionInfoHeaderDiv);
     selectionInfoContainerDiv.appendChild(objectCountDiv);
     
@@ -198,11 +255,12 @@ PropertiesPlus.initializeUI = function()
     singleGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
     singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group Family';
 
-    contentContainer.appendChild(singleGroupFamilyDetailsContainerDiv);
+    infoCardsContainer.appendChild(singleGroupFamilyDetailsContainerDiv);
     singleGroupFamilyDetailsContainerDiv.appendChild(singleGroupFamilyDetailsHeaderDiv);
 
     // rename module
-    var singleGroupNameContainer = FormIt.PluginUI.createTextInputModule(singleGroupFamilyDetailsContainerDiv, 'Name: ', 'singleGroupNameContainer', 'inputModuleContainer', singleGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    var singleGroupNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupNameContainer', 'inputModuleContainerStandalone', singleGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    singleGroupFamilyDetailsContainerDiv.appendChild(singleGroupNameContainer.element);
 
     //
     // create the multi group family details container - starts hidden
@@ -216,11 +274,12 @@ PropertiesPlus.initializeUI = function()
     multiGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
     multiGroupFamilyDetailsHeaderDiv.innerHTML = 'Multiple Group Families';
 
-    contentContainer.appendChild(multiGroupFamilyDetailsContainerDiv);
+    infoCardsContainer.appendChild(multiGroupFamilyDetailsContainerDiv);
     multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyDetailsHeaderDiv);
 
     // rename module
-    var multiGroupFamilyNameContainer = FormIt.PluginUI.createTextInputModule(multiGroupFamilyDetailsContainerDiv, 'Name: ', 'multiGroupFamilyNameContainer', 'inputModuleContainer', multiGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    var multiGroupFamilyNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupFamilyNameContainer', 'inputModuleContainerStandalone', multiGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyNameContainer.element);
 
     //
     // create the single group instance details container - starts hidden
@@ -234,11 +293,12 @@ PropertiesPlus.initializeUI = function()
     singleGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
     singleGroupInstanceDetailsHeaderDiv.innerHTML = 'Group Instance';
 
-    contentContainer.appendChild(singleGroupInstanceDetailsContainerDiv);
+    infoCardsContainer.appendChild(singleGroupInstanceDetailsContainerDiv);
     singleGroupInstanceDetailsContainerDiv.appendChild(singleGroupInstanceDetailsHeaderDiv);
 
     // rename module
-    var singleGroupInstanceNameContainer = FormIt.PluginUI.createTextInputModule(singleGroupInstanceDetailsContainerDiv, 'Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainer', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    var singleGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainerStandalone', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    singleGroupInstanceDetailsContainerDiv.appendChild(singleGroupInstanceNameContainer.element);
 
     // this is a work in progress
     if (displayWIP)
@@ -250,11 +310,14 @@ PropertiesPlus.initializeUI = function()
         // position modules
         var positionCoordinatesContainerDiv = FormIt.PluginUI.createHorizontalModuleContainer(singleGroupInstanceDetailsContainerDiv);
 
-        var positionCoordinatesXModule = FormIt.PluginUI.createTextInputModule(positionCoordinatesContainerDiv, 'Position X: ', 'positionCoordinatesX', 'inputModuleContainer', singleGroupInstancePosXInputID, PropertiesPlus.submitGroupInstanceRename);
+        var positionCoordinatesXModule = new FormIt.PluginUI.TextInputModule('Position X: ', 'positionCoordinatesX', 'inputModuleContainer', singleGroupInstancePosXInputID, PropertiesPlus.submitGroupInstanceRename);
+        positionCoordinatesContainerDiv.appendChild(positionCoordinatesXModule.element);
 
-        var positionCoordinatesYModule = FormIt.PluginUI.createTextInputModule(positionCoordinatesContainerDiv, 'Position Y: ', 'positionCoordinatesY', 'inputModuleContainer', singleGroupInstancePosYInputID, PropertiesPlus.submitGroupInstanceRename);
+        var positionCoordinatesYModule = new FormIt.PluginUI.TextInputModule('Position Y: ', 'positionCoordinatesY', 'inputModuleContainer', singleGroupInstancePosYInputID, PropertiesPlus.submitGroupInstanceRename);
+        positionCoordinatesContainerDiv.appendChild(positionCoordinatesYModule.element);
 
-        var positionCoordinatesZModule = FormIt.PluginUI.createTextInputModule(positionCoordinatesContainerDiv, 'Position Z: ', 'positionCoordinatesZ', 'inputModuleContainer', singleGroupInstancePosZInputID, PropertiesPlus.submitGroupInstanceRename);
+        var positionCoordinatesZModule = new FormIt.PluginUI.TextInputModule(positionCoordinatesContainerDiv, 'Position Z: ', 'positionCoordinatesZ', 'inputModuleContainer', singleGroupInstancePosZInputID, PropertiesPlus.submitGroupInstanceRename);
+        positionCoordinatesContainerDiv.append(positionCoordinatesZModule.element);
     }
 
     //
@@ -269,19 +332,19 @@ PropertiesPlus.initializeUI = function()
     multiGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
     multiGroupInstanceDetailsHeaderDiv.innerHTML = 'Multiple Group Instances';
 
-    contentContainer.appendChild(multiGroupInstanceDetailsContainerDiv);
+    infoCardsContainer.appendChild(multiGroupInstanceDetailsContainerDiv);
     multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceDetailsHeaderDiv);
 
     // rename module
-    var multiGroupInstanceNameContainer = FormIt.PluginUI.createTextInputModule(multiGroupInstanceDetailsContainerDiv, 'Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainer', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    var multiGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainerStandalone', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceNameContainer.element);
 
     //
     // create the footer
     //
-    FormIt.PluginUI.createFooter();
+    var footerModule = new FormIt.PluginUI.FooterModule;
+    window.document.body.appendChild(footerModule.element)
 }
-
-
 
 // update the values in the UI based on the current FormIt selection
 PropertiesPlus.updateQuantification = function(currentSelectionInfo)
@@ -545,7 +608,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
         groupInstanceCountDiv.innerHTML = "Groups: " + groupInstanceCount + " Instances (" + uniqueGroupFamilyCount + familyString;
 
         // if the instances come from the same Group family, display the single Group family container and show the name
-        if (currentSelectionInfo.isConsistentGroupFamilyNames)
+        if (currentSelectionInfo.isConsistentGroupFamilyHistoryIDs)
         {
             // hide the multi Group family container, and display the single Group family details container
             multiGroupFamilyDetailsContainerDiv.className = 'hide';
@@ -563,19 +626,32 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
             singleGroupFamilyDetailsContainerDiv.className = 'hide';
             multiGroupFamilyDetailsContainerDiv.className = 'infoContainer';
 
-            var groupFamilyName = "*varies*";
             var multiGroupFamilyNameInput = document.getElementById(multiGroupFamilyNameInputID);
-            multiGroupFamilyNameInput.setAttribute("placeholder", groupFamilyName);
-            multiGroupFamilyNameInput.value = '';
+
+            // if all of the group family names are consistent, display the common name as placeholder text
+            if (currentSelectionInfo.isConsistentGroupFamilyNames === true)
+            {
+                var groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
+                multiGroupFamilyNameInput.value = groupFamilyName;
+                multiGroupFamilyNameInput.setAttribute("placeholder", '');
+            }
+            // otherwise indicate that the names vary
+            else 
+            {
+                var groupFamilyName = "*varies*";
+                multiGroupFamilyNameInput.setAttribute("placeholder", groupFamilyName);
+                multiGroupFamilyNameInput.value = '';
+            }
         }
 
         multiGroupInstanceDetailsContainerDiv.className = 'infoContainer';
 
         // if all of the instance names are consistent, display the common name as placeholder text
-        if (currentSelectionInfo.isConsistentGroupInstanceNames == true)
+        if (currentSelectionInfo.isConsistentGroupInstanceNames === true)
         {
             var groupInstanceName = currentSelectionInfo.selectedObjectsGroupInstanceNameArray[0];
             multiGroupInstanceNameInput.value = groupInstanceName;
+            multiGroupInstanceNameInput.setAttribute("placeholder", '');
         }
         // otherwise indicate that the names vary
         else 
@@ -613,6 +689,12 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     }
 }
 
+// determine if the user has chosen to update the UI on selection
+PropertiesPlus.doRecomputeOnSelection = function()
+{
+    return document.getElementById(recomputeOnSelectionInputID).checked;
+}
+
 // UpdateUI runs from the HTML page.  This script gets loaded up in both FormIt's
 // JS engine and also in the embedded web JS engine inside the panel.
 PropertiesPlus.updateUI = function()
@@ -624,11 +706,44 @@ PropertiesPlus.updateUI = function()
     //console.log("PropertiesPlus.UpdateUI");
     //console.log("args");
     // NOTE: window.FormItInterface.CallMethod will call the function
-    // defined above with the given args.  This is needed to communicate
-    // between the web JS enging process and the FormIt process.
+    // defined above with the given args. This is needed to communicate
+    // between the web JS engine process and the FormIt process.
     FormItInterface.CallMethod("PropertiesPlus.GetSelectionInfo", args, function(result)
     {
         //FormItInterface.ConsoleLog("Result " + result);
         PropertiesPlus.updateQuantification(result);
     });
+}
+
+PropertiesPlus.setUIStateToEnabled = function()
+{
+    // show the selection info container
+    var selectionInfoContainer = document.getElementById(selectionInfoContainerID);
+    selectionInfoContainer.className = 'infoContainer';
+
+    // show the info cards container
+    var infoCardsContainer = document.getElementById(infoCardsContainerID);
+    infoCardsContainer.className = 'show';
+
+    // hide the disabled state container
+    var disabledStateContainer = document.getElementById(disabledStateContainerID);
+    disabledStateContainer.className = 'hide';
+
+    PropertiesPlus.updateUI();
+}
+
+// update the UI to a dsiabled state, when the user has disabled updates
+PropertiesPlus.setUIStateToDisabled = function()
+{
+    // hide the selection info container
+    var selectionInfoContainer = document.getElementById(selectionInfoContainerID);
+    selectionInfoContainer.className = 'hide';
+
+    // hide the info cards container
+    var infoCardsContainer = document.getElementById(infoCardsContainerID);
+    infoCardsContainer.className = 'hide';
+
+    // show the dsiabled state container
+    var disabledStateContainer = document.getElementById(disabledStateContainerID);
+    disabledStateContainer.className = 'infoContainer';
 }
