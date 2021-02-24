@@ -253,7 +253,7 @@ PropertiesPlus.initializeUI = function()
     var singleGroupFamilyDetailsHeaderDiv = document.createElement('div');
     singleGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
-    singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group Family';
+    singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group';
 
     infoCardsContainer.appendChild(singleGroupFamilyDetailsContainerDiv);
     singleGroupFamilyDetailsContainerDiv.appendChild(singleGroupFamilyDetailsHeaderDiv);
@@ -272,7 +272,7 @@ PropertiesPlus.initializeUI = function()
     var multiGroupFamilyDetailsHeaderDiv = document.createElement('div');
     multiGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     multiGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
-    multiGroupFamilyDetailsHeaderDiv.innerHTML = 'Multiple Group Families';
+    multiGroupFamilyDetailsHeaderDiv.innerHTML = 'Multiple Groups';
 
     infoCardsContainer.appendChild(multiGroupFamilyDetailsContainerDiv);
     multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyDetailsHeaderDiv);
@@ -598,11 +598,11 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
         var familyString;
         if (uniqueGroupFamilyCount == 1)
         {
-            var familyString = " Family)";
+            var familyString = " Group)";
         }
         else
         {
-            var familyString = " Families)";
+            var familyString = " Groups)";
         }
         groupInstanceCountDiv.className = 'infoList';
         groupInstanceCountDiv.innerHTML = "Groups: " + groupInstanceCount + " Instances (" + uniqueGroupFamilyCount + familyString;
