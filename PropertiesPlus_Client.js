@@ -33,7 +33,7 @@ var isConsistentGroupFamilyNames;
 var isConsistentGroupInstanceNames;
 
 // updates variables and arrays about the items in the selection set
-PropertiesPlus.GetSelectionInfo = function()
+PropertiesPlus.GetSelectionInfo = function(args)
 {    
     console.clear();
     console.log("Properties Plus Plugin\n");
@@ -83,7 +83,12 @@ PropertiesPlus.GetSelectionInfo = function()
         var nObjectID = currentSelection[i]["ids"][historyDepth]["Object"];
         //console.log("Selection ID: " + nObjectID);
         selectedObjectsIDArray.push(nObjectID);
-        //console.log("ObjectID array: " + selectedObjectsIDArray);
+
+        // if too many items are selected, skip the rest of the info-gathering below
+        if (currentSelection.length > args.maxObjectCount)
+        {
+            continue;
+        }
 
         // get object type of the current selection, then push the results into an array
         var nType = WSM.APIGetObjectTypeReadOnly(nHistoryID, nObjectID);

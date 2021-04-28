@@ -3,7 +3,8 @@ if (typeof PropertiesPlus == 'undefined')
     PropertiesPlus = {};
 }
 
-// since this process isn't running in FormIt, we need to use integers for object types, so here's a reference list:
+// since this process isn't running in FormIt, 
+// we need to use integers for object types, so here's a reference list:
 "WSM.nUnSpecifiedType = 0;"
 "WSM.nBodyType = 1;"
 "WSM.nLumpType = 2;"
@@ -40,6 +41,10 @@ if (typeof PropertiesPlus == 'undefined')
 "WSM.nLineMeshType = 33;"
 "WSM.nPointMeshType = 34;"
 "WSM.nNumObjectTypes = 35;"
+
+// the maximum number of items to allow
+// higher than this, and FormIt could hang while processing the selection set
+var maxObjectCount = 1000;
 
 // instantiate the items we want to quantify
 var objectCount = 0;
@@ -209,6 +214,20 @@ PropertiesPlus.initializeUI = function()
     infoCardsContainer.appendChild(selectionInfoContainerDiv);
     selectionInfoContainerDiv.appendChild(selectionInfoHeaderDiv);
     selectionInfoContainerDiv.appendChild(objectCountDiv);
+
+    //
+    // create the "too many items" message
+    //
+    tooManyItemsContainerDiv = document.createElement('div');
+    tooManyItemsContainerDiv.id = selectionInfoContainerID;
+    tooManyItemsContainerDiv.className = 'hide';
+
+    tooManyItemsDiv = document.createElement('div');
+    tooManyItemsDiv.className = 'infoList';
+    tooManyItemsDiv.innerHTML = "Select fewer than " + maxObjectCount + " objects to see more information."
+
+    infoCardsContainer.appendChild(tooManyItemsContainerDiv);
+    tooManyItemsContainerDiv.appendChild(tooManyItemsDiv);
     
     // create the specific object counts list - these are hidden until the selection contains them
     selectionInfoContainerDiv.appendChild(objectCountHorizontalRule);
@@ -346,6 +365,15 @@ PropertiesPlus.initializeUI = function()
     window.document.body.appendChild(footerModule.element)
 }
 
+// clear all arrays in the selectionInfo object
+PropertiesPlus.clearQuantification = function(currentSelectionInfo)
+{
+    for (var i = 0; i < currentSelectionInfo.length; i++)
+    {
+        currentSelectionInfo[i] = [];
+    }
+}
+
 // update the values in the UI based on the current FormIt selection
 PropertiesPlus.updateQuantification = function(currentSelectionInfo)
 {
@@ -354,6 +382,21 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     // update object count and HTML
     objectCount = currentSelectionInfo.selectedObjectsIDArray.length;
     objectCountDiv.innerHTML = objectCountLabel + objectCount;
+
+    // if too many items are selected, show a message
+    if (objectCount > maxObjectCount)
+    {
+        // show the container for the message that too many items are selected
+        tooManyItemsContainerDiv.className = 'infoContainer';
+
+        // clear the current selection info so downstream calculations think nothing is selected
+        PropertiesPlus.clearQuantification(currentSelectionInfo);
+        objectCount = 0;
+    }
+    else
+    {
+        tooManyItemsContainerDiv.className = 'hide';
+    }
 
     //
     // set flags based on selection
@@ -598,11 +641,11 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
         var familyString;
         if (uniqueGroupFamilyCount == 1)
         {
-            var familyString = " Group)";
+            familyString = " Group)";
         }
         else
         {
-            var familyString = " Groups)";
+            familyString = " Groups)";
         }
         groupInstanceCountDiv.className = 'infoList';
         groupInstanceCountDiv.innerHTML = "Groups: " + groupInstanceCount + " Instances (" + uniqueGroupFamilyCount + familyString;
@@ -700,7 +743,7 @@ PropertiesPlus.doRecomputeOnSelection = function()
 PropertiesPlus.updateUI = function()
 {
     var args = {
-    //"calcVolume": document.a.calcVolume.checked
+        "maxObjectCount": maxObjectCount
     }
 
     //console.log("PropertiesPlus.UpdateUI");
