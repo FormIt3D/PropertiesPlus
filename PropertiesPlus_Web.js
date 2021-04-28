@@ -44,75 +44,75 @@ if (typeof PropertiesPlus == 'undefined')
 
 // the maximum number of items to allow
 // higher than this, and FormIt could hang while processing the selection set
-var maxObjectCount = 1000;
+let maxObjectCount = 1000;
 
 // instantiate the items we want to quantify
-var objectCount = 0;
+let objectCount = 0;
 
-var vertexCount = 0;
-var edgeCount = 0;
-var faceCount = 0;
-var bodyCount = 0;
-var groupFamilyCount = 0;
-var groupInstanceCount = 0;
-var identicalGroupInstanceCount = 0;
-var meshCount = 0;
+let vertexCount = 0;
+let edgeCount = 0;
+let faceCount = 0;
+let bodyCount = 0;
+let groupFamilyCount = 0;
+let groupInstanceCount = 0;
+let identicalGroupInstanceCount = 0;
+let meshCount = 0;
 
-var isAnythingSelected = false;
-var isOneOrMoreVertices = false;
-var isOneOrMoreEdges = false;
-var isOneOrMoreFaces = false;
-var isOneOrMoreBodies = false;
-var isOneOrMoreMeshes = false;
-var isSingleGroupInstance = false;
-var isOneOrMoreGroupInstances = false;
-var isMultipleGroupInstances = false;
+let isAnythingSelected = false;
+let isOneOrMoreVertices = false;
+let isOneOrMoreEdges = false;
+let isOneOrMoreFaces = false;
+let isOneOrMoreBodies = false;
+let isOneOrMoreMeshes = false;
+let isSingleGroupInstance = false;
+let isOneOrMoreGroupInstances = false;
+let isMultipleGroupInstances = false;
 
 // objects that will be updated (contents or visibility) when the selection changes
-var objectCountDiv;
-var objectCountLabel; 
-var objectCountHorizontalRule;
-var vertexCountDiv;
-var vertexCountLabel;
-var edgeCountDiv;
-var edgeCountLabel;
-var faceCountDiv;
-var faceCountLabel;
-var bodyCountDiv;
-var bodyCountLabel;
-var meshCountDiv;
-var meshCountLabel;
-var groupInstanceCountDiv;
-var groupInstanceCountLabel;
+let objectCountDiv;
+let objectCountLabel; 
+let objectCountHorizontalRule;
+let vertexCountDiv;
+let vertexCountLabel;
+let edgeCountDiv;
+let edgeCountLabel;
+let faceCountDiv;
+let faceCountLabel;
+let bodyCountDiv;
+let bodyCountLabel;
+let meshCountDiv;
+let meshCountLabel;
+let groupInstanceCountDiv;
+let groupInstanceCountLabel;
 
-var singleGroupFamilyDetailsContainerDiv;
-var singleGroupInstanceDetailsContainerDiv;
-var multiGroupInstanceDetailsContainerDiv;
+let singleGroupFamilyDetailsContainerDiv;
+let singleGroupInstanceDetailsContainerDiv;
+let multiGroupInstanceDetailsContainerDiv;
 
 // ID for the top-level checkbox that controls whether Properties Plus recomputes on selection
-var recomputeOnSelectionInputID = 'recomputeOnSelectionInput';
+let recomputeOnSelectionInputID = 'recomputeOnSelectionInput';
 
 // IDs for containers which may be toggled in certain cases
-var disabledStateContainerID = 'disabledStateContainer';
-var selectionInfoContainerID = 'selectionInfoContainer';
-var infoCardsContainerID = 'infoCardsContainer';
+let disabledStateContainerID = 'disabledStateContainer';
+let selectionInfoContainerID = 'selectionInfoContainer';
+let infoCardsContainerID = 'infoCardsContainer';
 
 // IDs for inputs whose value will be updated when selection changes
-var singleGroupFamilyNameInputID = 'singleGroupFamilyNameInput';
-var singleGroupInstanceNameInputID = 'singleGroupInstanceNameInput';
-var singleGroupInstancePosXInputID = 'singleGroupInstancePosXInput';
-var singleGroupInstancePosYInputID = 'singleGroupInstancePosYInput';
-var singleGroupInstancePosZInputID = 'singleGroupInstancePosZInput';
-var multiGroupFamilyNameInputID = 'multiGroupFamilyNameInput';
-var multiGroupInstanceNameInputID = 'multiGroupInstanceNameInput';
+let singleGroupFamilyNameInputID = 'singleGroupFamilyNameInput';
+let singleGroupInstanceNameInputID = 'singleGroupInstanceNameInput';
+let singleGroupInstancePosXInputID = 'singleGroupInstancePosXInput';
+let singleGroupInstancePosYInputID = 'singleGroupInstancePosYInput';
+let singleGroupInstancePosZInputID = 'singleGroupInstancePosZInput';
+let multiGroupFamilyNameInputID = 'multiGroupFamilyNameInput';
+let multiGroupInstanceNameInputID = 'multiGroupInstanceNameInput';
 
 // flag to display work-in-progress features
-var displayWIP = false;
+let displayWIP = false;
 
 // rename a Group family
 PropertiesPlus.submitGroupFamilyRename = function()
 {
-    var args = {
+    let args = {
     "singleGroupFamilyRename": singleGroupFamilyNameInput.value,
     "multiGroupFamilyRename": multiGroupFamilyNameInput.value
     }
@@ -123,7 +123,7 @@ PropertiesPlus.submitGroupFamilyRename = function()
 // rename a single selected Group instance, or multiple instances
 PropertiesPlus.submitGroupInstanceRename = function()
 {
-    var args = {
+    let args = {
     "singleGroupInstanceRename": singleGroupInstanceNameInput.value,
     "multiGroupInstanceRename": multiGroupInstanceNameInput.value
     }
@@ -137,22 +137,22 @@ PropertiesPlus.initializeUI = function()
 {
     // create an overall container for all objects that comprise the "content" of the plugin
     // everything above the footer
-    var contentContainer = document.createElement('div');
+    let contentContainer = document.createElement('div');
     contentContainer.id = 'contentContainer';
     contentContainer.className = 'contentContainer'
     window.document.body.appendChild(contentContainer);
 
     // create the overall header
-    var headerContainer = new FormIt.PluginUI.HeaderModule('Properties Plus', 'Select geometry to view and modify additional properties.', 'headerContainer');
+    let headerContainer = new FormIt.PluginUI.HeaderModule('Properties Plus', 'Select geometry to view and modify additional properties.', 'headerContainer');
     contentContainer.appendChild(headerContainer.element);
 
     //
     // create the on/off checkbox to disable calculations (in case of large selections)
     // 
-    var computeOnSelectionCheckboxModule = new FormIt.PluginUI.CheckboxModule('Update on Selection Change', 'computOnSelectionCheckboxModule', 'multiModuleContainer', recomputeOnSelectionInputID);
+    let computeOnSelectionCheckboxModule = new FormIt.PluginUI.CheckboxModule('Update on Selection Change', 'computOnSelectionCheckboxModule', 'multiModuleContainer', recomputeOnSelectionInputID);
     contentContainer.appendChild(computeOnSelectionCheckboxModule.element);
     
-    var computeOnSelectionCheckboxInput = document.getElementById(recomputeOnSelectionInputID);
+    let computeOnSelectionCheckboxInput = document.getElementById(recomputeOnSelectionInputID);
     computeOnSelectionCheckboxInput.checked = true;
     // when the user checks or unchecks, update the UI as required
     computeOnSelectionCheckboxInput.onclick = function()
@@ -170,11 +170,11 @@ PropertiesPlus.initializeUI = function()
     //
     // create the "disabled state" container, which tells the user to check the box to re-enable updates
     //
-    var disabledStateContainerDiv = document.createElement('div');
+    let disabledStateContainerDiv = document.createElement('div');
     disabledStateContainerDiv.id = disabledStateContainerID;
     disabledStateContainerDiv.className = 'hide';
 
-    var disabledStateMessageDiv = document.createElement('div');
+    let disabledStateMessageDiv = document.createElement('div');
     disabledStateMessageDiv.className = 'infoList';
     disabledStateMessageDiv.innerHTML = "Check the box to see updates.";
     disabledStateContainerDiv.appendChild(disabledStateMessageDiv);
@@ -185,7 +185,7 @@ PropertiesPlus.initializeUI = function()
     // create the info cards container
     // stores all info cards in one place for easier toggling
     // 
-    var infoCardsContainer = document.createElement('div');
+    let infoCardsContainer = document.createElement('div');
     infoCardsContainer.id = 'infoCardsContainer';
     infoCardsContainer.className = 'show';
 
@@ -194,11 +194,11 @@ PropertiesPlus.initializeUI = function()
     //
     // create the selection count container
     //
-    var selectionInfoContainerDiv = document.createElement('div');
+    let selectionInfoContainerDiv = document.createElement('div');
     selectionInfoContainerDiv.id = selectionInfoContainerID;
     selectionInfoContainerDiv.className = 'infoContainer';
 
-    var selectionInfoHeaderDiv = document.createElement('div');
+    let selectionInfoHeaderDiv = document.createElement('div');
     selectionInfoHeaderDiv.id = 'selectionInfoHeaderDiv';
     selectionInfoHeaderDiv.className = 'infoHeader';
     selectionInfoHeaderDiv.innerHTML = 'Selection Count';
@@ -269,7 +269,7 @@ PropertiesPlus.initializeUI = function()
     singleGroupFamilyDetailsContainerDiv.id = 'singleGroupInfoContainer';
     singleGroupFamilyDetailsContainerDiv.className = 'hide';
 
-    var singleGroupFamilyDetailsHeaderDiv = document.createElement('div');
+    let singleGroupFamilyDetailsHeaderDiv = document.createElement('div');
     singleGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
     singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group';
@@ -278,7 +278,7 @@ PropertiesPlus.initializeUI = function()
     singleGroupFamilyDetailsContainerDiv.appendChild(singleGroupFamilyDetailsHeaderDiv);
 
     // rename module
-    var singleGroupNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupNameContainer', 'inputModuleContainerStandalone', singleGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    let singleGroupNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupNameContainer', 'inputModuleContainerStandalone', singleGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
     singleGroupFamilyDetailsContainerDiv.appendChild(singleGroupNameContainer.element);
 
     //
@@ -288,7 +288,7 @@ PropertiesPlus.initializeUI = function()
     multiGroupFamilyDetailsContainerDiv.id = 'multiGroupInfoContainer';
     multiGroupFamilyDetailsContainerDiv.className = 'hide';
 
-    var multiGroupFamilyDetailsHeaderDiv = document.createElement('div');
+    let multiGroupFamilyDetailsHeaderDiv = document.createElement('div');
     multiGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     multiGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
     multiGroupFamilyDetailsHeaderDiv.innerHTML = 'Multiple Groups';
@@ -297,7 +297,7 @@ PropertiesPlus.initializeUI = function()
     multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyDetailsHeaderDiv);
 
     // rename module
-    var multiGroupFamilyNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupFamilyNameContainer', 'inputModuleContainerStandalone', multiGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    let multiGroupFamilyNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupFamilyNameContainer', 'inputModuleContainerStandalone', multiGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
     multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyNameContainer.element);
 
     //
@@ -307,7 +307,7 @@ PropertiesPlus.initializeUI = function()
     singleGroupInstanceDetailsContainerDiv.id = 'singleGroupInfoContainer';
     singleGroupInstanceDetailsContainerDiv.className = 'hide';
 
-    var singleGroupInstanceDetailsHeaderDiv = document.createElement('div');
+    let singleGroupInstanceDetailsHeaderDiv = document.createElement('div');
     singleGroupInstanceDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
     singleGroupInstanceDetailsHeaderDiv.innerHTML = 'Group Instance';
@@ -316,26 +316,26 @@ PropertiesPlus.initializeUI = function()
     singleGroupInstanceDetailsContainerDiv.appendChild(singleGroupInstanceDetailsHeaderDiv);
 
     // rename module
-    var singleGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainerStandalone', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    let singleGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainerStandalone', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
     singleGroupInstanceDetailsContainerDiv.appendChild(singleGroupInstanceNameContainer.element);
 
     // this is a work in progress
     if (displayWIP)
     {
         // spacer
-        var spacerDiv2 = document.createElement('div');
+        let spacerDiv2 = document.createElement('div');
         spacerDiv2.className = 'horizontalSpacer';
 
         // position modules
-        var positionCoordinatesContainerDiv = FormIt.PluginUI.createHorizontalModuleContainer(singleGroupInstanceDetailsContainerDiv);
+        let positionCoordinatesContainerDiv = FormIt.PluginUI.createHorizontalModuleContainer(singleGroupInstanceDetailsContainerDiv);
 
-        var positionCoordinatesXModule = new FormIt.PluginUI.TextInputModule('Position X: ', 'positionCoordinatesX', 'inputModuleContainer', singleGroupInstancePosXInputID, PropertiesPlus.submitGroupInstanceRename);
+        let positionCoordinatesXModule = new FormIt.PluginUI.TextInputModule('Position X: ', 'positionCoordinatesX', 'inputModuleContainer', singleGroupInstancePosXInputID, PropertiesPlus.submitGroupInstanceRename);
         positionCoordinatesContainerDiv.appendChild(positionCoordinatesXModule.element);
 
-        var positionCoordinatesYModule = new FormIt.PluginUI.TextInputModule('Position Y: ', 'positionCoordinatesY', 'inputModuleContainer', singleGroupInstancePosYInputID, PropertiesPlus.submitGroupInstanceRename);
+        let positionCoordinatesYModule = new FormIt.PluginUI.TextInputModule('Position Y: ', 'positionCoordinatesY', 'inputModuleContainer', singleGroupInstancePosYInputID, PropertiesPlus.submitGroupInstanceRename);
         positionCoordinatesContainerDiv.appendChild(positionCoordinatesYModule.element);
 
-        var positionCoordinatesZModule = new FormIt.PluginUI.TextInputModule(positionCoordinatesContainerDiv, 'Position Z: ', 'positionCoordinatesZ', 'inputModuleContainer', singleGroupInstancePosZInputID, PropertiesPlus.submitGroupInstanceRename);
+        let positionCoordinatesZModule = new FormIt.PluginUI.TextInputModule(positionCoordinatesContainerDiv, 'Position Z: ', 'positionCoordinatesZ', 'inputModuleContainer', singleGroupInstancePosZInputID, PropertiesPlus.submitGroupInstanceRename);
         positionCoordinatesContainerDiv.append(positionCoordinatesZModule.element);
     }
 
@@ -346,7 +346,7 @@ PropertiesPlus.initializeUI = function()
     multiGroupInstanceDetailsContainerDiv.id = 'multiGroupInfoContainer';
     multiGroupInstanceDetailsContainerDiv.className = 'hide';
 
-    var multiGroupInstanceDetailsHeaderDiv = document.createElement('div');
+    let multiGroupInstanceDetailsHeaderDiv = document.createElement('div');
     multiGroupInstanceDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     multiGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
     multiGroupInstanceDetailsHeaderDiv.innerHTML = 'Multiple Group Instances';
@@ -355,20 +355,20 @@ PropertiesPlus.initializeUI = function()
     multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceDetailsHeaderDiv);
 
     // rename module
-    var multiGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainerStandalone', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    let multiGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainerStandalone', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
     multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceNameContainer.element);
 
     //
     // create the footer
     //
-    var footerModule = new FormIt.PluginUI.FooterModule;
+    let footerModule = new FormIt.PluginUI.FooterModule;
     window.document.body.appendChild(footerModule.element)
 }
 
 // clear all arrays in the selectionInfo object
 PropertiesPlus.clearQuantification = function(currentSelectionInfo)
 {
-    for (var i = 0; i < currentSelectionInfo.length; i++)
+    for (let i = 0; i < currentSelectionInfo.length; i++)
     {
         currentSelectionInfo[i] = [];
     }
@@ -413,7 +413,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     }
 
     // if one or more vertices (WSM object #8) are selected, set a flag
-    for (var i = 0; i < objectCount; i++)
+    for (let i = 0; i < objectCount; i++)
     {
         if (currentSelectionInfo.selectedObjectsTypeArray[i] == 8)
         {
@@ -428,7 +428,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     }
 
     // if one or more edges (WSM object #7) are selected, set a flag
-    for (var i = 0; i < objectCount; i++)
+    for (let i = 0; i < objectCount; i++)
     {
         if (currentSelectionInfo.selectedObjectsTypeArray[i] == 7)
         {
@@ -443,7 +443,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     }
 
     // if one or more faces (WSM object #4) are selected, set a flag
-    for (var i = 0; i < objectCount; i++)
+    for (let i = 0; i < objectCount; i++)
     {
         if (currentSelectionInfo.selectedObjectsTypeArray[i] == 4)
         {
@@ -458,7 +458,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     }
 
     // if one or more bodies (WSM object #1) are selected, set a flag
-    for (var i = 0; i < objectCount; i++)
+    for (let i = 0; i < objectCount; i++)
     {
         if (currentSelectionInfo.selectedObjectsTypeArray[i] == 1)
         {
@@ -473,7 +473,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     }
 
     // if one or more meshes (WSM object #32), lineMeshes (WSM object #33), or pointMeshes (WSM object #34) are selected, set a flag
-    for (var i = 0; i < objectCount; i++)
+    for (let i = 0; i < objectCount; i++)
     {
         if (currentSelectionInfo.selectedObjectsTypeArray[i] == 32 || 
             currentSelectionInfo.selectedObjectsTypeArray[i] == 33 ||
@@ -501,7 +501,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     }
 
     // if one or more Group instances (WSM object #24) are selected, set a flag
-    for (var i = 0; i < objectCount; i++)
+    for (let i = 0; i < objectCount; i++)
     {
         if (currentSelectionInfo.selectedObjectsTypeArray[i] == 24)
         {
@@ -618,12 +618,12 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
         singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
         singleGroupInstanceDetailsContainerDiv.className = 'infoContainer';
 
-        var groupInstanceName = currentSelectionInfo.selectedObjectsNameArray[0];
-        var singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
+        let groupInstanceName = currentSelectionInfo.selectedObjectsNameArray[0];
+        let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
         singleGroupInstanceNameInput.value = groupInstanceName;
 
-        var groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
-        var singleGroupFamilyNameInput = document.getElementById(singleGroupFamilyNameInputID);
+        let groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
+        let singleGroupFamilyNameInput = document.getElementById(singleGroupFamilyNameInputID);
         singleGroupFamilyNameInput.value = groupFamilyName;
     }
     else
@@ -636,9 +636,9 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     if (isMultipleGroupInstances)
     {
         // update the group instance count to also show how many unique families the instances belong to
-        var uniqueGroupFamilyCount = eliminateDuplicatesInArray(currentSelectionInfo.selectedObjectsGroupFamilyHistoryIDArray).length;
+        let uniqueGroupFamilyCount = eliminateDuplicatesInArray(currentSelectionInfo.selectedObjectsGroupFamilyHistoryIDArray).length;
         // change the wording slightly if there is more than one family
-        var familyString;
+        let familyString;
         if (uniqueGroupFamilyCount == 1)
         {
             familyString = " Group)";
@@ -658,8 +658,8 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
             singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
 
             // update the name input with the current name
-            var groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
-            var singleGroupFamilyNameInput = document.getElementById(singleGroupFamilyNameInputID);
+            let groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
+            let singleGroupFamilyNameInput = document.getElementById(singleGroupFamilyNameInputID);
             singleGroupFamilyNameInput.value = groupFamilyName;
         }
         // otherwise, these instances come from different families, so display the multi Group family container
@@ -669,19 +669,19 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
             singleGroupFamilyDetailsContainerDiv.className = 'hide';
             multiGroupFamilyDetailsContainerDiv.className = 'infoContainer';
 
-            var multiGroupFamilyNameInput = document.getElementById(multiGroupFamilyNameInputID);
+            let multiGroupFamilyNameInput = document.getElementById(multiGroupFamilyNameInputID);
 
             // if all of the group family names are consistent, display the common name as placeholder text
             if (currentSelectionInfo.isConsistentGroupFamilyNames === true)
             {
-                var groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
+                let groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
                 multiGroupFamilyNameInput.value = groupFamilyName;
                 multiGroupFamilyNameInput.setAttribute("placeholder", '');
             }
             // otherwise indicate that the names vary
             else 
             {
-                var groupFamilyName = "*varies*";
+                let groupFamilyName = "*varies*";
                 multiGroupFamilyNameInput.setAttribute("placeholder", groupFamilyName);
                 multiGroupFamilyNameInput.value = '';
             }
@@ -692,14 +692,14 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
         // if all of the instance names are consistent, display the common name as placeholder text
         if (currentSelectionInfo.isConsistentGroupInstanceNames === true)
         {
-            var groupInstanceName = currentSelectionInfo.selectedObjectsGroupInstanceNameArray[0];
+            let groupInstanceName = currentSelectionInfo.selectedObjectsGroupInstanceNameArray[0];
             multiGroupInstanceNameInput.value = groupInstanceName;
             multiGroupInstanceNameInput.setAttribute("placeholder", '');
         }
         // otherwise indicate that the names vary
         else 
         {
-            var groupInstanceName = "*varies*";
+            let groupInstanceName = "*varies*";
             multiGroupInstanceNameInput.setAttribute("placeholder", groupInstanceName);
             multiGroupInstanceNameInput.value = '';
         }
@@ -742,7 +742,7 @@ PropertiesPlus.doRecomputeOnSelection = function()
 // JS engine and also in the embedded web JS engine inside the panel.
 PropertiesPlus.updateUI = function()
 {
-    var args = {
+    let args = {
         "maxObjectCount": maxObjectCount
     }
 
@@ -761,15 +761,15 @@ PropertiesPlus.updateUI = function()
 PropertiesPlus.setUIStateToEnabled = function()
 {
     // show the selection info container
-    var selectionInfoContainer = document.getElementById(selectionInfoContainerID);
+    let selectionInfoContainer = document.getElementById(selectionInfoContainerID);
     selectionInfoContainer.className = 'infoContainer';
 
     // show the info cards container
-    var infoCardsContainer = document.getElementById(infoCardsContainerID);
+    let infoCardsContainer = document.getElementById(infoCardsContainerID);
     infoCardsContainer.className = 'show';
 
     // hide the disabled state container
-    var disabledStateContainer = document.getElementById(disabledStateContainerID);
+    let disabledStateContainer = document.getElementById(disabledStateContainerID);
     disabledStateContainer.className = 'hide';
 
     PropertiesPlus.updateUI();
@@ -779,14 +779,14 @@ PropertiesPlus.setUIStateToEnabled = function()
 PropertiesPlus.setUIStateToDisabled = function()
 {
     // hide the selection info container
-    var selectionInfoContainer = document.getElementById(selectionInfoContainerID);
+    let selectionInfoContainer = document.getElementById(selectionInfoContainerID);
     selectionInfoContainer.className = 'hide';
 
     // hide the info cards container
-    var infoCardsContainer = document.getElementById(infoCardsContainerID);
+    let infoCardsContainer = document.getElementById(infoCardsContainerID);
     infoCardsContainer.className = 'hide';
 
     // show the dsiabled state container
-    var disabledStateContainer = document.getElementById(disabledStateContainerID);
+    let disabledStateContainer = document.getElementById(disabledStateContainerID);
     disabledStateContainer.className = 'infoContainer';
 }
