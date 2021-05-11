@@ -46,7 +46,11 @@ if (typeof PropertiesPlus == 'undefined')
 // higher than this, and FormIt could hang while processing the selection set
 let maxObjectCount = 1000;
 
-// instantiate the items we want to quantify
+// data that will be updated when the selection or editing history changes
+let editingHistory = 0;
+let editingGroupName = '';
+let editingHistoryInstances = 0;
+
 let objectCount = 0;
 
 let vertexCount = 0;
@@ -68,7 +72,10 @@ let isSingleGroupInstance = false;
 let isOneOrMoreGroupInstances = false;
 let isMultipleGroupInstances = false;
 
-// objects that will be updated (contents or visibility) when the selection changes
+// elements that will be updated (contents or visibility) when the selection or editing history changes
+let editingHistoryNameDiv;
+let editingHistoryInstancesDiv;
+
 let objectCountDiv;
 let objectCountLabel; 
 let objectCountHorizontalRule;
@@ -139,12 +146,53 @@ PropertiesPlus.initializeUI = function()
     // everything above the footer
     let contentContainer = document.createElement('div');
     contentContainer.id = 'contentContainer';
-    contentContainer.className = 'contentContainer'
+    contentContainer.className = 'contentContainer';
     window.document.body.appendChild(contentContainer);
 
     // create the overall header
-    let headerContainer = new FormIt.PluginUI.HeaderModule('Properties Plus', 'Select geometry to view and modify additional properties.', 'headerContainer');
+    let headerContainer = new FormIt.PluginUI.HeaderModule('Properties Plus', 'View and modify properties of the current editing context and selection.', 'headerContainer');
     contentContainer.appendChild(headerContainer.element);
+
+    // create the context properties subheader
+    let contextPropertiesSubheader = new FormIt.PluginUI.SubheaderModule('Context Properties', 'show');
+    contentContainer.appendChild(contextPropertiesSubheader.element);
+
+    //
+    // create the context properties card container
+    //
+    let contextCardsContainer = document.createElement('div');
+    contextCardsContainer.id = 'editingContextCardsContainer';
+    contextCardsContainer.className = 'show';
+
+    //
+    // create the context properties info container
+    //
+    let contextPropertiesContainerDiv = document.createElement('div');
+    contextPropertiesContainerDiv.id = selectionInfoContainerID;
+    contextPropertiesContainerDiv.className = 'infoContainer';
+    contentContainer.appendChild(contextCardsContainer);
+
+    let contextPropertiesHeaderDiv = document.createElement('div');
+    contextPropertiesHeaderDiv.id = 'selectionInfoHeaderDiv';
+    contextPropertiesHeaderDiv.className = 'infoHeader';
+    contextPropertiesHeaderDiv.innerHTML = 'Currently Editing';
+
+    editingHistoryName = document.createElement('div');
+    editingHistoryName.className = 'infoList';
+    editingHistoryName.innerHTML = "";
+
+    editingHistoryInstancesDiv = document.createElement('div');
+    editingHistoryInstancesDiv.className = 'infoList';
+    editingHistoryInstancesDiv.innerHTML = "";
+
+    contextCardsContainer.appendChild(contextPropertiesContainerDiv);
+    contextPropertiesContainerDiv.appendChild(contextPropertiesHeaderDiv);
+    contextPropertiesContainerDiv.appendChild(editingHistoryName);
+    contextPropertiesContainerDiv.appendChild(editingHistoryInstancesDiv);
+
+    // create the selection properties subheader
+    let selectionPropertiesSubheader = new FormIt.PluginUI.SubheaderModule('Selection Properties', 'show');
+    contentContainer.appendChild(selectionPropertiesSubheader.element);
 
     //
     // create the on/off checkbox to disable calculations (in case of large selections)
@@ -154,6 +202,7 @@ PropertiesPlus.initializeUI = function()
     
     let computeOnSelectionCheckboxInput = document.getElementById(recomputeOnSelectionInputID);
     computeOnSelectionCheckboxInput.checked = true;
+    
     // when the user checks or unchecks, update the UI as required
     computeOnSelectionCheckboxInput.onclick = function()
     {
@@ -378,6 +427,19 @@ PropertiesPlus.clearQuantification = function(currentSelectionInfo)
 PropertiesPlus.updateQuantification = function(currentSelectionInfo)
 {
     currentSelectionInfo = JSON.parse(currentSelectionInfo);
+
+    // update the current editing history name
+    editingHistoryName.innerHTML = currentSelectionInfo.editingHistoryName;
+
+    // update the number of instances the current history affects
+    if (currentSelectionInfo.editingHistoryName == "Main Sketch")
+    {
+        editingHistoryInstancesDiv.innerHTML = "";
+    } 
+    else 
+    {
+        editingHistoryInstancesDiv.innerHTML = "(" + currentSelectionInfo.editingHistoryInstances + " in model)";
+    }
 
     // update object count and HTML
     objectCount = currentSelectionInfo.selectedObjectsIDArray.length;

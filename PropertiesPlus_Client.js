@@ -5,6 +5,8 @@ if (typeof PropertiesPlus == 'undefined')
 
 // this is the history we're operating in
 var nHistoryID;
+var editingHistoryName;
+var editingHistoryInstances;
 
 // instantiate arrays
 var selectedObjectsIDArray;
@@ -67,6 +69,38 @@ PropertiesPlus.GetSelectionInfo = function(args)
     // get current history
     nHistoryID = FormIt.GroupEdit.GetEditingHistoryID();
     //console.log("Current history: " + JSON.stringify(nHistoryID));
+
+    // get the editing history name
+    if (nHistoryID === 0)
+    {
+        editingHistoryName = "Main Sketch";
+    } 
+    else 
+    {
+        // get the Group family name
+        editingHistoryName = WSM.APIGetRevitFamilyInformationReadOnly(nHistoryID).familyReference;
+        // TODO: this returns an empty string for Dynamo Groups, but they have a name
+        //console.log(JSON.stringify(WSM.APIGetRevitFamilyInformationReadOnly(groupFamilyHistoryID)));
+        // if the Group name is empty, that means it hasn't been customized
+        // so use the default Group naming convention: "Group " + "historyID"
+        if (editingHistoryName == '')
+        {
+            editingHistoryName = "Group " + nHistoryID;
+        }
+    }
+
+    // determine how many instances will be edited in the current editing history
+    if (nHistoryID === 0)
+    {
+        editingHistoryInstances = 1;
+    } 
+    else 
+    {
+        editingHistoryInstances = WSM.APIGetAllAggregateTransf3dsReadOnly(nHistoryID, 0).paths.length;
+    }
+
+    
+    console.log("Currently editing: " + editingHistoryName + " (" + editingHistoryInstances + " in model)\n");
 
     // get current selection
     var currentSelection = FormIt.Selection.GetSelections();
@@ -203,8 +237,10 @@ PropertiesPlus.GetSelectionInfo = function(args)
 
     // return everything we need in a JSON object for use in the web script
     return {
+        "nHistoryID": nHistoryID, // editingHistoryID
+        "editingHistoryName" : editingHistoryName,
+        "editingHistoryInstances" : editingHistoryInstances,
         "currentSelectionInfo" : currentSelection,
-        "nHistoryID": nHistoryID,
         "selectedObjectsIDArray" : selectedObjectsIDArray,
         "selectedObjectsTypeArray" : selectedObjectsTypeArray,
         "selectedObjectsNameArray" : selectedObjectsNameArray,
