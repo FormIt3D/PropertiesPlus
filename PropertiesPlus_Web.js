@@ -168,7 +168,7 @@ PropertiesPlus.initializeUI = function()
     // create the context properties info container
     //
     let contextPropertiesContainerDiv = document.createElement('div');
-    contextPropertiesContainerDiv.id = selectionInfoContainerID;
+    contextPropertiesContainerDiv.id = 'contextPropertiesContainer';
     contextPropertiesContainerDiv.className = 'infoContainer';
     contentContainer.appendChild(contextCardsContainer);
 
@@ -235,7 +235,7 @@ PropertiesPlus.initializeUI = function()
     // stores all info cards in one place for easier toggling
     // 
     let infoCardsContainer = document.createElement('div');
-    infoCardsContainer.id = 'infoCardsContainer';
+    infoCardsContainer.id = infoCardsContainerID;
     infoCardsContainer.className = 'show';
 
     contentContainer.appendChild(infoCardsContainer);
