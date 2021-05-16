@@ -94,6 +94,8 @@ let groupInstanceCountLabel;
 
 let singleGroupFamilyDetailsContainerDiv;
 let singleGroupInstanceDetailsContainerDiv;
+let singleGroupInstaceToolsContainerDiv;
+
 let multiGroupInstanceDetailsContainerDiv;
 
 // ID for the top-level checkbox that controls whether Properties Plus recomputes on selection
@@ -101,8 +103,8 @@ let recomputeOnSelectionInputID = 'recomputeOnSelectionInput';
 
 // IDs for containers which may be toggled in certain cases
 let disabledStateContainerID = 'disabledStateContainer';
-let selectionInfoContainerID = 'selectionInfoContainer';
 let infoCardsContainerID = 'infoCardsContainer';
+let selectionInfoContainerID = 'selectionInfoContainer';
 
 // IDs for inputs whose value will be updated when selection changes
 let singleGroupFamilyNameInputID = 'singleGroupFamilyNameInput';
@@ -136,6 +138,26 @@ PropertiesPlus.submitGroupInstanceRename = function()
     }
 
     window.FormItInterface.CallMethod("PropertiesPlus.renameGroupInstances", args);
+}
+
+// make a single selected Group instance unique
+PropertiesPlus.submitGroupInstanceMakeUnique = function()
+{
+    let args = {
+        
+    }
+
+    window.FormItInterface.CallMethod("PropertiesPlus.makeSingleGroupInstanceUnique", args);
+}
+
+// make a single selected Group instance unique (non-recursive)
+PropertiesPlus.submitGroupInstanceMakeUniqueNR = function()
+{
+    let args = {
+        
+    }
+
+    window.FormItInterface.CallMethod("PropertiesPlus.makeSingleGroupInstanceUniqueNR", args);
 }
 
 // all UI initialization
@@ -353,7 +375,7 @@ PropertiesPlus.initializeUI = function()
     // create the single group instance details container - starts hidden
     //
     singleGroupInstanceDetailsContainerDiv = document.createElement('div');
-    singleGroupInstanceDetailsContainerDiv.id = 'singleGroupInfoContainer';
+    singleGroupInstanceDetailsContainerDiv.id = 'singleGroupInstanceInfoContainer';
     singleGroupInstanceDetailsContainerDiv.className = 'hide';
 
     let singleGroupInstanceDetailsHeaderDiv = document.createElement('div');
@@ -367,6 +389,29 @@ PropertiesPlus.initializeUI = function()
     // rename module
     let singleGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainerStandalone', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
     singleGroupInstanceDetailsContainerDiv.appendChild(singleGroupInstanceNameContainer.element);
+
+    //
+    // create the single group instance tools container - starts hidden
+    //
+    singleGroupInstaceToolsContainerDiv = document.createElement('div');
+    singleGroupInstaceToolsContainerDiv.id = 'singleGroupInstanceToolsContainer';
+    singleGroupInstaceToolsContainerDiv.className = 'hide';
+
+    let singleGroupInstanceToolsHeaderDiv = document.createElement('div');
+    singleGroupInstanceToolsHeaderDiv.id = 'groupInstanceToolsHeaderDiv';
+    singleGroupInstanceToolsHeaderDiv.className = 'infoHeader';
+    singleGroupInstanceToolsHeaderDiv.innerHTML = 'Group Instance Tools';
+
+    infoCardsContainer.appendChild(singleGroupInstaceToolsContainerDiv);
+    singleGroupInstaceToolsContainerDiv.appendChild(singleGroupInstanceToolsHeaderDiv);
+
+    // make unique button module
+    let singleGroupInstanceMakeUniqueButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique', 'Make this Group instance unique, including all of its children.', PropertiesPlus.submitGroupInstanceMakeUnique);
+    singleGroupInstaceToolsContainerDiv.appendChild(singleGroupInstanceMakeUniqueButtonModule.element);
+
+    // make unique (non-recursive) button module
+    let singleGroupInstanceMakeUniqueNRButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique (non-recursive)', 'Make this Group instance unique, but skip all of its children.', PropertiesPlus.submitGroupInstanceMakeUniqueNR);
+    singleGroupInstaceToolsContainerDiv.appendChild(singleGroupInstanceMakeUniqueNRButtonModule.element);
 
     // this is a work in progress
     if (displayWIP)
@@ -679,6 +724,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
         // enable the group family and instance info containers
         singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
         singleGroupInstanceDetailsContainerDiv.className = 'infoContainer';
+        singleGroupInstaceToolsContainerDiv.className = 'infoContainer';
 
         let groupInstanceName = currentSelectionInfo.selectedObjectsNameArray[0];
         let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
@@ -692,6 +738,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
     {
         singleGroupFamilyDetailsContainerDiv.className = 'hide';
         singleGroupInstanceDetailsContainerDiv.className = 'hide';
+        singleGroupInstaceToolsContainerDiv.className = 'hide';
     }
 
     // if multiple group instances are selected, enable HTML and update it
@@ -784,6 +831,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionInfo)
         meshCountDiv.className = 'hide';
         groupInstanceCountDiv.className = 'hide';
         singleGroupInstanceDetailsContainerDiv.className = 'hide';
+        singleGroupInstaceToolsContainerDiv.className = 'hide';
         multiGroupInstanceDetailsContainerDiv.className = 'hide';
     }
     

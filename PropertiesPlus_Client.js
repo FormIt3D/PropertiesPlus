@@ -3,8 +3,12 @@ if (typeof PropertiesPlus == 'undefined')
     PropertiesPlus = {};
 }
 
+// the current selection
+var currentSelection;
+
 // this is the history we're operating in
 var nHistoryID;
+var historyDepth = 0;
 var editingHistoryName;
 var editingHistoryInstances;
 
@@ -78,15 +82,7 @@ PropertiesPlus.GetSelectionInfo = function(args)
     else 
     {
         // get the Group family name
-        editingHistoryName = WSM.APIGetRevitFamilyInformationReadOnly(nHistoryID).familyReference;
-        // TODO: this returns an empty string for Dynamo Groups, but they have a name
-        //console.log(JSON.stringify(WSM.APIGetRevitFamilyInformationReadOnly(groupFamilyHistoryID)));
-        // if the Group name is empty, that means it hasn't been customized
-        // so use the default Group naming convention: "Group " + "historyID"
-        if (editingHistoryName == '')
-        {
-            editingHistoryName = "Group " + nHistoryID;
-        }
+        editingHistoryName = PropertiesPlus.getGroupFamilyName(nHistoryID);
     }
 
     // determine how many instances will be edited in the current editing history
@@ -103,7 +99,7 @@ PropertiesPlus.GetSelectionInfo = function(args)
     console.log("Currently editing: " + editingHistoryName + " (" + editingHistoryInstances + " in model)\n");
 
     // get current selection
-    var currentSelection = FormIt.Selection.GetSelections();
+    currentSelection = FormIt.Selection.GetSelections();
     //console.log("Current selection: " + JSON.stringify(currentSelection));
     console.log("Number of objects selected: " + currentSelection.length);
 
@@ -111,7 +107,7 @@ PropertiesPlus.GetSelectionInfo = function(args)
     for (var i = 0; i < currentSelection.length; i++)
     {
         // if you're not in the Main History, calculate the depth to extract the correct history data
-        var historyDepth = (currentSelection[i]["ids"].length) - 1;
+        historyDepth = (currentSelection[i]["ids"].length) - 1;
 
         // get objectID of the current selection, then push the results into an array
         var nObjectID = currentSelection[i]["ids"][historyDepth]["Object"];
@@ -157,15 +153,7 @@ PropertiesPlus.GetSelectionInfo = function(args)
             selectedObjectsGroupFamilyHistoryIDArray.push(groupFamilyHistoryID);
 
             // get the Group family name
-            var groupFamilyName = WSM.APIGetRevitFamilyInformationReadOnly(groupFamilyHistoryID).familyReference;
-            // TODO: this returns an empty string for Dynamo Groups, but they have a name
-            //console.log(JSON.stringify(WSM.APIGetRevitFamilyInformationReadOnly(groupFamilyHistoryID)));
-            // if the Group name is empty, that means it hasn't been customized
-            // so use the default Group naming convention: "Group " + "historyID"
-            if (groupFamilyName == '')
-            {
-                groupFamilyName = "Group " + groupFamilyHistoryID;
-            }
+            var groupFamilyName = PropertiesPlus.getGroupFamilyName(groupFamilyHistoryID);
             selectedObjectsGroupFamilyNameArray.push(groupFamilyName);
 
             // push the Group instance name and ID into arrays
@@ -262,6 +250,20 @@ PropertiesPlus.GetSelectionInfo = function(args)
     };
 }
 
+PropertiesPlus.getGroupFamilyName = function(groupHistoryID)
+{
+    var groupName = WSM.APIGetRevitFamilyInformationReadOnly(groupHistoryID).familyReference;
+
+    // if the Group name is empty, that means it hasn't been set
+    // so use the default Group naming convention: "Group " + "historyID"
+    if (groupName == '')
+    {
+        groupName = "Group " + groupHistoryID;;
+    }
+
+    return groupName;
+}
+
 PropertiesPlus.calculateVolume = function()
 {
     var totalVolume = [];
@@ -307,5 +309,160 @@ PropertiesPlus.renameGroupInstances = function(args)
         {
             WSM.APISetObjectProperties(nHistoryID, selectedObjectsGroupInstanceIDArray[i], args.multiGroupInstanceRename, selectedObjectsLevelsBoolArray[i]);
         }
+    }
+}
+
+PropertiesPlus.makeSingleGroupInstanceUnique = function(args)
+{
+    // if only one instance exists in the model, this instance is already unique
+    if (identicalGroupInstanceCount == 1)
+    {
+        var message = selectedObjectsGroupFamilyNameArray[0] + " is already unique."
+        FormIt.UI.ShowNotification(message, FormIt.NotificationType.Information, 0);
+    }
+    else 
+    {
+        // capture some data about the current selection before it's cleared
+        var originalSelection = currentSelection;
+        var originalGroupName = selectedObjectsGroupFamilyNameArray[0];
+
+        // make unique
+        var newGroupID = WSM.APICreateSeparateHistoriesForInstances(nHistoryID, selectedObjectsGroupInstanceIDArray[0], false);
+    
+        // get the data changed in this history
+        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nInstanceType);
+
+        // get the new unique instance ID for selection
+        var newUniqueInstanceID = changedData["changed"];
+    
+        //console.log("Unique instance ID: " + JSON.stringify(newUniqueInstanceID));
+    
+        // clear the selection
+        FormIt.Selection.ClearSelections();
+
+        // get the new group history ID
+        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nHistoryID, Number(newGroupID));
+
+        // get the new group name
+        var newGroupName = PropertiesPlus.getGroupFamilyName(newGroupHistoryID);
+    
+        // determine the new selection path
+        var newSelectionPath = originalSelection[0];
+        // redefine the object ID for the selection path
+        newSelectionPath["ids"][historyDepth]["Object"] = Number(newUniqueInstanceID);
+        
+        // add the newly-changed objects to the selection
+        FormIt.Selection.SetSelections(newSelectionPath);
+    
+        var message = newGroupName + " is now unique from " + originalGroupName + ".";
+        FormIt.UI.ShowNotification(message, FormIt.NotificationType.Success, 0);
+    }
+}
+
+// the non-recursive version of Make Unique
+PropertiesPlus.makeSingleGroupInstanceUniqueNR = function(args)
+{
+    // if only one instance exists in the model, this instance is already unique
+    if (identicalGroupInstanceCount == 1)
+    {
+        var message = selectedObjectsGroupFamilyNameArray[0] + " is already unique."
+        FormIt.UI.ShowNotification(message, FormIt.NotificationType.Information, 0);
+    }
+    else 
+    {
+        // capture some data about the current selection before it's cleared
+        var originalSelection = currentSelection;
+        var originalGroupName = selectedObjectsGroupFamilyNameArray[0];
+
+        // ungroup the instance
+        WSM.APIFlattenGroupsOrInstances(nHistoryID, selectedObjectsGroupInstanceIDArray[0], false, false);
+    
+        // get the data changed in this history
+        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nInstanceType);
+
+        // get objects that were ungrouped
+        var ungroupedObjectIDs = changedData["created"];
+    
+        //console.log("Unique instance ID: " + JSON.stringify(newUniqueInstanceID));
+    
+        // clear the selection
+        //FormIt.Selection.ClearSelections();
+
+        // get the new group ID
+        var newGroupID = WSM.APICreateGroup(nHistoryID, ungroupedObjectIDs);
+
+        // get the new group history ID
+        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nHistoryID, Number(newGroupID));
+
+        // get thew new group instance ID
+        var newGroupInstanceChangedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nInstanceType);
+        var newGroupInstanceID = newGroupInstanceChangedData["created"];
+
+        // get the new group name
+        var newGroupName = PropertiesPlus.getGroupFamilyName(newGroupHistoryID);
+    
+        // determine the new selection path
+        var newSelectionPath = originalSelection[0];
+        // redefine the object ID for the selection path
+        newSelectionPath["ids"][historyDepth]["Object"] = Number(newGroupInstanceID);
+        
+        // add the newly-changed objects to the selection
+        FormIt.Selection.SetSelections(newSelectionPath);
+    
+        var message = newGroupName + " is now non-recursively unique from " + originalGroupName + ".";
+        FormIt.UI.ShowNotification(message, FormIt.NotificationType.Success, 0);
+    }
+}
+
+
+// not used yet
+PropertiesPlus.makeMultipleGroupInstancesUnique = function(args)
+{
+    // if only one instance exists in the model, this instance is already unique
+    if (identicalGroupInstanceCount == 1)
+    {
+        var message = selectedObjectsGroupFamilyNameArray[0] + " was already unique."
+        FormIt.UI.ShowNotification(message, FormIt.NotificationType.Information, 0);
+    }
+    else 
+    {
+        // capture some data about the current selection before it's cleared
+        var originalSelection = currentSelection;
+        var originalGroupName = selectedObjectsGroupFamilyNameArray[0];
+
+        // create a new array to capture the now-unique instances
+        var newUniqueInstanceIDArray = [];
+    
+        for (var i = 0; i < selectedObjectsGroupInstanceIDArray.length; i++)
+        {
+            WSM.APICreateSeparateHistoriesForInstances(nHistoryID, selectedObjectsGroupInstanceIDArray[i], false);
+        
+            // get the data changed in this history
+            var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nInstanceType);
+    
+            // add the changed instance ID to the array
+            var newUniqueInstanceID = changedData["changed"];
+            newUniqueInstanceIDArray.push(newUniqueInstanceID);
+        
+            //console.log("Unique instance ID: " + JSON.stringify(newUniqueInstanceID));
+        }
+    
+        // clear the selection
+        FormIt.Selection.ClearSelections();
+    
+        // add the newly-unique objects back into selection
+        for (var i = 0; i < originalSelection.length; i++)
+        {
+            // determine the new selection path
+            var newSelectionPath = originalSelection[i];
+            // redefine the object ID for the selection path
+            newSelectionPath["ids"][historyDepth]["Object"] = Number(newUniqueInstanceIDArray[i]);
+            
+            // add the newly-changed objects to the selection
+            FormIt.Selection.SetSelections(newSelectionPath);
+        }
+    
+        var message = " is now unique from " + originalGroupName + ".";
+        FormIt.UI.ShowNotification(message, FormIt.NotificationType.Success, 0);
     }
 }
