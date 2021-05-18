@@ -32,6 +32,8 @@ var groupFamilyCount;
 var groupInstanceCount;
 var identicalGroupInstanceCount;
 var meshCount;
+var lineMeshCount;
+var pointMeshCount;
 
 // instantiate booleans
 var isConsistentGroupFamilyHistoryIDs;
@@ -64,6 +66,8 @@ PropertiesPlus.GetSelectionInfo = function(args)
     groupInstanceCount = 0;
     identicalGroupInstanceCount = 0;
     meshCount = 0;
+    lineMeshCount = 0;
+    pointMeshCount = 0;
 
     // clear booleans
     isConsistentGroupFamilyHistoryIDs = false;
@@ -209,11 +213,17 @@ PropertiesPlus.GetSelectionInfo = function(args)
             bodyCount ++;
         }
 
-        if (selectedObjectsTypeArray[i] === WSM.nMeshType || 
-            selectedObjectsTypeArray[i] === WSM.nLineMeshType ||
-            selectedObjectsTypeArray[i] === WSM.nPointMeshType)
+        if (selectedObjectsTypeArray[i] === WSM.nMeshType)
         {
             meshCount ++;
+        }
+        if (selectedObjectsTypeArray[i] === WSM.nLineMeshType)
+        {
+            lineMeshCount ++;
+        }
+        if (selectedObjectsTypeArray[i] === WSM.nPointMeshType)
+        {
+            pointMeshCount ++;
         }
 
         if (selectedObjectsTypeArray[i] === WSM.nInstanceType)
@@ -242,12 +252,37 @@ PropertiesPlus.GetSelectionInfo = function(args)
         "faceCount" : faceCount,
         "bodyCount" : bodyCount,
         "meshCount" : meshCount,
+        "lineMeshCount" : lineMeshCount,
+        "pointMeshCount" : pointMeshCount,
         "groupInstanceCount" : groupInstanceCount,
         "isConsistentGroupFamilyHistoryIDs" : isConsistentGroupFamilyHistoryIDs,
         "isConsistentGroupFamilyNames" : isConsistentGroupFamilyNames,
         "isConsistentGroupInstanceNames" : isConsistentGroupInstanceNames,
         "identicalGroupInstanceCount" : identicalGroupInstanceCount
     };
+}
+
+PropertiesPlus.deselectObjectsByType = function(args)
+{
+    // define a new selection
+    var newSelection = [];
+
+    // loop through the original selection, 
+    // check whether each object matches the objectType
+    // if not, add it to the new selection
+    for (var i = 0; i < selectedObjectsTypeArray.length; i++)
+    {
+        if (selectedObjectsTypeArray[i] != args.objectTypeToDeselect)
+        {
+            newSelection.push(currentSelection[i]);
+        }
+    }
+
+    // clear the selection
+    FormIt.Selection.ClearSelections();
+
+    // set the new selection
+    FormIt.Selection.SetSelections(newSelection);
 }
 
 PropertiesPlus.getGroupFamilyName = function(groupHistoryID)
