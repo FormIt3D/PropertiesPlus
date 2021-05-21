@@ -413,7 +413,7 @@ PropertiesPlus.makeSingleGroupInstanceUniqueNR = function(args)
         WSM.APIFlattenGroupsOrInstances(nHistoryID, selectedObjectsGroupInstanceIDArray[0], false, false);
     
         // get the data changed in this history
-        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nInstanceType);
+        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nUnSpecifiedType);
 
         // get objects that were ungrouped
         var ungroupedObjectIDs = changedData["created"];
