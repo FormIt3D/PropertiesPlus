@@ -1,6 +1,6 @@
 {
     "PluginName": "Properties Plus",
-    "PluginDescription": "Displays additional properties of the current selection set that are not available in the built-in Properties panel, like object counts, identical Group Instance counts, and provides batch Group renaming abilities.",
+    "PluginDescription": "View and modify additional selection and context properties not available in the default Properties panel.",
     "PluginType": "Panel",
     "Scripts": [
         "PLUGINLOCATION/PropertiesPlus_Client.js",
