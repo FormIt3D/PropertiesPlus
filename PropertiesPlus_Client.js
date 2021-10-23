@@ -40,6 +40,38 @@ var isConsistentGroupFamilyHistoryIDs;
 var isConsistentGroupFamilyNames;
 var isConsistentGroupInstanceNames;
 
+// package up everything we need in a JSON object for use in the web script
+PropertiesPlus.buildSelectionInfoObject = function()
+{
+    var selectionInfoObject = {
+        "nHistoryID": nHistoryID, // editingHistoryID
+        "editingHistoryName" : editingHistoryName,
+        "editingHistoryInstances" : editingHistoryInstances,
+        "selectedObjectsIDArray" : selectedObjectsIDArray,
+        "selectedObjectsTypeArray" : selectedObjectsTypeArray,
+        "selectedObjectsNameArray" : selectedObjectsNameArray,
+        "selectedObjectsGroupFamilyHistoryIDArray" : selectedObjectsGroupFamilyHistoryIDArray,
+        "selectedObjectsGroupFamilyIDArray" : selectedObjectsGroupFamilyIDArray,
+        "selectedObjectsGroupFamilyNameArray" : selectedObjectsGroupFamilyNameArray,
+        "selectedObjectsGroupInstanceIDArray" : selectedObjectsGroupInstanceIDArray,
+        "selectedObjectsGroupInstanceNameArray" : selectedObjectsGroupInstanceNameArray,
+        "totalCount" : totalCount,
+        "vertexCount" : vertexCount,
+        "edgeCount" : edgeCount,
+        "faceCount" : faceCount,
+        "bodyCount" : bodyCount,
+        "meshCount" : meshCount,
+        "lineMeshCount" : lineMeshCount,
+        "pointMeshCount" : pointMeshCount,
+        "groupInstanceCount" : groupInstanceCount,
+        "isConsistentGroupFamilyHistoryIDs" : isConsistentGroupFamilyHistoryIDs,
+        "isConsistentGroupFamilyNames" : isConsistentGroupFamilyNames,
+        "isConsistentGroupInstanceNames" : isConsistentGroupInstanceNames,
+        "identicalGroupInstanceCount" : identicalGroupInstanceCount
+    };
+    return selectionInfoObject;
+}
+
 // updates variables and arrays about the items in the selection set
 PropertiesPlus.GetSelectionInfo = function(args)
 {    
@@ -58,6 +90,7 @@ PropertiesPlus.GetSelectionInfo = function(args)
     selectedObjectsGroupInstanceNameArray = [];
 
     // clear counts
+    totalCount = 0;
     vertexCount = 0;
     edgeCount = 0;
     faceCount = 0;
@@ -99,16 +132,22 @@ PropertiesPlus.GetSelectionInfo = function(args)
         editingHistoryInstances = WSM.APIGetAllAggregateTransf3dsReadOnly(nHistoryID, 0).paths.length;
     }
 
-    
     console.log("Currently editing: " + editingHistoryName + " (" + editingHistoryInstances + " in model)\n");
 
     // get current selection
     currentSelection = FormIt.Selection.GetSelections();
+    totalCount = currentSelection.length;
     //console.log("Current selection: " + JSON.stringify(currentSelection));
-    console.log("Number of objects selected: " + currentSelection.length);
+    console.log("Number of objects selected: " + totalCount);
+
+    // if too many items are selected, skip the rest of the info-gathering below
+    if (totalCount > args.maxObjectCount)
+    {
+        return PropertiesPlus.buildSelectionInfoObject();
+    }
 
     // for each object in the selection, get info
-    for (var i = 0; i < currentSelection.length; i++)
+    for (var i = 0; i < totalCount; i++)
     {
         // if you're not in the Main History, calculate the depth to extract the correct history data
         historyDepth = (currentSelection[i]["ids"].length) - 1;
@@ -117,12 +156,6 @@ PropertiesPlus.GetSelectionInfo = function(args)
         var nObjectID = currentSelection[i]["ids"][historyDepth]["Object"];
         //console.log("Selection ID: " + nObjectID);
         selectedObjectsIDArray.push(nObjectID);
-
-        // if too many items are selected, skip the rest of the info-gathering below
-        if (currentSelection.length > args.maxObjectCount)
-        {
-            continue;
-        }
 
         // get object type of the current selection, then push the results into an array
         var nType = WSM.APIGetObjectTypeReadOnly(nHistoryID, nObjectID);
@@ -233,33 +266,7 @@ PropertiesPlus.GetSelectionInfo = function(args)
         
     }
 
-    // return everything we need in a JSON object for use in the web script
-    return {
-        "nHistoryID": nHistoryID, // editingHistoryID
-        "editingHistoryName" : editingHistoryName,
-        "editingHistoryInstances" : editingHistoryInstances,
-        "currentSelectionInfo" : currentSelection,
-        "selectedObjectsIDArray" : selectedObjectsIDArray,
-        "selectedObjectsTypeArray" : selectedObjectsTypeArray,
-        "selectedObjectsNameArray" : selectedObjectsNameArray,
-        "selectedObjectsGroupFamilyHistoryIDArray" : selectedObjectsGroupFamilyHistoryIDArray,
-        "selectedObjectsGroupFamilyIDArray" : selectedObjectsGroupFamilyIDArray,
-        "selectedObjectsGroupFamilyNameArray" : selectedObjectsGroupFamilyNameArray,
-        "selectedObjectsGroupInstanceIDArray" : selectedObjectsGroupInstanceIDArray,
-        "selectedObjectsGroupInstanceNameArray" : selectedObjectsGroupInstanceNameArray,
-        "vertexCount" : vertexCount,
-        "edgeCount" : edgeCount,
-        "faceCount" : faceCount,
-        "bodyCount" : bodyCount,
-        "meshCount" : meshCount,
-        "lineMeshCount" : lineMeshCount,
-        "pointMeshCount" : pointMeshCount,
-        "groupInstanceCount" : groupInstanceCount,
-        "isConsistentGroupFamilyHistoryIDs" : isConsistentGroupFamilyHistoryIDs,
-        "isConsistentGroupFamilyNames" : isConsistentGroupFamilyNames,
-        "isConsistentGroupInstanceNames" : isConsistentGroupInstanceNames,
-        "identicalGroupInstanceCount" : identicalGroupInstanceCount
-    };
+    return PropertiesPlus.buildSelectionInfoObject();
 }
 
 PropertiesPlus.deselectObjectsByType = function(args)

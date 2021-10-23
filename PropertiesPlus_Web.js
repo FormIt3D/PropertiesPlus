@@ -580,7 +580,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
 
     // update object count and HTML
-    objectCount = currentSelectionInfo.selectedObjectsIDArray.length;
+    objectCount = currentSelectionInfo.totalCount;
     objectCountDiv.innerHTML = objectCountLabel + objectCount;
 
     // if too many items are selected, show a message
