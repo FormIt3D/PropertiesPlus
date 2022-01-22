@@ -997,7 +997,7 @@ PropertiesPlus.createGroupInstanceAttributeListItem = function(nStringAttributeC
     
     // attribute key
     let attributeKeyLabelDiv = document.createElement('div');
-    attributeKeyLabelDiv.textContent = 'String Attribute Key ' + nStringAttributeCount + ':';
+    attributeKeyLabelDiv.textContent = 'Key ' + nStringAttributeCount + ':';
     attributeKeyLabelDiv.style.fontWeight = 'bold';
     attributeKeyLabelDiv.style.paddingBottom = 5;
     attributeContainerDiv.element.appendChild(attributeKeyLabelDiv);
@@ -1009,7 +1009,7 @@ PropertiesPlus.createGroupInstanceAttributeListItem = function(nStringAttributeC
 
     // attribute value
     let attributeValueLabel = document.createElement('div');
-    attributeValueLabel.textContent = 'String Attribute Value:';
+    attributeValueLabel.textContent = 'Value:';
     attributeValueLabel.style.fontWeight = 'bold';
     attributeValueLabel.style.paddingBottom = 5;
     attributeContainerDiv.element.appendChild(attributeValueLabel);

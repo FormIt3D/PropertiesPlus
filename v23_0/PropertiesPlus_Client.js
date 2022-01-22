@@ -205,8 +205,6 @@ PropertiesPlus.GetSelectionInfo = function(args)
                 // string attribute object
                 var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aGroupInstanceAttributeIDs[i]);
 
-                console.log(JSON.stringify(stringAttributeObject));
-
                 // push the attribute into the array
                 aSelectedGroupInstanceAttributes.push(stringAttributeObject);
             }
