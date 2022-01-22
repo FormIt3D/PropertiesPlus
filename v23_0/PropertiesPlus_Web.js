@@ -128,7 +128,9 @@ let groupInstanceCountLabelPrefix = "Groups: ";
 
 let singleGroupFamilyDetailsContainerDiv;
 let singleGroupInstanceDetailsContainerDiv;
-let singleGroupInstaceToolsContainerDiv;
+let singleGroupInstanceToolsContainerDiv;
+let singleGroupInstanceAttributesContainerDiv;
+let singleGroupInstanceAttributeListDiv;
 
 let multiGroupInstanceDetailsContainerDiv;
 
@@ -447,25 +449,47 @@ PropertiesPlus.initializeUI = function()
     //
     // create the single group instance tools container - starts hidden
     //
-    singleGroupInstaceToolsContainerDiv = document.createElement('div');
-    singleGroupInstaceToolsContainerDiv.id = 'singleGroupInstanceToolsContainer';
-    singleGroupInstaceToolsContainerDiv.className = 'hide';
+    singleGroupInstanceToolsContainerDiv = document.createElement('div');
+    singleGroupInstanceToolsContainerDiv.id = 'singleGroupInstanceToolsContainer';
+    singleGroupInstanceToolsContainerDiv.className = 'hide';
 
     let singleGroupInstanceToolsHeaderDiv = document.createElement('div');
     singleGroupInstanceToolsHeaderDiv.id = 'groupInstanceToolsHeaderDiv';
     singleGroupInstanceToolsHeaderDiv.className = 'infoHeader';
     singleGroupInstanceToolsHeaderDiv.innerHTML = 'Group Instance Tools';
 
-    infoCardsContainer.appendChild(singleGroupInstaceToolsContainerDiv);
-    singleGroupInstaceToolsContainerDiv.appendChild(singleGroupInstanceToolsHeaderDiv);
+    infoCardsContainer.appendChild(singleGroupInstanceToolsContainerDiv);
+    singleGroupInstanceToolsContainerDiv.appendChild(singleGroupInstanceToolsHeaderDiv);
 
     // make unique button module
     let singleGroupInstanceMakeUniqueButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique', 'Make this Group instance unique, including all of its children.', PropertiesPlus.submitGroupInstanceMakeUnique);
-    singleGroupInstaceToolsContainerDiv.appendChild(singleGroupInstanceMakeUniqueButtonModule.element);
+    singleGroupInstanceToolsContainerDiv.appendChild(singleGroupInstanceMakeUniqueButtonModule.element);
 
     // make unique (non-recursive) button module
     let singleGroupInstanceMakeUniqueNRButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique (non-recursive)', 'Make this Group instance unique, but skip all of its children.', PropertiesPlus.submitGroupInstanceMakeUniqueNR);
-    singleGroupInstaceToolsContainerDiv.appendChild(singleGroupInstanceMakeUniqueNRButtonModule.element);
+    singleGroupInstanceToolsContainerDiv.appendChild(singleGroupInstanceMakeUniqueNRButtonModule.element);
+
+    //
+    // create the single group instance attributes container - starts hidden
+    //
+    singleGroupInstanceAttributesContainerDiv = document.createElement('div');
+    singleGroupInstanceAttributesContainerDiv.id = 'singleGroupInstanceInfoContainer';
+    singleGroupInstanceAttributesContainerDiv.className = 'hide';
+
+    let singleGroupInstanceAttributesHeaderDiv = document.createElement('div');
+    singleGroupInstanceAttributesHeaderDiv.id = 'groupInfoHeaderDiv';
+    singleGroupInstanceAttributesHeaderDiv.className = 'infoHeader';
+    singleGroupInstanceAttributesHeaderDiv.innerHTML = 'Group Instance Attributes:';
+
+    infoCardsContainer.appendChild(singleGroupInstanceAttributesContainerDiv);
+    singleGroupInstanceAttributesContainerDiv.appendChild(singleGroupInstanceAttributesHeaderDiv);
+
+    // list of attributes
+    singleGroupInstanceAttributeListDiv = new FormIt.PluginUI.ListContainer('No attributes found.');
+    singleGroupInstanceAttributeListDiv.element.className = 'scrollableListContainer';
+    singleGroupInstanceAttributesContainerDiv.appendChild(singleGroupInstanceAttributeListDiv.element);
+    singleGroupInstanceAttributeListDiv.setListHeight(200);
+    singleGroupInstanceAttributeListDiv.toggleZeroStateMessage();
 
     // this is a work in progress
     if (displayWIP)
@@ -845,7 +869,8 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         // enable the group family and instance info containers
         singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
         singleGroupInstanceDetailsContainerDiv.className = 'infoContainer';
-        singleGroupInstaceToolsContainerDiv.className = 'infoContainer';
+        singleGroupInstanceToolsContainerDiv.className = 'infoContainer';
+        singleGroupInstanceAttributesContainerDiv.className = 'infoContainer';
 
         let groupInstanceName = aCurrentSelectionInfo.aSelectionObjectNames[0];
         let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
@@ -854,12 +879,26 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         let groupFamilyName = aCurrentSelectionInfo.aSelectionGroupNames[0];
         let singleGroupFamilyNameInput = document.getElementById(singleGroupFamilyNameInputID);
         singleGroupFamilyNameInput.value = groupFamilyName;
+
+        // update the attributes list
+        singleGroupInstanceAttributeListDiv.clearList();
+
+        for (var i = 0; i < aCurrentSelectionInfo.aSelectedGroupInstanceAttributes.length; i++)
+        {
+            let attributeObject = aCurrentSelectionInfo.aSelectedGroupInstanceAttributes[i];
+
+            // test attribute
+            let attributeItem = PropertiesPlus.createGroupInstanceAttributeListItem(i, attributeObject.sKey, attributeObject.sValue);
+            singleGroupInstanceAttributeListDiv.element.appendChild(attributeItem);       
+        }
+        singleGroupInstanceAttributeListDiv.toggleZeroStateMessage();
     }
     else
     {
         singleGroupFamilyDetailsContainerDiv.className = 'hide';
         singleGroupInstanceDetailsContainerDiv.className = 'hide';
-        singleGroupInstaceToolsContainerDiv.className = 'hide';
+        singleGroupInstanceToolsContainerDiv.className = 'hide';
+        singleGroupInstanceAttributesContainerDiv.classname = 'hide';
     }
 
     // if multiple group instances are selected, enable HTML and update it
@@ -939,7 +978,8 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         PropertiesPlus.hideObjectCountModule(pointMeshCountModule.element);
         PropertiesPlus.hideObjectCountModule(groupInstanceCountModule.element);
         singleGroupInstanceDetailsContainerDiv.className = 'hide';
-        singleGroupInstaceToolsContainerDiv.className = 'hide';
+        singleGroupInstanceToolsContainerDiv.className = 'hide';
+        singleGroupInstanceAttributesContainerDiv.className = 'hide';
         multiGroupInstanceDetailsContainerDiv.className = 'hide';
     }
     
@@ -948,6 +988,38 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     {
         multiGroupInstanceDetailsContainerDiv.className = 'hide'; 
     }
+}
+
+PropertiesPlus.createGroupInstanceAttributeListItem = function(nStringAttributeCount, stringAttributeKeyContent, stringAttributeValueContent)
+{
+    // create a list item
+    let attributeContainerDiv = new FormIt.PluginUI.SimpleListItemStatic();
+    
+    // attribute key
+    let attributeKeyLabelDiv = document.createElement('div');
+    attributeKeyLabelDiv.textContent = 'String Attribute Key ' + nStringAttributeCount + ':';
+    attributeKeyLabelDiv.style.fontWeight = 'bold';
+    attributeKeyLabelDiv.style.paddingBottom = 5;
+    attributeContainerDiv.element.appendChild(attributeKeyLabelDiv);
+
+    let attributeKeyContentDiv = document.createElement('div');
+    attributeKeyContentDiv.style.paddingBottom = 10;
+    attributeKeyContentDiv.textContent = stringAttributeKeyContent;
+    attributeContainerDiv.element.appendChild(attributeKeyContentDiv);
+
+    // attribute value
+    let attributeValueLabel = document.createElement('div');
+    attributeValueLabel.textContent = 'String Attribute Value:';
+    attributeValueLabel.style.fontWeight = 'bold';
+    attributeValueLabel.style.paddingBottom = 5;
+    attributeContainerDiv.element.appendChild(attributeValueLabel);
+
+    let attributeValueContentDiv = document.createElement('div');
+    attributeValueContentDiv.style.paddingBottom = 10;
+    attributeValueContentDiv.textContent = stringAttributeValueContent;
+    attributeContainerDiv.element.appendChild(attributeValueContentDiv);
+
+    return attributeContainerDiv.element;
 }
 
 // determine if the user has chosen to update the UI on selection

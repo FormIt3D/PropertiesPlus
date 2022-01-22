@@ -55,6 +55,7 @@ PropertiesPlus.buildSelectionInfoObject = function()
         "aSelectionGroupNames" : aSelectionGroupNames,
         "aSelectionGroupInstanceIDs" : aSelectionGroupInstanceIDs,
         "aSelectionGroupInstanceNames" : aSelectionGroupInstanceNames,
+        "aSelectedGroupInstanceAttributes" : aSelectedGroupInstanceAttributes,
         "nTotalCount" : nTotalCount,
         "nVertexCount" : nVertexCount,
         "nEdgeCount" : nEdgeCount,
@@ -88,6 +89,7 @@ PropertiesPlus.GetSelectionInfo = function(args)
     aSelectionGroupNames = [];
     aSelectionGroupInstanceIDs = [];
     aSelectionGroupInstanceNames = [];
+    aSelectedGroupInstanceAttributes = [];
 
     // clear counts
     nTotalCount = 0;
@@ -192,6 +194,22 @@ PropertiesPlus.GetSelectionInfo = function(args)
             // get the Group family name
             var groupFamilyName = PropertiesPlus.getGroupFamilyName(groupFamilyHistoryID);
             aSelectionGroupNames.push(groupFamilyName);
+
+            // get the group instance attributes if there are any
+            var aGroupInstanceAttributeIDs = WSM.APIGetObjectsByTypeReadOnly(nHistoryID, nObjectID, WSM.nStringAttributeType);
+
+            // for each ID, get the string attribute key and value
+            // and add it to the array
+            for (var i = 0; i < aGroupInstanceAttributeIDs.length; i++)
+            {
+                // string attribute object
+                var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aGroupInstanceAttributeIDs[i]);
+
+                console.log(JSON.stringify(stringAttributeObject));
+
+                // push the attribute into the array
+                aSelectedGroupInstanceAttributes.push(stringAttributeObject);
+            }
 
             // push the Group instance name and ID into arrays
             aSelectionGroupInstanceNames.push(objectName);
