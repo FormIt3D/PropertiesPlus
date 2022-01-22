@@ -9,31 +9,31 @@ var aCurrentSelection = undefined;
 // this is the history we're operating in
 var nHistoryID = 0;
 var nHistoryDepth = 0;
-var editingHistoryName = undefined;
+var sEditingHistoryName = undefined;
 var nEditingHistoryInstances = 0;
 
 // instantiate arrays
-var aSelectionObjectIDs = [];
-var aSelectionObjectTypes = [];
-var aSelectionObjectNames = [];
+var aSelectedObjectIDs = [];
+var aSelectedObjectTypes = [];
+var aSelectedObjectNames = [];
 var aSelectionDoesUseLevelsBools = [];
-var aSelectionGroupIDs = [];
-var aSelectionGroupHistoryIDs = [];
-var aSelectionGroupNames = [];
-var aSelectionGroupInstanceIDs = [];
-var aSelectionGroupInstanceNames = [];
+var aSelectedGroupIDs = [];
+var aSelectedGroupHistoryIDs = [];
+var aSelectedGroupNames = [];
+var aSelectedGroupInstanceIDs = [];
+var aSelectedGroupInstanceNames = [];
 
 // instantiate counts
-var nVertexCount = 0;
-var nEdgeCount = 0;
-var nFaceCount = 0;
-var nBodyCount = 0;
+var nSelectedVertexCount = 0;
+var nSelectedEdgeCount = 0;
+var nSelectedFaceCount = 0;
+var nSelectedBodyCount = 0;
 var nGroupCount = 0;
-var nGroupInstanceCount = 0;
+var nSelectedGroupInstanceCount = 0;
 var nIdenticalGroupInstanceCount = 0;
-var nMeshCount = 0;
-var nLineMeshCount = 0;
-var nPointMeshCount = 0;
+var nSelectedMeshCount = 0;
+var nSelectedLineMeshCount = 0;
+var nSelectedPointMeshCount = 0;
 
 // instantiate booleans
 var bIsConsistentGroupHistoryIDs = false;
@@ -44,27 +44,27 @@ var bIsConsistentGroupInstanceNames = false;
 PropertiesPlus.buildSelectionInfoObject = function()
 {
     var selectionInfoObject = {
-        "nHistoryID": nHistoryID, // editingHistoryID
-        "editingHistoryName" : editingHistoryName,
+        "nEditingHistoryID": nEditingHistoryID,
+        "sEditingHistoryName" : sEditingHistoryName,
         "nEditingHistoryInstances" : nEditingHistoryInstances,
-        "aSelectionObjectIDs" : aSelectionObjectIDs,
-        "aSelectionObjectTypes" : aSelectionObjectTypes,
-        "aSelectionObjectNames" : aSelectionObjectNames,
-        "aSelectionGroupHistoryIDs" : aSelectionGroupHistoryIDs,
-        "aSelectionGroupIDs" : aSelectionGroupIDs,
-        "aSelectionGroupNames" : aSelectionGroupNames,
-        "aSelectionGroupInstanceIDs" : aSelectionGroupInstanceIDs,
-        "aSelectionGroupInstanceNames" : aSelectionGroupInstanceNames,
+        "aSelectedObjectIDs" : aSelectedObjectIDs,
+        "aSelectedObjectTypes" : aSelectedObjectTypes,
+        "aSelectedObjectNames" : aSelectedObjectNames,
+        "aSelectedGroupHistoryIDs" : aSelectedGroupHistoryIDs,
+        "aSelectedGroupIDs" : aSelectedGroupIDs,
+        "aSelectedGroupNames" : aSelectedGroupNames,
+        "aSelectedGroupInstanceIDs" : aSelectedGroupInstanceIDs,
+        "aSelectedGroupInstanceNames" : aSelectedGroupInstanceNames,
         "aSelectedGroupInstanceAttributes" : aSelectedGroupInstanceAttributes,
-        "nTotalCount" : nTotalCount,
-        "nVertexCount" : nVertexCount,
-        "nEdgeCount" : nEdgeCount,
-        "nFaceCount" : nFaceCount,
-        "nBodyCount" : nBodyCount,
-        "nMeshCount" : nMeshCount,
-        "nLineMeshCount" : nLineMeshCount,
-        "nPointMeshCount" : nPointMeshCount,
-        "nGroupInstanceCount" : nGroupInstanceCount,
+        "nSelectedTotalCount" : nSelectedTotalCount,
+        "nSelectedVertexCount" : nSelectedVertexCount,
+        "nSelectedEdgeCount" : nSelectedEdgeCount,
+        "nSelectedFaceCount" : nSelectedFaceCount,
+        "nSelectedBodyCount" : nSelectedBodyCount,
+        "nSelectedMeshCount" : nSelectedMeshCount,
+        "nSelectedLineMeshCount" : nSelectedLineMeshCount,
+        "nSelectedPointMeshCount" : nSelectedPointMeshCount,
+        "nSelectedGroupInstanceCount" : nSelectedGroupInstanceCount,
         "bIsConsistentGroupHistoryIDs" : bIsConsistentGroupHistoryIDs,
         "isConsistentGroupFamilyNames" : bIsConsistentGroupNames,
         "bIsConsistentGroupInstanceNames" : bIsConsistentGroupInstanceNames,
@@ -80,29 +80,29 @@ PropertiesPlus.GetSelectionInfo = function(args)
     console.log("Properties Plus Plugin\n");
 
     // clear arrays
-    aSelectionObjectIDs = [];
-    aSelectionObjectTypes = [];
-    aSelectionObjectNames = [];
+    aSelectedObjectIDs = [];
+    aSelectedObjectTypes = [];
+    aSelectedObjectNames = [];
     aSelectionDoesUseLevelsBools = [];
-    aSelectionGroupIDs = [];
-    aSelectionGroupHistoryIDs = [];
-    aSelectionGroupNames = [];
-    aSelectionGroupInstanceIDs = [];
-    aSelectionGroupInstanceNames = [];
+    aSelectedGroupIDs = [];
+    aSelectedGroupHistoryIDs = [];
+    aSelectedGroupNames = [];
+    aSelectedGroupInstanceIDs = [];
+    aSelectedGroupInstanceNames = [];
     aSelectedGroupInstanceAttributes = [];
 
     // clear counts
-    nTotalCount = 0;
-    nVertexCount = 0;
-    nEdgeCount = 0;
-    nFaceCount = 0;
-    nBodyCount = 0;
+    nSelectedTotalCount = 0;
+    nSelectedVertexCount = 0;
+    nSelectedEdgeCount = 0;
+    nSelectedFaceCount = 0;
+    nSelectedBodyCount = 0;
     nGroupCount = 0;
-    nGroupInstanceCount = 0;
+    nSelectedGroupInstanceCount = 0;
     nIdenticalGroupInstanceCount = 0;
-    nMeshCount = 0;
-    nLineMeshCount = 0;
-    nPointMeshCount = 0;
+    nSelectedMeshCount = 0;
+    nSelectedLineMeshCount = 0;
+    nSelectedPointMeshCount = 0;
 
     // clear booleans
     bIsConsistentGroupHistoryIDs = false;
@@ -110,46 +110,46 @@ PropertiesPlus.GetSelectionInfo = function(args)
     bIsConsistentGroupInstanceNames = false;
 
     // get current history
-    nHistoryID = FormIt.GroupEdit.GetEditingHistoryID();
+    nEditingHistoryID = FormIt.GroupEdit.GetEditingHistoryID();
     //console.log("Current history: " + JSON.stringify(nHistoryID));
 
     // get the editing history name
-    if (nHistoryID === 0)
+    if (nEditingHistoryID === 0)
     {
-        editingHistoryName = "Main Sketch";
+        sEditingHistoryName = "Main Sketch";
     } 
     else 
     {
         // get the Group family name
-        editingHistoryName = PropertiesPlus.getGroupFamilyName(nHistoryID);
+        sEditingHistoryName = PropertiesPlus.getGroupFamilyName(nEditingHistoryID);
     }
 
     // determine how many instances will be edited in the current editing history
-    if (nHistoryID === 0)
+    if (nEditingHistoryID === 0)
     {
         nEditingHistoryInstances = 1;
     } 
     else 
     {
-        nEditingHistoryInstances = WSM.APIGetAllAggregateTransf3dsReadOnly(nHistoryID, 0).paths.length;
+        nEditingHistoryInstances = WSM.APIGetAllAggregateTransf3dsReadOnly(nEditingHistoryID, 0).paths.length;
     }
 
-    console.log("Currently editing: " + editingHistoryName + " (" + nEditingHistoryInstances + " in model)\n");
+    console.log("Currently editing: " + sEditingHistoryName + " (" + nEditingHistoryInstances + " in model)\n");
 
     // get current selection
     aCurrentSelection = FormIt.Selection.GetSelections();
-    nTotalCount = aCurrentSelection.length;
+    nSelectedTotalCount = aCurrentSelection.length;
     //console.log("Current selection: " + JSON.stringify(currentSelection));
-    console.log("Number of objects selected: " + nTotalCount);
+    console.log("Number of objects selected: " + nSelectedTotalCount);
 
     // if too many items are selected, skip the rest of the info-gathering below
-    if (nTotalCount > args.maxObjectCount)
+    if (nSelectedTotalCount > args.maxObjectCount)
     {
         return PropertiesPlus.buildSelectionInfoObject();
     }
 
     // for each object in the selection, get info
-    for (var i = 0; i < nTotalCount; i++)
+    for (var i = 0; i < nSelectedTotalCount; i++)
     {
         // if you're not in the Main History, calculate the depth to extract the correct history data
         nHistoryDepth = (aCurrentSelection[i]["ids"].length) - 1;
@@ -157,21 +157,21 @@ PropertiesPlus.GetSelectionInfo = function(args)
         // get objectID of the current selection, then push the results into an array
         var nObjectID = aCurrentSelection[i]["ids"][nHistoryDepth]["Object"];
         //console.log("Selection ID: " + nObjectID);
-        aSelectionObjectIDs.push(nObjectID);
+        aSelectedObjectIDs.push(nObjectID);
 
         // get object type of the current selection, then push the results into an array
-        var nType = WSM.APIGetObjectTypeReadOnly(nHistoryID, nObjectID);
+        var nType = WSM.APIGetObjectTypeReadOnly(nEditingHistoryID, nObjectID);
         //console.log("Object type: " + nType);
-        aSelectionObjectTypes.push(nType);
+        aSelectedObjectTypes.push(nType);
         //console.log("Object type array: " + selectedObjectsTypeArray);
 
         // get the properties of this object
-        var objectProperties = WSM.APIGetObjectPropertiesReadOnly(nHistoryID, nObjectID);
+        var objectProperties = WSM.APIGetObjectPropertiesReadOnly(nEditingHistoryID, nObjectID);
         //console.log("Object properties: " + JSON.stringify(objectProperties));
 
         // get the name of this object, then push the results into an array
         var objectName = objectProperties.sObjectName;
-        aSelectionObjectNames.push(objectName);
+        aSelectedObjectNames.push(objectName);
         //console.log("Object name array: " + JSON.stringify(selectedObjectsNameArray));
 
         // get the Levels setting for this object, then push the results into an array
@@ -181,44 +181,44 @@ PropertiesPlus.GetSelectionInfo = function(args)
         //var bUsesLevels = objectProperties.b
 
         // get group instance info, if there are any selected, and push the results into arrays
-        if (aSelectionObjectTypes[i] == WSM.nInstanceType)
+        if (aSelectedObjectTypes[i] == WSM.nInstanceType)
         {
             // get the Group family ID
-            var groupFamilyID = WSM.APIGetObjectsByTypeReadOnly(nHistoryID, nObjectID, WSM.nGroupType, true)[0];
-            aSelectionGroupIDs.push(groupFamilyID);
+            var groupFamilyID = WSM.APIGetObjectsByTypeReadOnly(nEditingHistoryID, nObjectID, WSM.nGroupType, true)[0];
+            aSelectedGroupIDs.push(groupFamilyID);
 
             // get the Group family History ID
-            var groupFamilyHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nHistoryID, groupFamilyID);
-            aSelectionGroupHistoryIDs.push(groupFamilyHistoryID);
+            var groupFamilyHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nEditingHistoryID, groupFamilyID);
+            aSelectedGroupHistoryIDs.push(groupFamilyHistoryID);
 
             // get the Group family name
             var groupFamilyName = PropertiesPlus.getGroupFamilyName(groupFamilyHistoryID);
-            aSelectionGroupNames.push(groupFamilyName);
+            aSelectedGroupNames.push(groupFamilyName);
 
             // get the group instance attributes if there are any
-            var aGroupInstanceAttributeIDs = WSM.APIGetObjectsByTypeReadOnly(nHistoryID, nObjectID, WSM.nStringAttributeType);
+            var aGroupInstanceAttributeIDs = WSM.APIGetObjectsByTypeReadOnly(nEditingHistoryID, nObjectID, WSM.nStringAttributeType);
 
             // for each ID, get the string attribute key and value
             // and add it to the array
             for (var i = 0; i < aGroupInstanceAttributeIDs.length; i++)
             {
                 // string attribute object
-                var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aGroupInstanceAttributeIDs[i]);
+                var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nEditingHistoryID, aGroupInstanceAttributeIDs[i]);
 
                 // push the attribute into the array
                 aSelectedGroupInstanceAttributes.push(stringAttributeObject);
             }
 
             // push the Group instance name and ID into arrays
-            aSelectionGroupInstanceNames.push(objectName);
-            aSelectionGroupInstanceIDs.push(nObjectID);
+            aSelectedGroupInstanceNames.push(objectName);
+            aSelectedGroupInstanceIDs.push(nObjectID);
         }
     }
 
     // do this only if there is a single Group instance selected
-    if (aSelectionGroupInstanceIDs.length == 1)
+    if (aSelectedGroupInstanceIDs.length == 1)
     {
-        var referenceHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nHistoryID, aSelectionGroupInstanceIDs[0]);
+        var referenceHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nEditingHistoryID, aSelectedGroupInstanceIDs[0]);
         //console.log("Reference history for this Group: " + referenceHistoryID);
 
         // determine how many total instances of this Group are in the model
@@ -227,57 +227,57 @@ PropertiesPlus.GetSelectionInfo = function(args)
     }
 
     // determine if the instances come from the same group family
-    var groupFamilyHistoryIDComparisonResultsArray = testForIdentical(aSelectionGroupHistoryIDs);
+    var groupFamilyHistoryIDComparisonResultsArray = testForIdentical(aSelectedGroupHistoryIDs);
     bIsConsistentGroupHistoryIDs = booleanReduce(groupFamilyHistoryIDComparisonResultsArray)
 
     // determine if the group families are all of the same name
-    var groupFamilyNameComparisonResultsArray = testForIdentical(aSelectionGroupNames);
+    var groupFamilyNameComparisonResultsArray = testForIdentical(aSelectedGroupNames);
     bIsConsistentGroupNames = booleanReduce(groupFamilyNameComparisonResultsArray);
 
     // determine if the group instances are all of the same name
-    var groupInstanceNameComparisonResultsArray = testForIdentical(aSelectionGroupInstanceNames);
+    var groupInstanceNameComparisonResultsArray = testForIdentical(aSelectedGroupInstanceNames);
     bIsConsistentGroupInstanceNames = booleanReduce(groupInstanceNameComparisonResultsArray);
     //console.log("Are group instance names consistent? " + isConsistentGroupInstanceNames);
 
     // fill out arrays for object types in the selection
-    for (var i = 0; i < aSelectionObjectTypes.length; i ++)
+    for (var i = 0; i < aSelectedObjectTypes.length; i ++)
     {
-        if (aSelectionObjectTypes[i] === WSM.nVertexType)
+        if (aSelectedObjectTypes[i] === WSM.nVertexType)
         {
-            nVertexCount ++;
+            nSelectedVertexCount ++;
         }
 
-        if (aSelectionObjectTypes[i] === WSM.nEdgeType)
+        if (aSelectedObjectTypes[i] === WSM.nEdgeType)
         {
-            nEdgeCount ++;
+            nSelectedEdgeCount ++;
         }
 
-        if (aSelectionObjectTypes[i] === WSM.nFaceType)
+        if (aSelectedObjectTypes[i] === WSM.nFaceType)
         {
-            nFaceCount ++;
+            nSelectedFaceCount ++;
         }
 
-        if (aSelectionObjectTypes[i] === WSM.nBodyType)
+        if (aSelectedObjectTypes[i] === WSM.nBodyType)
         {
-            nBodyCount ++;
+            nSelectedBodyCount ++;
         }
 
-        if (aSelectionObjectTypes[i] === WSM.nMeshType)
+        if (aSelectedObjectTypes[i] === WSM.nMeshType)
         {
-            nMeshCount ++;
+            nSelectedMeshCount ++;
         }
-        if (aSelectionObjectTypes[i] === WSM.nLineMeshType)
+        if (aSelectedObjectTypes[i] === WSM.nLineMeshType)
         {
-            nLineMeshCount ++;
+            nSelectedLineMeshCount ++;
         }
-        if (aSelectionObjectTypes[i] === WSM.nPointMeshType)
+        if (aSelectedObjectTypes[i] === WSM.nPointMeshType)
         {
-            nPointMeshCount ++;
+            nSelectedPointMeshCount ++;
         }
 
-        if (aSelectionObjectTypes[i] === WSM.nInstanceType)
+        if (aSelectedObjectTypes[i] === WSM.nInstanceType)
         {
-            nGroupInstanceCount ++;
+            nSelectedGroupInstanceCount ++;
         }
         
     }
@@ -293,9 +293,9 @@ PropertiesPlus.deselectObjectsByType = function(args)
     // loop through the original selection, 
     // check whether each object matches the objectType
     // if not, add it to the new selection
-    for (var i = 0; i < aSelectionObjectTypes.length; i++)
+    for (var i = 0; i < aSelectedObjectTypes.length; i++)
     {
-        if (aSelectionObjectTypes[i] != args.objectTypeToDeselect)
+        if (aSelectedObjectTypes[i] != args.objectTypeToDeselect)
         {
             newSelection.push(aCurrentSelection[i]);
         }
@@ -327,10 +327,10 @@ PropertiesPlus.calculateVolume = function()
     var totalVolume = [];
 
     // for each object selected, get the ObjectID and calculate the volume
-    for (var j = 0; j < aSelectionObjectIDs.length; j++)
+    for (var j = 0; j < aSelectedObjectIDs.length; j++)
     {
         // calculate the volume of the selection
-        var selectedVolume = WSM.APIComputeVolumeReadOnly(nHistoryID, aSelectionObjectIDs[j]);
+        var selectedVolume = WSM.APIComputeVolumeReadOnly(nEditingHistoryID, aSelectedObjectIDs[j]);
         console.log("Selected volume: " + JSON.stringify(selectedVolume));
 
         // add multiple volumes up
@@ -341,31 +341,31 @@ PropertiesPlus.calculateVolume = function()
 
 PropertiesPlus.renameGroupFamilies = function(args)
 {
-    if (aSelectionGroupHistoryIDs.length === 1 || eliminateDuplicatesInArray(aSelectionGroupHistoryIDs).length === 1)
+    if (aSelectedGroupHistoryIDs.length === 1 || eliminateDuplicatesInArray(aSelectedGroupHistoryIDs).length === 1)
     {
-        WSM.APISetRevitFamilyInformation(aSelectionGroupHistoryIDs[0], false, false, "", args.singleGroupFamilyRename, "", "");
+        WSM.APISetRevitFamilyInformation(aSelectedGroupHistoryIDs[0], false, false, "", args.singleGroupFamilyRename, "", "");
     }
     else
     {
-        for (var i = 0; i < aSelectionGroupIDs.length; i++)
+        for (var i = 0; i < aSelectedGroupIDs.length; i++)
         {
             // TODO: restore Group category on rename
-            WSM.APISetRevitFamilyInformation(aSelectionGroupHistoryIDs[i], false, false, "", args.multiGroupFamilyRename, "", "");
+            WSM.APISetRevitFamilyInformation(aSelectedGroupHistoryIDs[i], false, false, "", args.multiGroupFamilyRename, "", "");
         }
     }
 }
 
 PropertiesPlus.renameGroupInstances = function(args)
 {
-    if (aSelectionGroupInstanceIDs.length == 1)
+    if (aSelectedGroupInstanceIDs.length == 1)
     {
-        WSM.APISetObjectProperties(nHistoryID, aSelectionGroupInstanceIDs[0], args.singleGroupInstanceRename, aSelectionDoesUseLevelsBools[0]);
+        WSM.APISetObjectProperties(nEditingHistoryID, aSelectedGroupInstanceIDs[0], args.singleGroupInstanceRename, aSelectionDoesUseLevelsBools[0]);
     }
     else
     {
-        for (var i = 0; i < aSelectionGroupInstanceIDs.length; i++)
+        for (var i = 0; i < aSelectedGroupInstanceIDs.length; i++)
         {
-            WSM.APISetObjectProperties(nHistoryID, aSelectionGroupInstanceIDs[i], args.multiGroupInstanceRename, aSelectionDoesUseLevelsBools[i]);
+            WSM.APISetObjectProperties(nEditingHistoryID, aSelectedGroupInstanceIDs[i], args.multiGroupInstanceRename, aSelectionDoesUseLevelsBools[i]);
         }
     }
 }
@@ -375,20 +375,20 @@ PropertiesPlus.makeSingleGroupInstanceUnique = function(args)
     // if only one instance exists in the model, this instance is already unique
     if (nIdenticalGroupInstanceCount == 1)
     {
-        var message = aSelectionGroupNames[0] + " is already unique."
+        var message = aSelectedGroupNames[0] + " is already unique."
         FormIt.UI.ShowNotification(message, FormIt.NotificationType.Information, 0);
     }
     else 
     {
         // capture some data about the current selection before it's cleared
         var originalSelection = aCurrentSelection;
-        var originalGroupName = aSelectionGroupNames[0];
+        var originalGroupName = aSelectedGroupNames[0];
 
         // make unique
-        var newGroupID = WSM.APICreateSeparateHistoriesForInstances(nHistoryID, aSelectionGroupInstanceIDs[0], false);
+        var newGroupID = WSM.APICreateSeparateHistoriesForInstances(nEditingHistoryID, aSelectedGroupInstanceIDs[0], false);
     
         // get the data changed in this history
-        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nInstanceType);
+        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nEditingHistoryID, WSM.nInstanceType);
 
         // get the new unique instance ID for selection
         var newUniqueInstanceID = changedData["changed"];
@@ -399,7 +399,7 @@ PropertiesPlus.makeSingleGroupInstanceUnique = function(args)
         FormIt.Selection.ClearSelections();
 
         // get the new group history ID
-        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nHistoryID, Number(newGroupID));
+        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nEditingHistoryID, Number(newGroupID));
 
         // get the new group name
         var newGroupName = PropertiesPlus.getGroupFamilyName(newGroupHistoryID);
@@ -423,20 +423,20 @@ PropertiesPlus.makeSingleGroupInstanceUniqueNR = function(args)
     // if only one instance exists in the model, this instance is already unique
     if (nIdenticalGroupInstanceCount == 1)
     {
-        var message = aSelectionGroupNames[0] + " is already unique."
+        var message = aSelectedGroupNames[0] + " is already unique."
         FormIt.UI.ShowNotification(message, FormIt.NotificationType.Information, 0);
     }
     else 
     {
         // capture some data about the current selection before it's cleared
         var originalSelection = aCurrentSelection;
-        var originalGroupName = aSelectionGroupNames[0];
+        var originalGroupName = aSelectedGroupNames[0];
 
         // ungroup the instance
-        WSM.APIFlattenGroupsOrInstances(nHistoryID, aSelectionGroupInstanceIDs[0], false, false);
+        WSM.APIFlattenGroupsOrInstances(nEditingHistoryID, aSelectedGroupInstanceIDs[0], false, false);
     
         // get the data changed in this history
-        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nUnSpecifiedType);
+        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nEditingHistoryID, WSM.nUnSpecifiedType);
 
         // get objects that were ungrouped
         var ungroupedObjectIDs = changedData["created"];
@@ -447,13 +447,13 @@ PropertiesPlus.makeSingleGroupInstanceUniqueNR = function(args)
         //FormIt.Selection.ClearSelections();
 
         // get the new group ID
-        var newGroupID = WSM.APICreateGroup(nHistoryID, ungroupedObjectIDs);
+        var newGroupID = WSM.APICreateGroup(nEditingHistoryID, ungroupedObjectIDs);
 
         // get the new group history ID
-        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nHistoryID, Number(newGroupID));
+        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(nEditingHistoryID, Number(newGroupID));
 
         // get thew new group instance ID
-        var newGroupInstanceChangedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nInstanceType);
+        var newGroupInstanceChangedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nEditingHistoryID, WSM.nInstanceType);
         var newGroupInstanceID = newGroupInstanceChangedData["created"];
 
         // get the new group name
@@ -479,24 +479,24 @@ PropertiesPlus.makeMultipleGroupInstancesUnique = function(args)
     // if only one instance exists in the model, this instance is already unique
     if (nIdenticalGroupInstanceCount == 1)
     {
-        var message = aSelectionGroupNames[0] + " was already unique."
+        var message = aSelectedGroupNames[0] + " was already unique."
         FormIt.UI.ShowNotification(message, FormIt.NotificationType.Information, 0);
     }
     else 
     {
         // capture some data about the current selection before it's cleared
         var originalSelection = aCurrentSelection;
-        var originalGroupName = aSelectionGroupNames[0];
+        var originalGroupName = aSelectedGroupNames[0];
 
         // create a new array to capture the now-unique instances
         var newUniqueInstanceIDArray = [];
     
-        for (var i = 0; i < aSelectionGroupInstanceIDs.length; i++)
+        for (var i = 0; i < aSelectedGroupInstanceIDs.length; i++)
         {
-            WSM.APICreateSeparateHistoriesForInstances(nHistoryID, aSelectionGroupInstanceIDs[i], false);
+            WSM.APICreateSeparateHistoriesForInstances(nEditingHistoryID, aSelectedGroupInstanceIDs[i], false);
         
             // get the data changed in this history
-            var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nHistoryID, WSM.nInstanceType);
+            var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(nEditingHistoryID, WSM.nInstanceType);
     
             // add the changed instance ID to the array
             var newUniqueInstanceID = changedData["changed"];
