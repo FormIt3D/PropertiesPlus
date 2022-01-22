@@ -1,0 +1,11 @@
+{
+    "PluginName": "Properties Plus",
+    "PluginDescription": "View and modify additional selection and context properties not available in the default Properties panel.",
+    "PluginType": "Panel",
+    "Scripts": [
+        "PLUGINLOCATION/PropertiesPlus_Client.js",
+        "https://formit3d.github.io/FormItWorkflowPlugins/Utils.js"
+    ]
+    ,"Panel": "PLUGINLOCATION/index.html",
+    "PanelIcon": "PLUGINLOCATION/img/properties_plus@2x.png"
+}
