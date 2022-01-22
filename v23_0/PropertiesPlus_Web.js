@@ -44,38 +44,38 @@ if (typeof PropertiesPlus == 'undefined')
 
 // the maximum number of items to allow
 // higher than this, and FormIt could hang while processing the selection set
-let maxObjectCount = 1000;
+let nMaxObjectCount = 1000;
 
 // the current selection
-let currentSelectionInfo;
+let aCurrentSelectionInfo;
 
 // data that will be updated when the selection or editing history changes
-let editingHistory = 0;
+let nEditingHistoryID = 0;
 let editingGroupName = '';
-let editingHistoryInstances = 0;
+let nEditingHistoryInstances = 0;
 
 let objectCount = 0;
 
-let vertexCount = 0;
-let edgeCount = 0;
-let faceCount = 0;
-let bodyCount = 0;
-let groupFamilyCount = 0;
-let groupInstanceCount = 0;
-let identicalGroupInstanceCount = 0;
-let meshCount = 0;
+let nVertexCount = 0;
+let nEdgeCount = 0;
+let nFaceCount = 0;
+let nBodyCount = 0;
+let nGroupCount = 0;
+let nGroupInstanceCount = 0;
+let nIdenticalGroupInstanceCount = 0;
+let nMeshCount = 0;
 
-let isAnythingSelected = false;
-let isOneOrMoreVertices = false;
-let isOneOrMoreEdges = false;
-let isOneOrMoreFaces = false;
-let isOneOrMoreBodies = false;
-let isOneOrMoreMeshes = false;
-let isOneOrMoreLineMeshes = false;
-let isOneOrMorePointMeshes = false;
-let isSingleGroupInstance = false;
-let isOneOrMoreGroupInstances = false;
-let isMultipleGroupInstances = false;
+let bIsAnythingSelected = false;
+let bIsOneOrMoreVertices = false;
+let bIsOneOrMoreEdges = false;
+let bIsOneOrMoreFaces = false;
+let bIsOneOrMoreBodies = false;
+let bIsOneOrMoreMeshes = false;
+let bIsOneOrMoreLineMeshes = false;
+let bIsOneOrMorePointMeshes = false;
+let bIsSingleGroupInstance = false;
+let bIsOneOrMoreGroupInstances = false;
+let bIsMultipleGroupInstances = false;
 
 // elements that will be updated (contents or visibility) when the selection or editing history changes
 let editingHistoryNameDiv;
@@ -125,7 +125,6 @@ let groupInstanceCountModule;
 let groupInstanceCountModuleID = 'groupInstanceCountModule';
 let groupInstanceCountLabelID = 'groupInstanceCountLabel';
 let groupInstanceCountLabelPrefix = "Groups: ";
-
 
 let singleGroupFamilyDetailsContainerDiv;
 let singleGroupInstanceDetailsContainerDiv;
@@ -340,7 +339,7 @@ PropertiesPlus.initializeUI = function()
 
     tooManyItemsDiv = document.createElement('div');
     tooManyItemsDiv.className = 'infoList';
-    tooManyItemsDiv.innerHTML = "Select fewer than " + maxObjectCount + " objects to see more information."
+    tooManyItemsDiv.innerHTML = "Select fewer than " + nMaxObjectCount + " objects to see more information."
 
     infoCardsContainer.appendChild(tooManyItemsContainerDiv);
     tooManyItemsContainerDiv.appendChild(tooManyItemsDiv);
@@ -528,14 +527,14 @@ PropertiesPlus.showAndUpdateObjectCountModule = function(objectCountModule, labe
 {
     objectCountModule.style.display = 'block';
     
-    if (isSingleGroupInstance && labelPrefix.includes("Group"))
+    if (bIsSingleGroupInstance && labelPrefix.includes("Group"))
     {
-        labelDiv.innerHTML = labelPrefix + objectCount + " Instance (" + currentSelectionInfo.identicalGroupInstanceCount + " in model)";
+        labelDiv.innerHTML = labelPrefix + objectCount + " Instance (" + aCurrentSelectionInfo.nIdenticalGroupInstanceCount + " in model)";
     } 
-    else if (isMultipleGroupInstances && labelPrefix.includes("Group"))
+    else if (bIsMultipleGroupInstances && labelPrefix.includes("Group"))
     {
         // update the group instance count to also show how many unique families the instances belong to
-        let uniqueGroupFamilyCount = eliminateDuplicatesInArray(currentSelectionInfo.selectedObjectsGroupFamilyHistoryIDArray).length;
+        let uniqueGroupFamilyCount = eliminateDuplicatesInArray(aCurrentSelectionInfo.aSelectionGroupHistoryIDs).length;
         // change the wording slightly if there is more than one family
         let familyString;
         if (uniqueGroupFamilyCount == 1)
@@ -564,33 +563,33 @@ PropertiesPlus.hideObjectCountModule = function(objectCountModule)
 // update the values in the UI based on the current FormIt selection
 PropertiesPlus.updateQuantification = function(currentSelectionData)
 {
-    currentSelectionInfo = JSON.parse(currentSelectionData);
+    aCurrentSelectionInfo = JSON.parse(currentSelectionData);
 
     // update the current editing history name
-    editingHistoryName.innerHTML = currentSelectionInfo.editingHistoryName;
+    editingHistoryName.innerHTML = aCurrentSelectionInfo.editingHistoryName;
 
     // update the number of instances the current history affects
-    if (currentSelectionInfo.editingHistoryName == "Main Sketch")
+    if (aCurrentSelectionInfo.editingHistoryName == "Main Sketch")
     {
         editingHistoryInstancesDiv.innerHTML = "";
     } 
     else 
     {
-        editingHistoryInstancesDiv.innerHTML = "(" + currentSelectionInfo.nEditingHistoryInstances + " in model)";
+        editingHistoryInstancesDiv.innerHTML = "(" + aCurrentSelectionInfo.nEditingHistoryInstances + " in model)";
     }
 
     // update object count and HTML
-    objectCount = currentSelectionInfo.totalCount;
+    objectCount = aCurrentSelectionInfo.nTotalCount;
     objectCountDiv.innerHTML = objectCountLabel + objectCount;
 
     // if too many items are selected, show a message
-    if (objectCount > maxObjectCount)
+    if (objectCount > nMaxObjectCount)
     {
         // show the container for the message that too many items are selected
         tooManyItemsContainerDiv.className = 'infoContainer';
 
         // clear the current selection info so downstream calculations think nothing is selected
-        PropertiesPlus.clearQuantification(currentSelectionInfo);
+        PropertiesPlus.clearQuantification(aCurrentSelectionInfo);
         objectCount = 0;
     }
     else
@@ -605,151 +604,151 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     // if multiple objects are selected, set a flag
     if (objectCount > 0)
     {
-        isAnythingSelected = true;
+        bIsAnythingSelected = true;
     }
     else
     {
-        isAnythingSelected = false;
+        bIsAnythingSelected = false;
     }
 
     // if one or more vertices (WSM object #8) are selected, set a flag
     for (let i = 0; i < objectCount; i++)
     {
-        if (currentSelectionInfo.aSelectedObjectsTypeArray[i] == 8)
+        if (aCurrentSelectionInfo.aSelectionObjectTypes[i] == 8)
         {
             //console.log("At least one vertex is selected.");
-            isOneOrMoreVertices = true;
+            bIsOneOrMoreVertices = true;
             break;
         }
         else
         {
-            isOneOrMoreVertices = false;
+            bIsOneOrMoreVertices = false;
         }
     }
 
     // if one or more edges (WSM object #7) are selected, set a flag
     for (let i = 0; i < objectCount; i++)
     {
-        if (currentSelectionInfo.aSelectedObjectsTypeArray[i] == 7)
+        if (aCurrentSelectionInfo.aSelectionObjectTypes[i] == 7)
         {
             //console.log("At least one edge is selected.");
-            isOneOrMoreEdges = true;
+            bIsOneOrMoreEdges = true;
             break;
         }
         else
         {
-            isOneOrMoreEdges = false;
+            bIsOneOrMoreEdges = false;
         }
     }
 
     // if one or more faces (WSM object #4) are selected, set a flag
     for (let i = 0; i < objectCount; i++)
     {
-        if (currentSelectionInfo.aSelectedObjectsTypeArray[i] == 4)
+        if (aCurrentSelectionInfo.aSelectionObjectTypes[i] == 4)
         {
             //console.log("At least one face is selected.");
-            isOneOrMoreFaces = true;
+            bIsOneOrMoreFaces = true;
             break;
         }
         else
         {
-            isOneOrMoreFaces = false;
+            bIsOneOrMoreFaces = false;
         }
     }
 
     // if one or more bodies (WSM object #1) are selected, set a flag
     for (let i = 0; i < objectCount; i++)
     {
-        if (currentSelectionInfo.aSelectedObjectsTypeArray[i] == 1)
+        if (aCurrentSelectionInfo.aSelectionObjectTypes[i] == 1)
         {
             //console.log("At least one body is selected.");
-            isOneOrMoreBodies = true;
+            bIsOneOrMoreBodies = true;
             break;
         }
         else
         {
-            isOneOrMoreBodies = false;
+            bIsOneOrMoreBodies = false;
         }
     }
 
     // if one or more meshes (WSM object #32) are selected, set a flag
     for (let i = 0; i < objectCount; i++)
     {
-        if (currentSelectionInfo.aSelectedObjectsTypeArray[i] == 32)
+        if (aCurrentSelectionInfo.aSelectionObjectTypes[i] == 32)
         {
             //console.log("At least one mesh is selected.");
-            isOneOrMoreMeshes = true;
+            bIsOneOrMoreMeshes = true;
             break;
         }
         else
         {
-            isOneOrMoreMeshes = false;
+            bIsOneOrMoreMeshes = false;
         }
     }
     // if one or more lineMeshes (WSM object #33) are selected, set a flag
     for (let i = 0; i < objectCount; i++)
     {
-        if (currentSelectionInfo.aSelectedObjectsTypeArray[i] == 33)
+        if (aCurrentSelectionInfo.aSelectionObjectTypes[i] == 33)
         {
             //console.log("At least one linemesh is selected.");
-            isOneOrMoreLineMeshes = true;
+            bIsOneOrMoreLineMeshes = true;
             break;
         }
         else
         {
-            isOneOrMoreLineMeshes = false;
+            bIsOneOrMoreLineMeshes = false;
         }
     }
     // if one or more pointMeshes (WSM object #34) are selected, set a flag
     for (let i = 0; i < objectCount; i++)
     {
-        if (currentSelectionInfo.aSelectedObjectsTypeArray[i] == 34)
+        if (aCurrentSelectionInfo.aSelectionObjectTypes[i] == 34)
         {
             //console.log("At least one pointmesh is selected.");
-            isOneOrMorePointMeshes = true;
+            bIsOneOrMorePointMeshes = true;
             break;
         }
         else
         {
-            isOneOrMorePointMeshes = false;
+            bIsOneOrMorePointMeshes = false;
         }
     }
 
     // if there's just one Group Instance selected, set a flag
-    if (currentSelectionInfo.selectedObjectsGroupInstanceIDArray.length == 1)
+    if (aCurrentSelectionInfo.aSelectionGroupInstanceIDs.length == 1)
     {
         //console.log("Only a single instance selected.");
-        isSingleGroupInstance = true;
+        bIsSingleGroupInstance = true;
     }
     else 
     {
-        isSingleGroupInstance = false;
+        bIsSingleGroupInstance = false;
     }
 
     // if one or more Group instances (WSM object #24) are selected, set a flag
     for (let i = 0; i < objectCount; i++)
     {
-        if (currentSelectionInfo.aSelectedObjectsTypeArray[i] == 24)
+        if (aCurrentSelectionInfo.aSelectionObjectTypes[i] == 24)
         {
             //console.log("At least one instance is selected.");
-            isOneOrMoreGroupInstances = true;
+            bIsOneOrMoreGroupInstances = true;
             break;
         }
         else
         {
-            isOneOrMoreGroupInstances = false;
+            bIsOneOrMoreGroupInstances = false;
         }
     }
 
     // if multiple Group instances are selected, set a flag
-    if (currentSelectionInfo.groupInstanceCount > 1)
+    if (aCurrentSelectionInfo.nGroupInstanceCount > 1)
     {
         //console.log("At least one instance is selected.");
-        isMultipleGroupInstances = true;
+        bIsMultipleGroupInstances = true;
     }
     else
     {
-        isMultipleGroupInstances = false;
+        bIsMultipleGroupInstances = false;
     }
 
     //
@@ -757,15 +756,15 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     //
 
     // if multiple items, enable HTML
-    if (isAnythingSelected)
+    if (bIsAnythingSelected)
     {
         objectCountHorizontalRule.className = 'show';
     }
 
     // if any vertices are selected, enable HTML and update it
-    if (isOneOrMoreVertices)
+    if (bIsOneOrMoreVertices)
     {
-        PropertiesPlus.showAndUpdateObjectCountModule(vertexCountModule.element, vertexCountLabel, vertexCountLabelPrefix, currentSelectionInfo.vertexCount);
+        PropertiesPlus.showAndUpdateObjectCountModule(vertexCountModule.element, vertexCountLabel, vertexCountLabelPrefix, aCurrentSelectionInfo.nVertexCount);
     }
     else 
     {
@@ -773,9 +772,9 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
 
     // if any edges are selected, enable HTML and update it
-    if (isOneOrMoreEdges)
+    if (bIsOneOrMoreEdges)
     {
-        PropertiesPlus.showAndUpdateObjectCountModule(edgeCountModule.element, edgeCountLabel, edgeCountLabelPrefix, currentSelectionInfo.edgeCount);
+        PropertiesPlus.showAndUpdateObjectCountModule(edgeCountModule.element, edgeCountLabel, edgeCountLabelPrefix, aCurrentSelectionInfo.nEdgeCount);
     }
     else
     {
@@ -783,9 +782,9 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
 
     // if any faces are selected, enable HTML and update it
-    if (isOneOrMoreFaces)
+    if (bIsOneOrMoreFaces)
     {
-        PropertiesPlus.showAndUpdateObjectCountModule(faceCountModule.element, faceCountLabel, faceCountLabelPrefix, currentSelectionInfo.faceCount);
+        PropertiesPlus.showAndUpdateObjectCountModule(faceCountModule.element, faceCountLabel, faceCountLabelPrefix, aCurrentSelectionInfo.nFaceCount);
     }
     else
     {
@@ -793,9 +792,9 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
 
     // if any bodies are selected, enable HTML and update it
-    if (isOneOrMoreBodies)
+    if (bIsOneOrMoreBodies)
     {
-        PropertiesPlus.showAndUpdateObjectCountModule(bodyCountModule.element, bodyCountLabel, bodyCountLabelPrefix, currentSelectionInfo.bodyCount);
+        PropertiesPlus.showAndUpdateObjectCountModule(bodyCountModule.element, bodyCountLabel, bodyCountLabelPrefix, aCurrentSelectionInfo.nBodyCount);
     }
     else
     {
@@ -803,27 +802,27 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
 
     // if any meshes are selected, enable HTML and update it
-    if (isOneOrMoreMeshes)
+    if (bIsOneOrMoreMeshes)
     {
-        PropertiesPlus.showAndUpdateObjectCountModule(meshCountModule.element, meshCountLabel, meshCountLabelPrefix, currentSelectionInfo.meshCount);
+        PropertiesPlus.showAndUpdateObjectCountModule(meshCountModule.element, meshCountLabel, meshCountLabelPrefix, aCurrentSelectionInfo.nMeshCount);
     }
     else
     {
         PropertiesPlus.hideObjectCountModule(meshCountModule.element);
     }
     // if any linemeshes are selected, enable HTML and update it
-    if (isOneOrMoreLineMeshes)
+    if (bIsOneOrMoreLineMeshes)
     {
-        PropertiesPlus.showAndUpdateObjectCountModule(lineMeshCountModule.element, lineMeshCountLabel, lineMeshCountLabelPrefix, currentSelectionInfo.lineMeshCount);
+        PropertiesPlus.showAndUpdateObjectCountModule(lineMeshCountModule.element, lineMeshCountLabel, lineMeshCountLabelPrefix, aCurrentSelectionInfo.lineMeshCount);
     }
     else
     {
         PropertiesPlus.hideObjectCountModule(lineMeshCountModule.element);
     }
     // if any pointmeshes are selected, enable HTML and update it
-    if (isOneOrMorePointMeshes)
+    if (bIsOneOrMorePointMeshes)
     {
-        PropertiesPlus.showAndUpdateObjectCountModule(pointMeshCountModule.element, pointMeshCountLabel, pointMeshCountLabelPrefix, currentSelectionInfo.pointMeshCount);
+        PropertiesPlus.showAndUpdateObjectCountModule(pointMeshCountModule.element, pointMeshCountLabel, pointMeshCountLabelPrefix, aCurrentSelectionInfo.pointMeshCount);
     }
     else
     {
@@ -831,9 +830,9 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
 
     // if any instances are selected, enable HTML and update it
-    if (isOneOrMoreGroupInstances)
+    if (bIsOneOrMoreGroupInstances)
     {
-        PropertiesPlus.showAndUpdateObjectCountModule(groupInstanceCountModule.element, groupInstanceCountLabel, groupInstanceCountLabelPrefix, currentSelectionInfo.groupInstanceCount);
+        PropertiesPlus.showAndUpdateObjectCountModule(groupInstanceCountModule.element, groupInstanceCountLabel, groupInstanceCountLabelPrefix, aCurrentSelectionInfo.nGroupInstanceCount);
     }
     else
     {
@@ -841,18 +840,18 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
 
     // if a single instance is selected, enable HTML and update it
-    if (isSingleGroupInstance)
+    if (bIsSingleGroupInstance)
     {
         // enable the group family and instance info containers
         singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
         singleGroupInstanceDetailsContainerDiv.className = 'infoContainer';
         singleGroupInstaceToolsContainerDiv.className = 'infoContainer';
 
-        let groupInstanceName = currentSelectionInfo.selectedObjectsNameArray[0];
+        let groupInstanceName = aCurrentSelectionInfo.aSelectionObjectNames[0];
         let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
         singleGroupInstanceNameInput.value = groupInstanceName;
 
-        let groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
+        let groupFamilyName = aCurrentSelectionInfo.aSelectionGroupNames[0];
         let singleGroupFamilyNameInput = document.getElementById(singleGroupFamilyNameInputID);
         singleGroupFamilyNameInput.value = groupFamilyName;
     }
@@ -864,17 +863,17 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
 
     // if multiple group instances are selected, enable HTML and update it
-    if (isMultipleGroupInstances)
+    if (bIsMultipleGroupInstances)
     {
         // if the instances come from the same Group family, display the single Group family container and show the name
-        if (currentSelectionInfo.isConsistentGroupFamilyHistoryIDs)
+        if (aCurrentSelectionInfo.bIsConsistentGroupHistoryIDs)
         {
             // hide the multi Group family container, and display the single Group family details container
             multiGroupFamilyDetailsContainerDiv.className = 'hide';
             singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
 
             // update the name input with the current name
-            let groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
+            let groupFamilyName = aCurrentSelectionInfo.aSelectionGroupNames[0];
             let singleGroupFamilyNameInput = document.getElementById(singleGroupFamilyNameInputID);
             singleGroupFamilyNameInput.value = groupFamilyName;
         }
@@ -888,9 +887,9 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
             let multiGroupFamilyNameInput = document.getElementById(multiGroupFamilyNameInputID);
 
             // if all of the group family names are consistent, display the common name as placeholder text
-            if (currentSelectionInfo.isConsistentGroupFamilyNames === true)
+            if (aCurrentSelectionInfo.bIsConsistentGroupNames === true)
             {
-                let groupFamilyName = currentSelectionInfo.selectedObjectsGroupFamilyNameArray[0];
+                let groupFamilyName = aCurrentSelectionInfo.aSelectionGroupNames[0];
                 multiGroupFamilyNameInput.value = groupFamilyName;
                 multiGroupFamilyNameInput.setAttribute("placeholder", '');
             }
@@ -906,9 +905,9 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         multiGroupInstanceDetailsContainerDiv.className = 'infoContainer';
 
         // if all of the instance names are consistent, display the common name as placeholder text
-        if (currentSelectionInfo.isConsistentGroupInstanceNames === true)
+        if (aCurrentSelectionInfo.bIsConsistentGroupInstanceNames === true)
         {
-            let groupInstanceName = currentSelectionInfo.selectedObjectsGroupInstanceNameArray[0];
+            let groupInstanceName = aCurrentSelectionInfo.aSelectionGroupInstanceNames[0];
             multiGroupInstanceNameInput.value = groupInstanceName;
             multiGroupInstanceNameInput.setAttribute("placeholder", '');
         }
@@ -962,7 +961,7 @@ PropertiesPlus.doRecomputeOnSelection = function()
 PropertiesPlus.updateUI = function()
 {
     let args = {
-        "maxObjectCount": maxObjectCount
+        "maxObjectCount": nMaxObjectCount
     }
 
     //console.log("PropertiesPlus.UpdateUI");
