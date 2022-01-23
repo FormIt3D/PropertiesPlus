@@ -388,6 +388,7 @@ PropertiesPlus.initializeUI = function()
     //
     singleGroupInstanceAttributesContainerDiv = new FormIt.PluginUI.InfoCardExpandable('Group Instance Attributes', true);
     infoCardsContainer.appendChild(singleGroupInstanceAttributesContainerDiv.element);
+    singleGroupInstanceAttributesContainerDiv.element.className = 'hide';
 
     // list of attributes
     singleGroupInstanceAttributeListDiv = new FormIt.PluginUI.ListContainer('No attributes found.');
@@ -868,7 +869,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
         singleGroupInstanceDetailsContainerDiv.className = 'infoContainer';
         singleGroupInstanceToolsContainerDiv.className = 'infoContainer';
-        singleGroupInstanceAttributesContainerDiv.className = 'infoContainer';
+        singleGroupInstanceAttributesContainerDiv.element.className = 'infoContainer';
 
         let groupInstanceName = PropertiesPlus.currentSelectionInfo.aSelectedObjectNames[0];
         let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
@@ -896,7 +897,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         singleGroupFamilyDetailsContainerDiv.className = 'hide';
         singleGroupInstanceDetailsContainerDiv.className = 'hide';
         singleGroupInstanceToolsContainerDiv.className = 'hide';
-        singleGroupInstanceAttributesContainerDiv.classname = 'hide';
+        singleGroupInstanceAttributesContainerDiv.element.className = 'hide';
     }
 
     // if multiple group instances are selected, enable HTML and update it
