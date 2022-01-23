@@ -405,22 +405,15 @@ PropertiesPlus.initializeUI = function()
     //
     // create the single group instance attributes container - starts hidden
     //
-    singleGroupInstanceAttributesContainerDiv = document.createElement('div');
-    singleGroupInstanceAttributesContainerDiv.id = 'singleGroupInstanceInfoContainer';
-    singleGroupInstanceAttributesContainerDiv.className = 'hide';
+    singleGroupInstanceAttributesContainerDiv = new FormIt.PluginUI.InfoCardExpandable('Group Instance Attributes', true);
 
-    let singleGroupInstanceAttributesHeaderDiv = document.createElement('div');
-    singleGroupInstanceAttributesHeaderDiv.id = 'groupInfoHeaderDiv';
-    singleGroupInstanceAttributesHeaderDiv.className = 'infoHeader';
-    singleGroupInstanceAttributesHeaderDiv.innerHTML = 'Group Instance Attributes:';
-
-    infoCardsContainer.appendChild(singleGroupInstanceAttributesContainerDiv);
-    singleGroupInstanceAttributesContainerDiv.appendChild(singleGroupInstanceAttributesHeaderDiv);
+    infoCardsContainer.appendChild(singleGroupInstanceAttributesContainerDiv.element);
+    //singleGroupInstanceAttributesContainerDiv.appendChild(singleGroupInstanceAttributesHeaderDiv);
 
     // list of attributes
     singleGroupInstanceAttributeListDiv = new FormIt.PluginUI.ListContainer('No attributes found.');
     singleGroupInstanceAttributeListDiv.element.className = 'scrollableListContainer';
-    singleGroupInstanceAttributesContainerDiv.appendChild(singleGroupInstanceAttributeListDiv.element);
+    singleGroupInstanceAttributesContainerDiv.infoCardExpandableContent.appendChild(singleGroupInstanceAttributeListDiv.element);
     singleGroupInstanceAttributeListDiv.setListHeight(200);
     singleGroupInstanceAttributeListDiv.toggleZeroStateMessage();
 
@@ -999,7 +992,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
 }
 
 // determine if the user has chosen to update the UI on selection
-PropertiesPlus.bGetRecomputeOnSelection = function()
+PropertiesPlus.bRecomputeOnSelection = function()
 {
     return document.getElementById(recomputeOnSelectionInputID).checked;
 }
