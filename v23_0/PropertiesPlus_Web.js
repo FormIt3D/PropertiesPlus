@@ -406,9 +406,7 @@ PropertiesPlus.initializeUI = function()
     // create the single group instance attributes container - starts hidden
     //
     singleGroupInstanceAttributesContainerDiv = new FormIt.PluginUI.InfoCardExpandable('Group Instance Attributes', true);
-
     infoCardsContainer.appendChild(singleGroupInstanceAttributesContainerDiv.element);
-    //singleGroupInstanceAttributesContainerDiv.appendChild(singleGroupInstanceAttributesHeaderDiv);
 
     // list of attributes
     singleGroupInstanceAttributeListDiv = new FormIt.PluginUI.ListContainer('No attributes found.');
