@@ -3,8 +3,10 @@ if (typeof PropertiesPlus == 'undefined')
     PropertiesPlus = {};
 }
 
-// the current selection
-var aCurrentSelection = undefined;
+// the current selection array from FormIt
+PropertiesPlus.aCurrentSelection = undefined;
+// the current selection info object from Properties Plus
+PropertiesPlus.currentSelectionInfo = undefined;
 
 // all selection data packaged up as a JSON object for the web-side to consume
 PropertiesPlus.initializeSelectionInfoObject = function()
@@ -78,8 +80,8 @@ PropertiesPlus.getSelectionInfo = function(args)
     console.log("Currently editing: " + selectionInfoObject.sEditingHistoryName + " (" + selectionInfoObject.nEditingHistoryInstances + " in model)\n");
 
     // get current selection
-    aCurrentSelection = FormIt.Selection.GetSelections();
-    selectionInfoObject.nSelectedTotalCount = aCurrentSelection.length;
+    PropertiesPlus.aCurrentSelection = FormIt.Selection.GetSelections();
+    selectionInfoObject.nSelectedTotalCount = PropertiesPlus.aCurrentSelection.length;
     //console.log("Current selection: " + JSON.stringify(currentSelection));
     console.log("Number of objects selected: " + selectionInfoObject.nSelectedTotalCount);
 
@@ -93,10 +95,10 @@ PropertiesPlus.getSelectionInfo = function(args)
     for (var i = 0; i < selectionInfoObject.nSelectedTotalCount; i++)
     {
         // if you're not in the Main History, calculate the depth to extract the correct history data
-        selectionInfoObject.nEditingHistoryDepth = (aCurrentSelection[i]["ids"].length) - 1;
+        selectionInfoObject.nEditingHistoryDepth = (PropertiesPlus.aCurrentSelection[i]["ids"].length) - 1;
 
         // get objectID of the current selection, then push the results into an array
-        var nObjectID = aCurrentSelection[i]["ids"][selectionInfoObject.nEditingHistoryDepth]["Object"];
+        var nObjectID = PropertiesPlus.aCurrentSelection[i]["ids"][selectionInfoObject.nEditingHistoryDepth]["Object"];
         //console.log("Selection ID: " + nObjectID);
         selectionInfoObject.aSelectedObjectIDs.push(nObjectID);
 
@@ -223,7 +225,7 @@ PropertiesPlus.getSelectionInfo = function(args)
         
     }
 
-    console.log(JSON.stringify(selectionInfoObject));
+    PropertiesPlus.currentSelectionInfo = selectionInfoObject;
     return selectionInfoObject;
 }
 
@@ -235,11 +237,11 @@ PropertiesPlus.deselectObjectsByType = function(args)
     // loop through the original selection, 
     // check whether each object matches the objectType
     // if not, add it to the new selection
-    for (var i = 0; i < selectionInfoObject.aSelectedObjectTypes.length; i++)
+    for (var i = 0; i < PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes.length; i++)
     {
-        if (selectionInfoObject.aSelectedObjectTypes[i] != args.objectTypeToDeselect)
+        if (PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes[i] != args.objectTypeToDeselect)
         {
-            newSelection.push(aCurrentSelection[i]);
+            newSelection.push(PropertiesPlus.aCurrentSelection[i]);
         }
     }
 
@@ -323,7 +325,7 @@ PropertiesPlus.makeSingleGroupInstanceUnique = function(args)
     else 
     {
         // capture some data about the current selection before it's cleared
-        var originalSelection = aCurrentSelection;
+        var originalSelection = PropertiesPlus.aCurrentSelection;
         var originalGroupName = selectionInfoObject.aSelectedGroupNames[0];
 
         // make unique
@@ -371,7 +373,7 @@ PropertiesPlus.makeSingleGroupInstanceUniqueNR = function(args)
     else 
     {
         // capture some data about the current selection before it's cleared
-        var originalSelection = aCurrentSelection;
+        var originalSelection = PropertiesPlus.aCurrentSelection;
         var originalGroupName = selectionInfoObject.aSelectedGroupNames[0];
 
         // ungroup the instance
@@ -426,7 +428,7 @@ PropertiesPlus.makeMultipleGroupInstancesUnique = function(args)
     else 
     {
         // capture some data about the current selection before it's cleared
-        var originalSelection = aCurrentSelection;
+        var originalSelection = PropertiesPlus.aCurrentSelection;
         var originalGroupName = selectionInfoObject.aSelectedGroupNames[0];
 
         // create a new array to capture the now-unique instances
