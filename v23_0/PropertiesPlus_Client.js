@@ -271,10 +271,10 @@ PropertiesPlus.calculateVolume = function()
     var totalVolume = [];
 
     // for each object selected, get the ObjectID and calculate the volume
-    for (var j = 0; j < selectionInfoObject.aSelectedObjectIDs.length; j++)
+    for (var j = 0; j < PropertiesPlus.currentSelectionInfo.aSelectedObjectIDs.length; j++)
     {
         // calculate the volume of the selection
-        var selectedVolume = WSM.APIComputeVolumeReadOnly(selectionInfoObject.nEditingHistoryID, selectionInfoObject.aSelectedObjectIDs[j]);
+        var selectedVolume = WSM.APIComputeVolumeReadOnly(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, PropertiesPlus.currentSelectionInfo.aSelectedObjectIDs[j]);
         console.log("Selected volume: " + JSON.stringify(selectedVolume));
 
         // add multiple volumes up
@@ -285,31 +285,31 @@ PropertiesPlus.calculateVolume = function()
 
 PropertiesPlus.renameGroupFamilies = function(args)
 {
-    if (selectionInfoObject.aSelectedGroupHistoryIDs.length === 1 || eliminateDuplicatesInArray(selectionInfoObject.aSelectedGroupHistoryIDs).length === 1)
+    if (PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs.length === 1 || eliminateDuplicatesInArray(PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs).length === 1)
     {
-        WSM.APISetRevitFamilyInformation(selectionInfoObject.aSelectedGroupHistoryIDs[0], false, false, "", args.singleGroupFamilyRename, "", "");
+        WSM.APISetRevitFamilyInformation(PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs[0], false, false, "", args.singleGroupFamilyRename, "", "");
     }
     else
     {
-        for (var i = 0; i < selectionInfoObject.aSelectedGroupIDs.length; i++)
+        for (var i = 0; i < PropertiesPlus.currentSelectionInfo.aSelectedGroupIDs.length; i++)
         {
             // TODO: restore Group category on rename
-            WSM.APISetRevitFamilyInformation(selectionInfoObject.aSelectedGroupHistoryIDs[i], false, false, "", args.multiGroupFamilyRename, "", "");
+            WSM.APISetRevitFamilyInformation(PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs[i], false, false, "", args.multiGroupFamilyRename, "", "");
         }
     }
 }
 
 PropertiesPlus.renameGroupInstances = function(args)
 {
-    if (selectionInfoObject.aSelectedGroupInstanceIDs.length == 1)
+    if (PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs.length == 1)
     {
-        WSM.APISetObjectProperties(selectionInfoObject.nEditingHistoryID, selectionInfoObject.aSelectedGroupInstanceIDs[0], args.singleGroupInstanceRename, selectionInfoObject.aSelectedDoesUseLevelsBools[0]);
+        WSM.APISetObjectProperties(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs[0], args.singleGroupInstanceRename, PropertiesPlus.currentSelectionInfo.aSelectedDoesUseLevelsBools[0]);
     }
     else
     {
-        for (var i = 0; i < selectionInfoObject.aSelectedGroupInstanceIDs.length; i++)
+        for (var i = 0; i < PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs.length; i++)
         {
-            WSM.APISetObjectProperties(selectionInfoObject.nEditingHistoryID, selectionInfoObject.aSelectedGroupInstanceIDs[i], args.multiGroupInstanceRename, selectionInfoObject.aSelectedDoesUseLevelsBools[i]);
+            WSM.APISetObjectProperties(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs[i], args.multiGroupInstanceRename, PropertiesPlus.currentSelectionInfo.aSelectedDoesUseLevelsBools[i]);
         }
     }
 }
@@ -317,22 +317,22 @@ PropertiesPlus.renameGroupInstances = function(args)
 PropertiesPlus.makeSingleGroupInstanceUnique = function(args)
 {
     // if only one instance exists in the model, this instance is already unique
-    if (selectionInfoObject.nSelectedIdenticalGroupInstanceCount == 1)
+    if (PropertiesPlus.currentSelectionInfo.nSelectedIdenticalGroupInstanceCount == 1)
     {
-        var message = selectionInfoObject.aSelectedGroupNames[0] + " is already unique."
+        var message = PropertiesPlus.currentSelectionInfo.aSelectedGroupNames[0] + " is already unique."
         FormIt.UI.ShowNotification(message, FormIt.NotificationType.Information, 0);
     }
     else 
     {
         // capture some data about the current selection before it's cleared
         var originalSelection = PropertiesPlus.aCurrentSelection;
-        var originalGroupName = selectionInfoObject.aSelectedGroupNames[0];
+        var originalGroupName = PropertiesPlus.currentSelectionInfo.aSelectedGroupNames[0];
 
         // make unique
-        var newGroupID = WSM.APICreateSeparateHistoriesForInstances(selectionInfoObject.nEditingHistoryID, selectionInfoObject.aSelectedGroupInstanceIDs[0], false);
+        var newGroupID = WSM.APICreateSeparateHistoriesForInstances(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs[0], false);
     
         // get the data changed in this history
-        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(selectionInfoObject.nEditingHistoryID, WSM.nInstanceType);
+        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, WSM.nInstanceType);
 
         // get the new unique instance ID for selection
         var newUniqueInstanceID = changedData["changed"];
@@ -343,7 +343,7 @@ PropertiesPlus.makeSingleGroupInstanceUnique = function(args)
         FormIt.Selection.ClearSelections();
 
         // get the new group history ID
-        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(selectionInfoObject.nEditingHistoryID, Number(newGroupID));
+        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, Number(newGroupID));
 
         // get the new group name
         var newGroupName = PropertiesPlus.getGroupFamilyName(newGroupHistoryID);
@@ -351,7 +351,7 @@ PropertiesPlus.makeSingleGroupInstanceUnique = function(args)
         // determine the new selection path
         var newSelectionPath = originalSelection[0];
         // redefine the object ID for the selection path
-        newSelectionPath["ids"][selectionInfoObject.nEditingHistoryDepth]["Object"] = Number(newUniqueInstanceID);
+        newSelectionPath["ids"][PropertiesPlus.currentSelectionInfo.nEditingHistoryDepth]["Object"] = Number(newUniqueInstanceID);
         
         // add the newly-changed objects to the selection
         FormIt.Selection.SetSelections(newSelectionPath);
@@ -365,22 +365,22 @@ PropertiesPlus.makeSingleGroupInstanceUnique = function(args)
 PropertiesPlus.makeSingleGroupInstanceUniqueNR = function(args)
 {
     // if only one instance exists in the model, this instance is already unique
-    if (selectionInfoObject.nSelectedIdenticalGroupInstanceCount == 1)
+    if (PropertiesPlus.currentSelectionInfo.nSelectedIdenticalGroupInstanceCount == 1)
     {
-        var message = selectionInfoObject.aSelectedGroupNames[0] + " is already unique."
+        var message = PropertiesPlus.currentSelectionInfo.aSelectedGroupNames[0] + " is already unique."
         FormIt.UI.ShowNotification(message, FormIt.NotificationType.Information, 0);
     }
     else 
     {
         // capture some data about the current selection before it's cleared
         var originalSelection = PropertiesPlus.aCurrentSelection;
-        var originalGroupName = selectionInfoObject.aSelectedGroupNames[0];
+        var originalGroupName = PropertiesPlus.currentSelectionInfo.aSelectedGroupNames[0];
 
         // ungroup the instance
-        WSM.APIFlattenGroupsOrInstances(selectionInfoObject.nEditingHistoryID, selectionInfoObject.aSelectedGroupInstanceIDs[0], false, false);
+        WSM.APIFlattenGroupsOrInstances(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs[0], false, false);
     
         // get the data changed in this history
-        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(selectionInfoObject.nEditingHistoryID, WSM.nUnSpecifiedType);
+        var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, WSM.nUnSpecifiedType);
 
         // get objects that were ungrouped
         var ungroupedObjectIDs = changedData["created"];
@@ -391,13 +391,13 @@ PropertiesPlus.makeSingleGroupInstanceUniqueNR = function(args)
         //FormIt.Selection.ClearSelections();
 
         // get the new group ID
-        var newGroupID = WSM.APICreateGroup(selectionInfoObject.nEditingHistoryID, ungroupedObjectIDs);
+        var newGroupID = WSM.APICreateGroup(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, ungroupedObjectIDs);
 
         // get the new group history ID
-        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(selectionInfoObject.nEditingHistoryID, Number(newGroupID));
+        var newGroupHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, Number(newGroupID));
 
         // get thew new group instance ID
-        var newGroupInstanceChangedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(selectionInfoObject.nEditingHistoryID, WSM.nInstanceType);
+        var newGroupInstanceChangedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, WSM.nInstanceType);
         var newGroupInstanceID = newGroupInstanceChangedData["created"];
 
         // get the new group name
@@ -406,7 +406,7 @@ PropertiesPlus.makeSingleGroupInstanceUniqueNR = function(args)
         // determine the new selection path
         var newSelectionPath = originalSelection[0];
         // redefine the object ID for the selection path
-        newSelectionPath["ids"][selectionInfoObject.nEditingHistoryDepth]["Object"] = Number(newGroupInstanceID);
+        newSelectionPath["ids"][PropertiesPlus.currentSelectionInfo.nEditingHistoryDepth]["Object"] = Number(newGroupInstanceID);
         
         // add the newly-changed objects to the selection
         FormIt.Selection.SetSelections(newSelectionPath);
@@ -420,26 +420,26 @@ PropertiesPlus.makeSingleGroupInstanceUniqueNR = function(args)
 PropertiesPlus.makeMultipleGroupInstancesUnique = function(args)
 {
     // if only one instance exists in the model, this instance is already unique
-    if (selectionInfoObject.nSelectedIdenticalGroupInstanceCount == 1)
+    if (PropertiesPlus.currentSelectionInfo.nSelectedIdenticalGroupInstanceCount == 1)
     {
-        var message = selectionInfoObject.aSelectedGroupNames[0] + " was already unique."
+        var message = PropertiesPlus.currentSelectionInfo.aSelectedGroupNames[0] + " was already unique."
         FormIt.UI.ShowNotification(message, FormIt.NotificationType.Information, 0);
     }
     else 
     {
         // capture some data about the current selection before it's cleared
         var originalSelection = PropertiesPlus.aCurrentSelection;
-        var originalGroupName = selectionInfoObject.aSelectedGroupNames[0];
+        var originalGroupName = PropertiesPlus.currentSelectionInfo.aSelectedGroupNames[0];
 
         // create a new array to capture the now-unique instances
         var newUniqueInstanceIDArray = [];
     
-        for (var i = 0; i < selectionInfoObject.aSelectedGroupInstanceIDs.length; i++)
+        for (var i = 0; i < PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs.length; i++)
         {
-            WSM.APICreateSeparateHistoriesForInstances(selectionInfoObject.nEditingHistoryID, selectionInfoObject.aSelectedGroupInstanceIDs[i], false);
+            WSM.APICreateSeparateHistoriesForInstances(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs[i], false);
         
             // get the data changed in this history
-            var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(selectionInfoObject.nEditingHistoryID, WSM.nInstanceType);
+            var changedData = WSM.APIGetCreatedChangedAndDeletedInActiveDeltaReadOnly(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, WSM.nInstanceType);
     
             // add the changed instance ID to the array
             var newUniqueInstanceID = changedData["changed"];
@@ -457,7 +457,7 @@ PropertiesPlus.makeMultipleGroupInstancesUnique = function(args)
             // determine the new selection path
             var newSelectionPath = originalSelection[i];
             // redefine the object ID for the selection path
-            newSelectionPath["ids"][selectionInfoObject.nEditingHistoryDepth]["Object"] = Number(newUniqueInstanceIDArray[i]);
+            newSelectionPath["ids"][PropertiesPlus.currentSelectionInfo.nEditingHistoryDepth]["Object"] = Number(newUniqueInstanceIDArray[i]);
             
             // add the newly-changed objects to the selection
             FormIt.Selection.SetSelections(newSelectionPath);
