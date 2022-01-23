@@ -139,58 +139,6 @@ let multiGroupInstanceNameInputID = 'multiGroupInstanceNameInput';
 // flag to display work-in-progress features
 let displayWIP = false;
 
-// deselect objects by specified type
-PropertiesPlus.submitDeselectObjectsByType = function(deselectObjectType)
-{
-    let args = {
-        "objectTypeToDeselect" : deselectObjectType
-    }
-
-    window.FormItInterface.CallMethod("PropertiesPlus.deselectObjectsByType", args);
-}
-
-// rename a Group family
-PropertiesPlus.submitGroupFamilyRename = function()
-{
-    let args = {
-    "singleGroupFamilyRename": singleGroupFamilyNameInput.value,
-    "multiGroupFamilyRename": multiGroupFamilyNameInput.value
-    }
-
-    window.FormItInterface.CallMethod("PropertiesPlus.renameGroupFamilies", args);
-}
-
-// rename a single selected Group instance, or multiple instances
-PropertiesPlus.submitGroupInstanceRename = function()
-{
-    let args = {
-    "singleGroupInstanceRename": singleGroupInstanceNameInput.value,
-    "multiGroupInstanceRename": multiGroupInstanceNameInput.value
-    }
-
-    window.FormItInterface.CallMethod("PropertiesPlus.renameGroupInstances", args);
-}
-
-// make a single selected Group instance unique
-PropertiesPlus.submitGroupInstanceMakeUnique = function()
-{
-    let args = {
-        
-    }
-
-    window.FormItInterface.CallMethod("PropertiesPlus.makeSingleGroupInstanceUnique", args);
-}
-
-// make a single selected Group instance unique (non-recursive)
-PropertiesPlus.submitGroupInstanceMakeUniqueNR = function()
-{
-    let args = {
-        
-    }
-
-    window.FormItInterface.CallMethod("PropertiesPlus.makeSingleGroupInstanceUniqueNR", args);
-}
-
 // all UI initialization
 // must be called from the HTML page
 PropertiesPlus.initializeUI = function()
@@ -522,15 +470,6 @@ PropertiesPlus.initializeUI = function()
     window.document.body.appendChild(footerModule.element)
 }
 
-// clear all arrays in the selectionInfo object
-PropertiesPlus.clearQuantification = function(currentSelectionInfo)
-{
-    for (let i = 0; i < currentSelectionInfo.length; i++)
-    {
-        currentSelectionInfo[i] = [];
-    }
-}
-
 // display and update an object count module
 PropertiesPlus.showAndUpdateObjectCountModule = function(objectCountModule, labelDiv, labelPrefix, objectCount)
 {
@@ -567,6 +506,90 @@ PropertiesPlus.showAndUpdateObjectCountModule = function(objectCountModule, labe
 PropertiesPlus.hideObjectCountModule = function(objectCountModule)
 {
     objectCountModule.style.display = 'none';
+}
+
+// update all values with data from the application
+PropertiesPlus.updateUI = function()
+{
+    let args = { "nMaxObjectCount": PropertiesPlus.nMaxObjectCount };
+    FormItInterface.CallMethod("PropertiesPlus.getSelectionInfo", args, function(result)
+    {
+        PropertiesPlus.updateQuantification(result);
+    });
+}
+
+PropertiesPlus.setUIStateToEnabled = function()
+{
+    // show the selection info container
+    let selectionInfoContainer = document.getElementById(selectionInfoContainerID);
+    selectionInfoContainer.className = 'infoContainer';
+
+    // show the info cards container
+    let infoCardsContainer = document.getElementById(infoCardsContainerID);
+    infoCardsContainer.className = 'show';
+
+    // hide the disabled state container
+    let disabledStateContainer = document.getElementById(disabledStateContainerID);
+    disabledStateContainer.className = 'hide';
+
+    PropertiesPlus.updateUI();
+}
+
+// update the UI to a dsiabled state, when the user has disabled updates
+PropertiesPlus.setUIStateToDisabled = function()
+{
+    // hide the selection info container
+    let selectionInfoContainer = document.getElementById(selectionInfoContainerID);
+    selectionInfoContainer.className = 'hide';
+
+    // hide the info cards container
+    let infoCardsContainer = document.getElementById(infoCardsContainerID);
+    infoCardsContainer.className = 'hide';
+
+    // show the dsiabled state container
+    let disabledStateContainer = document.getElementById(disabledStateContainerID);
+    disabledStateContainer.className = 'infoContainer';
+}
+
+PropertiesPlus.createGroupInstanceAttributeListItem = function(nStringAttributeCount, stringAttributeKeyContent, stringAttributeValueContent)
+{
+    // create a list item
+    let attributeContainerDiv = new FormIt.PluginUI.SimpleListItemStatic();
+    
+    // attribute key
+    let attributeKeyLabelDiv = document.createElement('div');
+    attributeKeyLabelDiv.textContent = 'Key ' + nStringAttributeCount + ':';
+    attributeKeyLabelDiv.style.fontWeight = 'bold';
+    attributeKeyLabelDiv.style.paddingBottom = 5;
+    attributeContainerDiv.element.appendChild(attributeKeyLabelDiv);
+
+    let attributeKeyContentDiv = document.createElement('div');
+    attributeKeyContentDiv.style.paddingBottom = 10;
+    attributeKeyContentDiv.textContent = stringAttributeKeyContent;
+    attributeContainerDiv.element.appendChild(attributeKeyContentDiv);
+
+    // attribute value
+    let attributeValueLabel = document.createElement('div');
+    attributeValueLabel.textContent = 'Value:';
+    attributeValueLabel.style.fontWeight = 'bold';
+    attributeValueLabel.style.paddingBottom = 5;
+    attributeContainerDiv.element.appendChild(attributeValueLabel);
+
+    let attributeValueContentDiv = document.createElement('div');
+    attributeValueContentDiv.style.paddingBottom = 10;
+    attributeValueContentDiv.textContent = stringAttributeValueContent;
+    attributeContainerDiv.element.appendChild(attributeValueContentDiv);
+
+    return attributeContainerDiv.element;
+}
+
+// clear all arrays in the selectionInfo object
+PropertiesPlus.clearQuantification = function(currentSelectionInfo)
+{
+    for (let i = 0; i < currentSelectionInfo.length; i++)
+    {
+        currentSelectionInfo[i] = [];
+    }
 }
 
 // update the values in the UI based on the current FormIt selection
@@ -975,83 +998,60 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
 }
 
-PropertiesPlus.createGroupInstanceAttributeListItem = function(nStringAttributeCount, stringAttributeKeyContent, stringAttributeValueContent)
-{
-    // create a list item
-    let attributeContainerDiv = new FormIt.PluginUI.SimpleListItemStatic();
-    
-    // attribute key
-    let attributeKeyLabelDiv = document.createElement('div');
-    attributeKeyLabelDiv.textContent = 'Key ' + nStringAttributeCount + ':';
-    attributeKeyLabelDiv.style.fontWeight = 'bold';
-    attributeKeyLabelDiv.style.paddingBottom = 5;
-    attributeContainerDiv.element.appendChild(attributeKeyLabelDiv);
-
-    let attributeKeyContentDiv = document.createElement('div');
-    attributeKeyContentDiv.style.paddingBottom = 10;
-    attributeKeyContentDiv.textContent = stringAttributeKeyContent;
-    attributeContainerDiv.element.appendChild(attributeKeyContentDiv);
-
-    // attribute value
-    let attributeValueLabel = document.createElement('div');
-    attributeValueLabel.textContent = 'Value:';
-    attributeValueLabel.style.fontWeight = 'bold';
-    attributeValueLabel.style.paddingBottom = 5;
-    attributeContainerDiv.element.appendChild(attributeValueLabel);
-
-    let attributeValueContentDiv = document.createElement('div');
-    attributeValueContentDiv.style.paddingBottom = 10;
-    attributeValueContentDiv.textContent = stringAttributeValueContent;
-    attributeContainerDiv.element.appendChild(attributeValueContentDiv);
-
-    return attributeContainerDiv.element;
-}
-
 // determine if the user has chosen to update the UI on selection
-PropertiesPlus.doRecomputeOnSelection = function()
+PropertiesPlus.bGetRecomputeOnSelection = function()
 {
     return document.getElementById(recomputeOnSelectionInputID).checked;
 }
 
-// update all values with data from the application
-PropertiesPlus.updateUI = function()
+// deselect objects by specified type
+PropertiesPlus.submitDeselectObjectsByType = function(deselectObjectType)
 {
-    let args = { "nMaxObjectCount": PropertiesPlus.nMaxObjectCount };
-    FormItInterface.CallMethod("PropertiesPlus.getSelectionInfo", args, function(result)
-    {
-        PropertiesPlus.updateQuantification(result);
-    });
+    let args = {
+        "objectTypeToDeselect" : deselectObjectType
+    }
+
+    window.FormItInterface.CallMethod("PropertiesPlus.deselectObjectsByType", args);
 }
 
-PropertiesPlus.setUIStateToEnabled = function()
+// rename a Group family
+PropertiesPlus.submitGroupFamilyRename = function()
 {
-    // show the selection info container
-    let selectionInfoContainer = document.getElementById(selectionInfoContainerID);
-    selectionInfoContainer.className = 'infoContainer';
+    let args = {
+    "singleGroupFamilyRename": singleGroupFamilyNameInput.value,
+    "multiGroupFamilyRename": multiGroupFamilyNameInput.value
+    }
 
-    // show the info cards container
-    let infoCardsContainer = document.getElementById(infoCardsContainerID);
-    infoCardsContainer.className = 'show';
-
-    // hide the disabled state container
-    let disabledStateContainer = document.getElementById(disabledStateContainerID);
-    disabledStateContainer.className = 'hide';
-
-    PropertiesPlus.updateUI();
+    window.FormItInterface.CallMethod("PropertiesPlus.renameGroupFamilies", args);
 }
 
-// update the UI to a dsiabled state, when the user has disabled updates
-PropertiesPlus.setUIStateToDisabled = function()
+// rename a single selected Group instance, or multiple instances
+PropertiesPlus.submitGroupInstanceRename = function()
 {
-    // hide the selection info container
-    let selectionInfoContainer = document.getElementById(selectionInfoContainerID);
-    selectionInfoContainer.className = 'hide';
+    let args = {
+    "singleGroupInstanceRename": singleGroupInstanceNameInput.value,
+    "multiGroupInstanceRename": multiGroupInstanceNameInput.value
+    }
 
-    // hide the info cards container
-    let infoCardsContainer = document.getElementById(infoCardsContainerID);
-    infoCardsContainer.className = 'hide';
+    window.FormItInterface.CallMethod("PropertiesPlus.renameGroupInstances", args);
+}
 
-    // show the dsiabled state container
-    let disabledStateContainer = document.getElementById(disabledStateContainerID);
-    disabledStateContainer.className = 'infoContainer';
+// make a single selected Group instance unique
+PropertiesPlus.submitGroupInstanceMakeUnique = function()
+{
+    let args = {
+        
+    }
+
+    window.FormItInterface.CallMethod("PropertiesPlus.makeSingleGroupInstanceUnique", args);
+}
+
+// make a single selected Group instance unique (non-recursive)
+PropertiesPlus.submitGroupInstanceMakeUniqueNR = function()
+{
+    let args = {
+        
+    }
+
+    window.FormItInterface.CallMethod("PropertiesPlus.makeSingleGroupInstanceUniqueNR", args);
 }
