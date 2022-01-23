@@ -164,32 +164,13 @@ PropertiesPlus.initializeUI = function()
     let contextCardsContainer = document.createElement('div');
     contextCardsContainer.id = 'editingContextCardsContainer';
     contextCardsContainer.className = 'show';
+    contentContainer.appendChild(contextCardsContainer);
 
     //
     // create the context properties info container
     //
-    let contextPropertiesContainerDiv = document.createElement('div');
-    contextPropertiesContainerDiv.id = 'contextPropertiesContainer';
-    contextPropertiesContainerDiv.className = 'infoContainer';
-    contentContainer.appendChild(contextCardsContainer);
-
-    let contextPropertiesHeaderDiv = document.createElement('div');
-    contextPropertiesHeaderDiv.id = 'selectionInfoHeaderDiv';
-    contextPropertiesHeaderDiv.className = 'infoHeader';
-    contextPropertiesHeaderDiv.innerHTML = 'Currently Editing';
-
-    sEditingHistoryName = document.createElement('div');
-    sEditingHistoryName.className = 'infoList';
-    sEditingHistoryName.innerHTML = "";
-
-    editingHistoryInstancesDiv = document.createElement('div');
-    editingHistoryInstancesDiv.className = 'infoList';
-    editingHistoryInstancesDiv.innerHTML = "";
-
+    let contextPropertiesContainerDiv = PropertiesPlus.createCurrentEditingHistoryInfoCard();
     contextCardsContainer.appendChild(contextPropertiesContainerDiv);
-    contextPropertiesContainerDiv.appendChild(contextPropertiesHeaderDiv);
-    contextPropertiesContainerDiv.appendChild(sEditingHistoryName);
-    contextPropertiesContainerDiv.appendChild(editingHistoryInstancesDiv);
 
     // create the selection properties subheader
     let selectionPropertiesSubheader = new FormIt.PluginUI.SubheaderModule('Selection Properties', 'show');
@@ -540,6 +521,24 @@ PropertiesPlus.setUIStateToDisabled = function()
     // show the dsiabled state container
     let disabledStateContainer = document.getElementById(disabledStateContainerID);
     disabledStateContainer.className = 'infoContainer';
+}
+
+PropertiesPlus.createCurrentEditingHistoryInfoCard = function()
+{
+    let contextPropertiesContainerDiv = new FormIt.PluginUI.InfoCardStatic('Currently Editing');
+
+    sEditingHistoryName = document.createElement('div');
+    sEditingHistoryName.className = 'infoList';
+    sEditingHistoryName.innerHTML = "";
+
+    editingHistoryInstancesDiv = document.createElement('div');
+    editingHistoryInstancesDiv.className = 'infoList';
+    editingHistoryInstancesDiv.innerHTML = "";
+
+    contextPropertiesContainerDiv.element.appendChild(sEditingHistoryName);
+    contextPropertiesContainerDiv.element.appendChild(editingHistoryInstancesDiv);
+
+    return contextPropertiesContainerDiv.element;
 }
 
 PropertiesPlus.createGroupInstanceAttributeListItem = function(nStringAttributeCount, stringAttributeKeyContent, stringAttributeValueContent)
