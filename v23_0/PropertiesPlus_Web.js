@@ -65,9 +65,6 @@ let bIsMultipleGroupInstances = false;
 // elements that will be updated (contents or visibility) when the selection or editing history changes
 PropertiesPlus.editingContextInfoCard = undefined;
 
-let editingHistoryNameDiv;
-let editingHistoryInstancesDiv;
-
 // all object counts
 let objectCountDiv;
 let objectCountLabel; 
@@ -520,23 +517,9 @@ PropertiesPlus.setUIStateToDisabled = function()
 
 /*** create info cards ***/
 
-PropertiesPlus.createCurrentEditingHistoryInfoCard = function()
-{
-    let contextPropertiesContainerDiv = new FormIt.PluginUI.InfoCardStatic('Currently Editing');
-
-    sEditingHistoryName = document.createElement('div');
-    sEditingHistoryName.className = 'infoList';
-    sEditingHistoryName.innerHTML = "";
-
-    editingHistoryInstancesDiv = document.createElement('div');
-    editingHistoryInstancesDiv.className = 'infoList';
-    editingHistoryInstancesDiv.innerHTML = "";
-
-    contextPropertiesContainerDiv.element.appendChild(sEditingHistoryName);
-    contextPropertiesContainerDiv.element.appendChild(editingHistoryInstancesDiv);
-
-    return contextPropertiesContainerDiv.element;
-}
+// TODO: divide monolithic UI creation code into functions below
+// note that some info cards, like editing context and generic selection,
+// are in FormIt.PluginUI because they are shared with other plugins
 
 PropertiesPlus.createGroupInstanceAttributeListItem = function(nStringAttributeCount, stringAttributeKeyContent, stringAttributeValueContent)
 {
