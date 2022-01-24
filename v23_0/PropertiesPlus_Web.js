@@ -159,7 +159,7 @@ PropertiesPlus.initializeUI = function()
     contentContainer.appendChild(infoCardsContainer);
 
     // create the selection count container
-    PropertiesPlus.selectionCountInfoCard = new FormIt.PluginUI.SelectionCountInfoCard();
+    PropertiesPlus.selectionCountInfoCard = new FormIt.PluginUI.SelectionCountInfoCard(PropertiesPlus.nMaxObjectCount);
     infoCardsContainer.appendChild(PropertiesPlus.selectionCountInfoCard.element);
 
     //
@@ -489,12 +489,6 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     //
     // update counts or hide UI based on flags 
     //
-
-    // if multiple items, enable HTML
-    if (bIsAnythingSelected)
-    {
-        //objectCountHorizontalRule.className = 'show';
-    }
 
     // if a single instance is selected, enable HTML and update it
     if (bIsSingleGroupInstance)
