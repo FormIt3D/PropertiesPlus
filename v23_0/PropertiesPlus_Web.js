@@ -50,65 +50,13 @@ PropertiesPlus.nMaxObjectCount = 1000;
 PropertiesPlus.currentSelectionInfo = {};
 
 // post-processed data to determine which HTML elements to display
-let bIsAnythingSelected = false;
-let bIsOneOrMoreVertices = false;
-let bIsOneOrMoreEdges = false;
-let bIsOneOrMoreFaces = false;
-let bIsOneOrMoreBodies = false;
-let bIsOneOrMoreMeshes = false;
-let bIsOneOrMoreLineMeshes = false;
-let bIsOneOrMorePointMeshes = false;
 let bIsSingleGroupInstance = false;
 let bIsOneOrMoreGroupInstances = false;
 let bIsMultipleGroupInstances = false;
 
 // elements that will be updated (contents or visibility) when the selection or editing history changes
 PropertiesPlus.editingContextInfoCard = undefined;
-
-// all object counts
-let objectCountDiv;
-let objectCountLabel; 
-let objectCountHorizontalRule;
-// vertices
-let vertexCountModule;
-let vertexCountModuleID = 'vertexCountModule';
-let vertexCountLabelID = 'vertexCountLabel';
-let vertexCountLabelPrefix = "Vertices: ";
-// edges
-let edgeCountModule;
-let edgeCountModuleID = 'edgeCountModule';
-let edgeCountLabelID = 'edgeCountLabel';
-let edgeCountLabelPrefix = "Edges: ";
-// faces
-let faceCountModule;
-let faceCountModuleID = 'faceCountModule';
-let faceCountLabelID = 'faceCountLabel';
-let faceCountLabelPrefix = "Faces: ";
-// bodies
-let bodyCountModule;
-let bodyCountModuleID = 'bodyCountModule';
-let bodyCountLabelID = 'bodyCountLabel';
-let bodyCountLabelPrefix = "Bodies: ";
-// meshes
-let meshCountModule;
-let meshCountModuleID = 'meshCountModule';
-let meshCountLabelID = 'meshCountLabel';
-let meshCountLabelPrefix = "Meshes: ";
-// linemeshes
-let lineMeshCountModule;
-let lineMeshCountModuleID = 'lineMeshCountModule';
-let lineMeshCountLabelID = 'lineMeshCountLabel';
-let lineMeshCountLabelPrefix = "LineMeshes: ";
-// pointmeshes
-let pointMeshCountModule;
-let pointMeshCountModuleID = 'pointMeshCountModule';
-let pointMeshCountLabelID = 'pointMeshCountLabel';
-let pointMeshCountLabelPrefix = "PointMeshes: ";
-// group instances
-let groupInstanceCountModule;
-let groupInstanceCountModuleID = 'groupInstanceCountModule';
-let groupInstanceCountLabelID = 'groupInstanceCountLabel';
-let groupInstanceCountLabelPrefix = "Groups: ";
+PropertiesPlus.selectionCountInfoCard = undefined;
 
 let singleGroupFamilyDetailsContainerDiv;
 let singleGroupInstanceDetailsContainerDiv;
@@ -157,9 +105,7 @@ PropertiesPlus.initializeUI = function()
     let contextPropertiesSubheader = new FormIt.PluginUI.SubheaderModule('Context Properties', 'show');
     contentContainer.appendChild(contextPropertiesSubheader.element);
 
-    //
-    // create the context properties info card
-    //
+    // ecreate the editing context info card
     PropertiesPlus.editingContextInfoCard = new FormIt.PluginUI.EditingContextInfoCard();
     contentContainer.appendChild(PropertiesPlus.editingContextInfoCard.element);
 
@@ -204,38 +150,17 @@ PropertiesPlus.initializeUI = function()
     contentContainer.appendChild(disabledStateContainerDiv);
 
     // 
-    // create the info cards container
+    // create the selection info cards container
     // stores all info cards in one place for easier toggling
     // 
     let infoCardsContainer = document.createElement('div');
     infoCardsContainer.id = infoCardsContainerID;
     infoCardsContainer.className = 'show';
-
     contentContainer.appendChild(infoCardsContainer);
 
-    //
     // create the selection count container
-    //
-    let selectionInfoContainerDiv = document.createElement('div');
-    selectionInfoContainerDiv.id = selectionInfoContainerID;
-    selectionInfoContainerDiv.className = 'infoContainer';
-
-    let selectionInfoHeaderDiv = document.createElement('div');
-    selectionInfoHeaderDiv.id = 'selectionInfoHeaderDiv';
-    selectionInfoHeaderDiv.className = 'infoHeader';
-    selectionInfoHeaderDiv.innerHTML = 'Selection Count';
-
-    objectCountDiv = document.createElement('div');
-    objectCountDiv.className = 'infoList';
-    objectCountLabel = "Total objects: ";
-    objectCountDiv.innerHTML = objectCountLabel + PropertiesPlus.currentSelectionInfo.nSelectedTotalCount;
-
-    objectCountHorizontalRule = document.createElement('hr'); // horizontal line
-    objectCountHorizontalRule.className = 'hide';
-
-    infoCardsContainer.appendChild(selectionInfoContainerDiv);
-    selectionInfoContainerDiv.appendChild(selectionInfoHeaderDiv);
-    selectionInfoContainerDiv.appendChild(objectCountDiv);
+    PropertiesPlus.selectionCountInfoCard = new FormIt.PluginUI.SelectionCountInfoCard();
+    infoCardsContainer.appendChild(PropertiesPlus.selectionCountInfoCard.element);
 
     //
     // create the "too many items" message
@@ -250,49 +175,6 @@ PropertiesPlus.initializeUI = function()
 
     infoCardsContainer.appendChild(tooManyItemsContainerDiv);
     tooManyItemsContainerDiv.appendChild(tooManyItemsDiv);
-    
-    // create the specific object counts list - these are hidden until the selection contains them
-    selectionInfoContainerDiv.appendChild(objectCountHorizontalRule);
-
-    // vertices
-    vertexCountModule = new FormIt.PluginUI.DeselectButtonModule(PropertiesPlus.submitDeselectObjectsByType, WSM.nObjectType.nVertexType, vertexCountLabelPrefix, vertexCountModuleID, vertexCountLabelID);
-    selectionInfoContainerDiv.appendChild(vertexCountModule.element);
-    PropertiesPlus.hideObjectCountModule(vertexCountModule.element);
-
-    // edges
-    edgeCountModule = new FormIt.PluginUI.DeselectButtonModule(PropertiesPlus.submitDeselectObjectsByType, WSM.nObjectType.nEdgeType, edgeCountLabelPrefix, edgeCountModuleID, edgeCountLabelID);
-    selectionInfoContainerDiv.appendChild(edgeCountModule.element);
-    PropertiesPlus.hideObjectCountModule(edgeCountModule.element);
-
-    // faces
-    faceCountModule = new FormIt.PluginUI.DeselectButtonModule(PropertiesPlus.submitDeselectObjectsByType, WSM.nObjectType.nFaceType, faceCountLabelPrefix, faceCountModuleID, faceCountLabelID);
-    selectionInfoContainerDiv.appendChild(faceCountModule.element);
-    PropertiesPlus.hideObjectCountModule(faceCountModule.element);
-
-    // bodies
-    bodyCountModule = new FormIt.PluginUI.DeselectButtonModule(PropertiesPlus.submitDeselectObjectsByType, WSM.nObjectType.nBodyType, bodyCountLabelPrefix, bodyCountModuleID, bodyCountLabelID);
-    selectionInfoContainerDiv.appendChild(bodyCountModule.element);
-    PropertiesPlus.hideObjectCountModule(bodyCountModule.element);
-
-    // meshes
-    meshCountModule = new FormIt.PluginUI.DeselectButtonModule(PropertiesPlus.submitDeselectObjectsByType, WSM.nObjectType.nMeshType, meshCountLabelPrefix, meshCountModuleID, meshCountLabelID);
-    selectionInfoContainerDiv.appendChild(meshCountModule.element);
-    PropertiesPlus.hideObjectCountModule(meshCountModule.element);
-
-    // linemeshes
-    lineMeshCountModule = new FormIt.PluginUI.DeselectButtonModule(PropertiesPlus.submitDeselectObjectsByType, WSM.nObjectType.nLineMeshType, lineMeshCountLabelPrefix, lineMeshCountModuleID, lineMeshCountLabelID);
-    selectionInfoContainerDiv.appendChild(lineMeshCountModule.element);
-    PropertiesPlus.hideObjectCountModule(lineMeshCountModule.element);
-
-    // pointmeshes
-    pointMeshCountModule = new FormIt.PluginUI.DeselectButtonModule(PropertiesPlus.submitDeselectObjectsByType, WSM.nObjectType.nPointMeshType, pointMeshCountLabelPrefix, pointMeshCountModuleID, pointMeshCountLabelID);
-    selectionInfoContainerDiv.appendChild(pointMeshCountModule.element);
-    PropertiesPlus.hideObjectCountModule(pointMeshCountModule.element);
-
-    // group instances
-    groupInstanceCountModule = new FormIt.PluginUI.DeselectButtonModule(PropertiesPlus.submitDeselectObjectsByType, WSM.nObjectType.nInstanceType, groupInstanceCountLabelPrefix, groupInstanceCountModuleID, groupInstanceCountLabelID);
-    selectionInfoContainerDiv.appendChild(groupInstanceCountModule.element);
-    PropertiesPlus.hideObjectCountModule(groupInstanceCountModule.element);
 
     //
     // create the single group family details container - starts hidden
@@ -434,44 +316,6 @@ PropertiesPlus.initializeUI = function()
     window.document.body.appendChild(footerModule.element)
 }
 
-// display and update an object count module
-PropertiesPlus.showAndUpdateObjectCountModule = function(objectCountModule, labelDiv, labelPrefix, objectCount)
-{
-    objectCountModule.style.display = 'block';
-    
-    if (bIsSingleGroupInstance && labelPrefix.includes("Group"))
-    {
-        labelDiv.innerHTML = labelPrefix + objectCount + " Instance (" + PropertiesPlus.currentSelectionInfo.nSelectedIdenticalGroupInstanceCount + " in model)";
-    } 
-    else if (bIsMultipleGroupInstances && labelPrefix.includes("Group"))
-    {
-        // update the group instance count to also show how many unique families the instances belong to
-        let uniqueGroupFamilyCount = eliminateDuplicatesInArray(PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs).length;
-        // change the wording slightly if there is more than one family
-        let familyString;
-        if (uniqueGroupFamilyCount == 1)
-        {
-            familyString = " Group)";
-        }
-        else
-        {
-            familyString = " Groups)";
-        }
-        
-        labelDiv.innerHTML = labelPrefix + objectCount + " Instances (" + uniqueGroupFamilyCount + familyString;
-    }
-    else
-    {
-        labelDiv.innerHTML = labelPrefix + objectCount;
-    }
-}
-
-// hide an object count module
-PropertiesPlus.hideObjectCountModule = function(objectCountModule)
-{
-    objectCountModule.style.display = 'none';
-}
-
 // update all values with data from the application
 PropertiesPlus.updateUI = function()
 {
@@ -570,11 +414,11 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
 
     // update all info cards
     PropertiesPlus.editingContextInfoCard.update(PropertiesPlus.currentSelectionInfo);
+    PropertiesPlus.selectionCountInfoCard.update(PropertiesPlus.currentSelectionInfo);
 
     // TODO: simplify the remainder below
     // and move monolithic update code into separate functions
     objectCount = PropertiesPlus.currentSelectionInfo.nSelectedTotalCount;
-    objectCountDiv.innerHTML = objectCountLabel + objectCount;
 
     // if too many items are selected, show a message
     if (objectCount > PropertiesPlus.nMaxObjectCount)
@@ -603,109 +447,6 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     else
     {
         bIsAnythingSelected = false;
-    }
-
-    // if one or more vertices (WSM object #8) are selected, set a flag
-    for (let i = 0; i < objectCount; i++)
-    {
-        if (PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes[i] == 8)
-        {
-            //console.log("At least one vertex is selected.");
-            bIsOneOrMoreVertices = true;
-            break;
-        }
-        else
-        {
-            bIsOneOrMoreVertices = false;
-        }
-    }
-
-    // if one or more edges (WSM object #7) are selected, set a flag
-    for (let i = 0; i < objectCount; i++)
-    {
-        if (PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes[i] == 7)
-        {
-            //console.log("At least one edge is selected.");
-            bIsOneOrMoreEdges = true;
-            break;
-        }
-        else
-        {
-            bIsOneOrMoreEdges = false;
-        }
-    }
-
-    // if one or more faces (WSM object #4) are selected, set a flag
-    for (let i = 0; i < objectCount; i++)
-    {
-        if (PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes[i] == 4)
-        {
-            //console.log("At least one face is selected.");
-            bIsOneOrMoreFaces = true;
-            break;
-        }
-        else
-        {
-            bIsOneOrMoreFaces = false;
-        }
-    }
-
-    // if one or more bodies (WSM object #1) are selected, set a flag
-    for (let i = 0; i < objectCount; i++)
-    {
-        if (PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes[i] == 1)
-        {
-            //console.log("At least one body is selected.");
-            bIsOneOrMoreBodies = true;
-            break;
-        }
-        else
-        {
-            bIsOneOrMoreBodies = false;
-        }
-    }
-
-    // if one or more meshes (WSM object #32) are selected, set a flag
-    for (let i = 0; i < objectCount; i++)
-    {
-        if (PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes[i] == 32)
-        {
-            //console.log("At least one mesh is selected.");
-            bIsOneOrMoreMeshes = true;
-            break;
-        }
-        else
-        {
-            bIsOneOrMoreMeshes = false;
-        }
-    }
-    // if one or more lineMeshes (WSM object #33) are selected, set a flag
-    for (let i = 0; i < objectCount; i++)
-    {
-        if (PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes[i] == 33)
-        {
-            //console.log("At least one linemesh is selected.");
-            bIsOneOrMoreLineMeshes = true;
-            break;
-        }
-        else
-        {
-            bIsOneOrMoreLineMeshes = false;
-        }
-    }
-    // if one or more pointMeshes (WSM object #34) are selected, set a flag
-    for (let i = 0; i < objectCount; i++)
-    {
-        if (PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes[i] == 34)
-        {
-            //console.log("At least one pointmesh is selected.");
-            bIsOneOrMorePointMeshes = true;
-            break;
-        }
-        else
-        {
-            bIsOneOrMorePointMeshes = false;
-        }
     }
 
     // if there's just one Group Instance selected, set a flag
@@ -752,85 +493,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     // if multiple items, enable HTML
     if (bIsAnythingSelected)
     {
-        objectCountHorizontalRule.className = 'show';
-    }
-
-    // if any vertices are selected, enable HTML and update it
-    if (bIsOneOrMoreVertices)
-    {
-        PropertiesPlus.showAndUpdateObjectCountModule(vertexCountModule.element, vertexCountLabel, vertexCountLabelPrefix, PropertiesPlus.currentSelectionInfo.nSelectedVertexCount);
-    }
-    else 
-    {
-        PropertiesPlus.hideObjectCountModule(vertexCountModule.element);
-    }
-
-    // if any edges are selected, enable HTML and update it
-    if (bIsOneOrMoreEdges)
-    {
-        PropertiesPlus.showAndUpdateObjectCountModule(edgeCountModule.element, edgeCountLabel, edgeCountLabelPrefix, PropertiesPlus.currentSelectionInfo.nSelectedEdgeCount);
-    }
-    else
-    {
-        PropertiesPlus.hideObjectCountModule(edgeCountModule.element);
-    }
-
-    // if any faces are selected, enable HTML and update it
-    if (bIsOneOrMoreFaces)
-    {
-        PropertiesPlus.showAndUpdateObjectCountModule(faceCountModule.element, faceCountLabel, faceCountLabelPrefix, PropertiesPlus.currentSelectionInfo.nSelectedFaceCount);
-    }
-    else
-    {
-        PropertiesPlus.hideObjectCountModule(faceCountModule.element);
-    }
-
-    // if any bodies are selected, enable HTML and update it
-    if (bIsOneOrMoreBodies)
-    {
-        PropertiesPlus.showAndUpdateObjectCountModule(bodyCountModule.element, bodyCountLabel, bodyCountLabelPrefix, PropertiesPlus.currentSelectionInfo.nSelectedBodyCount);
-    }
-    else
-    {
-        PropertiesPlus.hideObjectCountModule(bodyCountModule.element);
-    }
-
-    // if any meshes are selected, enable HTML and update it
-    if (bIsOneOrMoreMeshes)
-    {
-        PropertiesPlus.showAndUpdateObjectCountModule(meshCountModule.element, meshCountLabel, meshCountLabelPrefix, PropertiesPlus.currentSelectionInfo.nSelectedMeshCount);
-    }
-    else
-    {
-        PropertiesPlus.hideObjectCountModule(meshCountModule.element);
-    }
-    // if any linemeshes are selected, enable HTML and update it
-    if (bIsOneOrMoreLineMeshes)
-    {
-        PropertiesPlus.showAndUpdateObjectCountModule(lineMeshCountModule.element, lineMeshCountLabel, lineMeshCountLabelPrefix, PropertiesPlus.currentSelectionInfo.nSelectedLineMeshCount);
-    }
-    else
-    {
-        PropertiesPlus.hideObjectCountModule(lineMeshCountModule.element);
-    }
-    // if any pointmeshes are selected, enable HTML and update it
-    if (bIsOneOrMorePointMeshes)
-    {
-        PropertiesPlus.showAndUpdateObjectCountModule(pointMeshCountModule.element, pointMeshCountLabel, pointMeshCountLabelPrefix, PropertiesPlus.currentSelectionInfo.nSelectedPointMeshCount);
-    }
-    else
-    {
-        PropertiesPlus.hideObjectCountModule(pointMeshCountModule.element);
-    }
-
-    // if any instances are selected, enable HTML and update it
-    if (bIsOneOrMoreGroupInstances)
-    {
-        PropertiesPlus.showAndUpdateObjectCountModule(groupInstanceCountModule.element, groupInstanceCountLabel, groupInstanceCountLabelPrefix, PropertiesPlus.currentSelectionInfo.nSelectedGroupInstanceCount);
-    }
-    else
-    {
-        PropertiesPlus.hideObjectCountModule(groupInstanceCountModule.element);
+        //objectCountHorizontalRule.className = 'show';
     }
 
     // if a single instance is selected, enable HTML and update it
@@ -938,15 +601,6 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     // hide elements that shouldn't display with no selection
     if (objectCount === 0)
     {
-        objectCountHorizontalRule.className = 'hide';
-        PropertiesPlus.hideObjectCountModule(vertexCountModule.element);
-        PropertiesPlus.hideObjectCountModule(edgeCountModule.element);
-        PropertiesPlus.hideObjectCountModule(faceCountModule.element);
-        PropertiesPlus.hideObjectCountModule(bodyCountModule.element);
-        PropertiesPlus.hideObjectCountModule(meshCountModule.element);
-        PropertiesPlus.hideObjectCountModule(lineMeshCountModule.element);
-        PropertiesPlus.hideObjectCountModule(pointMeshCountModule.element);
-        PropertiesPlus.hideObjectCountModule(groupInstanceCountModule.element);
         singleGroupInstanceDetailsContainerDiv.className = 'hide';
         singleGroupInstanceToolsContainerDiv.className = 'hide';
         singleGroupInstanceAttributesContainerDiv.className = 'hide';
