@@ -36,6 +36,7 @@ PropertiesPlus.initializeSelectionInfoObject = function()
         "nSelectedPointMeshCount" : 0,
         "nSelectedGroupInstanceCount" : 0,
         "nSelectedIdenticalGroupInstanceCount" : 0,
+        "nSelectedUniqueGroupHistoryCount" : 0,
         "bIsConsistentGroupHistoryIDs" : false,
         "isConsistentGroupFamilyNames" : false,
         "bIsConsistentGroupInstanceNames" : false
@@ -171,7 +172,11 @@ PropertiesPlus.getSelectionInfo = function(args)
 
     // determine if the instances come from the same group family
     var groupFamilyHistoryIDComparisonResultsArray = testForIdentical(selectionInfoObject.aSelectedGroupHistoryIDs);
-    selectionInfoObject.bIsConsistentGroupHistoryIDs = booleanReduce(groupFamilyHistoryIDComparisonResultsArray)
+    selectionInfoObject.bIsConsistentGroupHistoryIDs = booleanReduce(groupFamilyHistoryIDComparisonResultsArray);
+
+    // determine unique group history IDs
+    var aUniqueGroupHistoryIDs = eliminateDuplicatesInArray(selectionInfoObject.aSelectedGroupHistoryIDs);
+    selectionInfoObject.nSelectedUniqueGroupHistoryCount = aUniqueGroupHistoryIDs.length;
 
     // determine if the group families are all of the same name
     var groupFamilyNameComparisonResultsArray = testForIdentical(selectionInfoObject.aSelectedGroupNames);
