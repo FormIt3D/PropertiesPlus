@@ -63,6 +63,8 @@ let bIsOneOrMoreGroupInstances = false;
 let bIsMultipleGroupInstances = false;
 
 // elements that will be updated (contents or visibility) when the selection or editing history changes
+PropertiesPlus.editingContextInfoCard = undefined;
+
 let editingHistoryNameDiv;
 let editingHistoryInstancesDiv;
 
@@ -159,18 +161,10 @@ PropertiesPlus.initializeUI = function()
     contentContainer.appendChild(contextPropertiesSubheader.element);
 
     //
-    // create the context properties card container
+    // create the context properties info card
     //
-    let contextCardsContainer = document.createElement('div');
-    contextCardsContainer.id = 'editingContextCardsContainer';
-    contextCardsContainer.className = 'show';
-    contentContainer.appendChild(contextCardsContainer);
-
-    //
-    // create the context properties info container
-    //
-    let contextPropertiesContainerDiv = PropertiesPlus.createCurrentEditingHistoryInfoCard();
-    contextCardsContainer.appendChild(contextPropertiesContainerDiv);
+    PropertiesPlus.editingContextInfoCard = new FormIt.PluginUI.EditingContextInfoCard();
+    contentContainer.appendChild(PropertiesPlus.editingContextInfoCard.element);
 
     // create the selection properties subheader
     let selectionPropertiesSubheader = new FormIt.PluginUI.SubheaderModule('Selection Properties', 'show');
@@ -524,6 +518,8 @@ PropertiesPlus.setUIStateToDisabled = function()
     disabledStateContainer.className = 'infoContainer';
 }
 
+/*** create info cards ***/
+
 PropertiesPlus.createCurrentEditingHistoryInfoCard = function()
 {
     let contextPropertiesContainerDiv = new FormIt.PluginUI.InfoCardStatic('Currently Editing');
@@ -584,24 +580,16 @@ PropertiesPlus.clearQuantification = function(currentSelectionInfo)
 }
 
 // update the values in the UI based on the current FormIt selection
+// TODO: this needs to be broken up
 PropertiesPlus.updateQuantification = function(currentSelectionData)
 {
     PropertiesPlus.currentSelectionInfo = JSON.parse(currentSelectionData);
 
-    // update the current editing history name
-    sEditingHistoryName.innerHTML = PropertiesPlus.currentSelectionInfo.sEditingHistoryName;
+    // update all info cards
+    PropertiesPlus.editingContextInfoCard.update(PropertiesPlus.currentSelectionInfo);
 
-    // update the number of instances the current history affects
-    if (PropertiesPlus.currentSelectionInfo.sEditingHistoryName == "Main Sketch")
-    {
-        editingHistoryInstancesDiv.innerHTML = "";
-    } 
-    else 
-    {
-        editingHistoryInstancesDiv.innerHTML = "(" + PropertiesPlus.currentSelectionInfo.nEditingHistoryInstances + " in model)";
-    }
-
-    // update object count and HTML
+    // TODO: simplify the remainder below
+    // and move monolithic update code into separate functions
     objectCount = PropertiesPlus.currentSelectionInfo.nSelectedTotalCount;
     objectCountDiv.innerHTML = objectCountLabel + objectCount;
 
