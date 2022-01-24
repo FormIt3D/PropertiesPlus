@@ -257,10 +257,10 @@ PropertiesPlus.getGroupFamilyName = function(groupHistoryID)
     var groupName = WSM.APIGetRevitFamilyInformationReadOnly(groupHistoryID).familyReference;
 
     // if the Group name is empty, that means it hasn't been set
-    // so use the default Group naming convention: "Group " + "historyID"
+    // so use the default Group naming convention
     if (groupName == '')
     {
-        groupName = "Group " + groupHistoryID;;
+        groupName = "History " + groupHistoryID;;
     }
 
     return groupName;
