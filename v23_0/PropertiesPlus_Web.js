@@ -316,10 +316,6 @@ PropertiesPlus.updateUI = function()
 
 PropertiesPlus.setUIStateToEnabled = function()
 {
-    // show the selection info container
-    let selectionInfoContainer = document.getElementById(selectionInfoContainerID);
-    selectionInfoContainer.className = 'infoContainer';
-
     // show the info cards container
     let infoCardsContainer = document.getElementById(infoCardsContainerID);
     infoCardsContainer.className = 'show';
@@ -334,10 +330,6 @@ PropertiesPlus.setUIStateToEnabled = function()
 // update the UI to a dsiabled state, when the user has disabled updates
 PropertiesPlus.setUIStateToDisabled = function()
 {
-    // hide the selection info container
-    let selectionInfoContainer = document.getElementById(selectionInfoContainerID);
-    selectionInfoContainer.className = 'hide';
-
     // hide the info cards container
     let infoCardsContainer = document.getElementById(infoCardsContainerID);
     infoCardsContainer.className = 'hide';
