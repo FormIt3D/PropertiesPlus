@@ -161,20 +161,8 @@ PropertiesPlus.initializeUI = function()
     // create the selection count container
     PropertiesPlus.selectionCountInfoCard = new FormIt.PluginUI.SelectionCountInfoCard(PropertiesPlus.nMaxObjectCount);
     infoCardsContainer.appendChild(PropertiesPlus.selectionCountInfoCard.element);
-
-    //
-    // create the "too many items" message
-    //
-    tooManyItemsContainerDiv = document.createElement('div');
-    tooManyItemsContainerDiv.id = selectionInfoContainerID;
-    tooManyItemsContainerDiv.className = 'hide';
-
-    tooManyItemsDiv = document.createElement('div');
-    tooManyItemsDiv.className = 'infoList';
-    tooManyItemsDiv.innerHTML = "Select fewer than " + PropertiesPlus.nMaxObjectCount + " objects to see more information."
-
-    infoCardsContainer.appendChild(tooManyItemsContainerDiv);
-    tooManyItemsContainerDiv.appendChild(tooManyItemsDiv);
+    // append the too many objects div now that it has a parent
+    PropertiesPlus.selectionCountInfoCard.appendTooManyObjectsMessage();
 
     //
     // create the single group family details container - starts hidden
@@ -420,19 +408,12 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     // and move monolithic update code into separate functions
     objectCount = PropertiesPlus.currentSelectionInfo.nSelectedTotalCount;
 
-    // if too many items are selected, show a message
+    // if too many items are selected
+    // clear the current selection info so downstream calculations think nothing is selected
     if (objectCount > PropertiesPlus.nMaxObjectCount)
     {
-        // show the container for the message that too many items are selected
-        tooManyItemsContainerDiv.className = 'infoContainer';
-
-        // clear the current selection info so downstream calculations think nothing is selected
         PropertiesPlus.clearQuantification(PropertiesPlus.currentSelectionInfo);
         objectCount = 0;
-    }
-    else
-    {
-        tooManyItemsContainerDiv.className = 'hide';
     }
 
     //
