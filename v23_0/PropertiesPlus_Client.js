@@ -16,9 +16,11 @@ PropertiesPlus.initializeSelectionInfoObject = function()
         "nEditingHistoryDepth" : 0,
         "sEditingHistoryName" : '',
         "nEditingHistoryInstances" : 0,
+        "aEditingHistoryStringAttributes" : [],
         "aSelectedObjectIDs" : [],
         "aSelectedObjectTypes" : [],
         "aSelectedObjectNames" : [],
+        "aSelectedObjectStringAttributes" : [],
         "aSelectedGroupHistoryIDs" : [],
         "aSelectedGroupIDs" : [],
         "aSelectedGroupNames" : [],
@@ -78,6 +80,22 @@ PropertiesPlus.getSelectionInfo = function(args)
         selectionInfoObject.nEditingHistoryInstances = WSM.APIGetAllAggregateTransf3dsReadOnly(selectionInfoObject.nEditingHistoryID, 0).paths.length;
     }
 
+    // get the string attributes attached to this history
+    var aHistoryAttributes = WSM.APIGetObjectsByTypeReadOnly(selectionInfoObject.nEditingHistoryID, selectionInfoObject.nEditingHistoryID, WSM.nStringAttributeType);
+
+    console.log("Test! " + aHistoryAttributes)
+
+    // for each ID, get the string attribute key and value
+    // and add it to the array
+    for (var j = 0; j < aHistoryAttributes.length; j++)
+    {
+        // string attribute object
+        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(selectionInfoObject.nEditingHistoryID, aHistoryAttributes[j]);
+
+        // push the attribute into the array
+        selectionInfoObject.aEditingHistoryStringAttributes.push(stringAttributeObject);
+    }
+
     console.log("Currently editing: " + selectionInfoObject.sEditingHistoryName + " (" + selectionInfoObject.nEditingHistoryInstances + " in model)\n");
 
     // get current selection
@@ -117,6 +135,20 @@ PropertiesPlus.getSelectionInfo = function(args)
         var objectName = objectProperties.sObjectName;
         selectionInfoObject.aSelectedObjectNames.push(objectName);
         //console.log("Object name array: " + JSON.stringify(selectedObjectsNameArray));
+
+        // get the attributes of this object
+        var aObjectAttributes = WSM.APIGetObjectsByTypeReadOnly(selectionInfoObject.nEditingHistoryID, nObjectID, WSM.nStringAttributeType);
+
+        // for each ID, get the string attribute key and value
+        // and add it to the array
+        for (var j = 0; j < aObjectAttributes.length; j++)
+        {
+            // string attribute object
+            var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(selectionInfoObject.nEditingHistoryID, aObjectAttributes[j]);
+
+            // push the attribute into the array
+            selectionInfoObject.aSelectedObjectStringAttributes.push(stringAttributeObject);
+        }
 
         // get the Levels setting for this object, then push the results into an array
         var bUseLevels = objectProperties.bReportAreaByLevel;
