@@ -58,11 +58,11 @@ let bIsMultipleGroupInstances = false;
 PropertiesPlus.editingContextInfoCard = undefined;
 PropertiesPlus.selectionCountInfoCard = undefined;
 
+
 let singleGroupFamilyDetailsContainerDiv;
 let singleGroupInstanceDetailsContainerDiv;
 let singleGroupInstanceToolsContainerDiv;
-let singleGroupInstanceAttributesContainerDiv;
-let singleGroupInstanceAttributeListDiv;
+PropertiesPlus.selectedGroupInstanceAttributesInfoCard = undefined;
 
 let multiGroupInstanceDetailsContainerDiv;
 
@@ -247,16 +247,9 @@ PropertiesPlus.initializeUI = function()
     //
     // create the single group instance attributes container - starts hidden
     //
-    singleGroupInstanceAttributesContainerDiv = new FormIt.PluginUI.InfoCardExpandable('Group Instance Attributes', false);
-    infoCardsContainer.appendChild(singleGroupInstanceAttributesContainerDiv.element);
-    singleGroupInstanceAttributesContainerDiv.element.className = 'hide';
 
-    // list of attributes
-    singleGroupInstanceAttributeListDiv = new FormIt.PluginUI.ListContainer('No attributes found.');
-    singleGroupInstanceAttributeListDiv.element.className = 'scrollableListContainer';
-    singleGroupInstanceAttributesContainerDiv.infoCardExpandableContent.appendChild(singleGroupInstanceAttributeListDiv.element);
-    singleGroupInstanceAttributeListDiv.setListHeight(200);
-    singleGroupInstanceAttributeListDiv.toggleZeroStateMessage();
+    PropertiesPlus.selectedGroupInstanceAttributesInfoCard = new FormIt.PluginUI.StringAttributeListViewOnly('Group Instance Attributes', false, 200);
+    infoCardsContainer.appendChild(PropertiesPlus.selectedGroupInstanceAttributesInfoCard.element);
 
     // this is a work in progress
     if (displayWIP)
@@ -339,44 +332,6 @@ PropertiesPlus.setUIStateToDisabled = function()
     disabledStateContainer.className = 'infoContainer';
 }
 
-/*** create info cards ***/
-
-// TODO: divide monolithic UI creation code into functions below
-// note that some info cards, like editing context and generic selection,
-// are in FormIt.PluginUI because they are shared with other plugins
-
-PropertiesPlus.createGroupInstanceAttributeListItem = function(nStringAttributeCount, stringAttributeKeyContent, stringAttributeValueContent)
-{
-    // create a list item
-    let attributeContainerDiv = new FormIt.PluginUI.SimpleListItemStatic();
-    
-    // attribute key
-    let attributeKeyLabelDiv = document.createElement('div');
-    attributeKeyLabelDiv.textContent = 'Key ' + nStringAttributeCount + ':';
-    attributeKeyLabelDiv.style.fontWeight = 'bold';
-    attributeKeyLabelDiv.style.paddingBottom = 5;
-    attributeContainerDiv.element.appendChild(attributeKeyLabelDiv);
-
-    let attributeKeyContentDiv = document.createElement('div');
-    attributeKeyContentDiv.style.paddingBottom = 10;
-    attributeKeyContentDiv.textContent = stringAttributeKeyContent;
-    attributeContainerDiv.element.appendChild(attributeKeyContentDiv);
-
-    // attribute value
-    let attributeValueLabel = document.createElement('div');
-    attributeValueLabel.textContent = 'Value:';
-    attributeValueLabel.style.fontWeight = 'bold';
-    attributeValueLabel.style.paddingBottom = 5;
-    attributeContainerDiv.element.appendChild(attributeValueLabel);
-
-    let attributeValueContentDiv = document.createElement('div');
-    attributeValueContentDiv.style.paddingBottom = 10;
-    attributeValueContentDiv.textContent = stringAttributeValueContent;
-    attributeContainerDiv.element.appendChild(attributeValueContentDiv);
-
-    return attributeContainerDiv.element;
-}
-
 // clear all arrays in the selectionInfo object
 PropertiesPlus.clearQuantification = function(currentSelectionInfo)
 {
@@ -411,16 +366,6 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     //
     // set flags based on selection
     //
-
-    // if multiple objects are selected, set a flag
-    if (objectCount > 0)
-    {
-        bIsAnythingSelected = true;
-    }
-    else
-    {
-        bIsAnythingSelected = false;
-    }
 
     // if there's just one Group Instance selected, set a flag
     if (PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs.length == 1)
@@ -470,7 +415,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
         singleGroupInstanceDetailsContainerDiv.className = 'infoContainer';
         singleGroupInstanceToolsContainerDiv.className = 'infoContainer';
-        singleGroupInstanceAttributesContainerDiv.element.className = 'infoContainer';
+        PropertiesPlus.selectedGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.show();
 
         let groupInstanceName = PropertiesPlus.currentSelectionInfo.aSelectedObjectNames[0];
         let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
@@ -481,24 +426,14 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         singleGroupFamilyNameInput.value = groupFamilyName;
 
         // update the attributes list
-        singleGroupInstanceAttributeListDiv.clearList();
-
-        for (var i = 0; i < PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceAttributes.length; i++)
-        {
-            let attributeObject = PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceAttributes[i];
-
-            // test attribute
-            let attributeItem = PropertiesPlus.createGroupInstanceAttributeListItem(i, attributeObject.sKey, attributeObject.sValue);
-            singleGroupInstanceAttributeListDiv.element.appendChild(attributeItem);       
-        }
-        singleGroupInstanceAttributeListDiv.toggleZeroStateMessage();
+        PropertiesPlus.selectedGroupInstanceAttributesInfoCard.update(PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceAttributes);
     }
     else
     {
         singleGroupFamilyDetailsContainerDiv.className = 'hide';
         singleGroupInstanceDetailsContainerDiv.className = 'hide';
         singleGroupInstanceToolsContainerDiv.className = 'hide';
-        singleGroupInstanceAttributesContainerDiv.element.className = 'hide';
+        PropertiesPlus.selectedGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.hide();
     }
 
     // if multiple group instances are selected, enable HTML and update it
@@ -570,7 +505,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     {
         singleGroupInstanceDetailsContainerDiv.className = 'hide';
         singleGroupInstanceToolsContainerDiv.className = 'hide';
-        singleGroupInstanceAttributesContainerDiv.className = 'hide';
+        PropertiesPlus.selectedGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.hide();
         multiGroupInstanceDetailsContainerDiv.className = 'hide';
     }
     
