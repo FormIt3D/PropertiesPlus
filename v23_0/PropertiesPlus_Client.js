@@ -20,7 +20,6 @@ PropertiesPlus.initializeSelectionInfoObject = function()
         "aSelectedObjectIDs" : [],
         "aSelectedObjectTypes" : [],
         "aSelectedObjectNames" : [],
-        "aSelectedObjectStringAttributes" : [],
         "aSelectedGroupHistoryIDs" : [],
         "aSelectedGroupIDs" : [],
         "aSelectedGroupNames" : [],
@@ -44,6 +43,21 @@ PropertiesPlus.initializeSelectionInfoObject = function()
         "bIsConsistentGroupInstanceNames" : false
     };
     return selectionInfoObject;
+}
+
+// a smaller object focused on pertinent information around attributes
+PropertiesPlus.initializeAttributesInfoObject = function()
+{
+    var attributesInfoObject = {
+        "nEditingHistoryID" : 0,
+        "nSelectedTotalCount" : 0,
+        "nSelectedObjectID" : 0,
+        "nSelectedInstanceHistoryID" : -1,
+        "aSelectedObjectStringAttributes" : [],
+        "aSelectedObjectHistoryStringAttributes" : []
+    }
+
+    return attributesInfoObject;
 }
 
 // updates variables and arrays about the items in the selection set
@@ -78,22 +92,6 @@ PropertiesPlus.getSelectionInfo = function(args)
     else 
     {
         selectionInfoObject.nEditingHistoryInstances = WSM.APIGetAllAggregateTransf3dsReadOnly(selectionInfoObject.nEditingHistoryID, 0).paths.length;
-    }
-
-    // get the string attributes attached to this history
-    var aHistoryAttributes = WSM.APIGetObjectsByTypeReadOnly(selectionInfoObject.nEditingHistoryID, selectionInfoObject.nEditingHistoryID, WSM.nStringAttributeType);
-
-    console.log("Test! " + aHistoryAttributes)
-
-    // for each ID, get the string attribute key and value
-    // and add it to the array
-    for (var j = 0; j < aHistoryAttributes.length; j++)
-    {
-        // string attribute object
-        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(selectionInfoObject.nEditingHistoryID, aHistoryAttributes[j]);
-
-        // push the attribute into the array
-        selectionInfoObject.aEditingHistoryStringAttributes.push(stringAttributeObject);
     }
 
     console.log("Currently editing: " + selectionInfoObject.sEditingHistoryName + " (" + selectionInfoObject.nEditingHistoryInstances + " in model)\n");
@@ -136,20 +134,6 @@ PropertiesPlus.getSelectionInfo = function(args)
         selectionInfoObject.aSelectedObjectNames.push(objectName);
         //console.log("Object name array: " + JSON.stringify(selectedObjectsNameArray));
 
-        // get the attributes of this object
-        var aObjectAttributes = WSM.APIGetObjectsByTypeReadOnly(selectionInfoObject.nEditingHistoryID, nObjectID, WSM.nStringAttributeType);
-
-        // for each ID, get the string attribute key and value
-        // and add it to the array
-        for (var j = 0; j < aObjectAttributes.length; j++)
-        {
-            // string attribute object
-            var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(selectionInfoObject.nEditingHistoryID, aObjectAttributes[j]);
-
-            // push the attribute into the array
-            selectionInfoObject.aSelectedObjectStringAttributes.push(stringAttributeObject);
-        }
-
         // get the Levels setting for this object, then push the results into an array
         var bUseLevels = objectProperties.bReportAreaByLevel;
         selectionInfoObject.aSelectedDoesUseLevelsBools.push(bUseLevels);
@@ -171,19 +155,7 @@ PropertiesPlus.getSelectionInfo = function(args)
             var groupFamilyName = PropertiesPlus.getGroupFamilyName(groupFamilyHistoryID);
             selectionInfoObject.aSelectedGroupNames.push(groupFamilyName);
 
-            // get the group instance attributes if there are any
-            var aGroupInstanceAttributeIDs = WSM.APIGetObjectsByTypeReadOnly(selectionInfoObject.nEditingHistoryID, nObjectID, WSM.nStringAttributeType);
-
-            // for each ID, get the string attribute key and value
-            // and add it to the array
-            for (var j = 0; j < aGroupInstanceAttributeIDs.length; j++)
-            {
-                // string attribute object
-                var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(selectionInfoObject.nEditingHistoryID, aGroupInstanceAttributeIDs[j]);
-
-                // push the attribute into the array
-                selectionInfoObject.aSelectedGroupInstanceAttributes.push(stringAttributeObject);
-            }
+            selectionInfoObject.aSelectedGroupInstanceAttributes = PropertiesPlus.getStringAttributesForObject(selectionInfoObject.nEditingHistoryID, nObjectID);
 
             // push the Group instance name and ID into arrays
             selectionInfoObject.aSelectedGroupInstanceNames.push(objectName);
@@ -264,6 +236,101 @@ PropertiesPlus.getSelectionInfo = function(args)
 
     PropertiesPlus.currentSelectionInfo = selectionInfoObject;
     return selectionInfoObject;
+}
+
+PropertiesPlus.getAttributeInfo = function()
+{
+    // we only get attribute info on a single object, so consider that the max
+    var nMaxObjectCountForAttributes = 1;
+
+    // initialize an empty selection info object to be populated
+    var attributesInfoObject = PropertiesPlus.initializeAttributesInfoObject();
+
+    // get current history
+    attributesInfoObject.nEditingHistoryID = FormIt.GroupEdit.GetEditingHistoryID();
+    //console.log("Current history: " + JSON.stringify(nHistoryID));
+
+    // attribute info is only supported on a single object or history
+    // so assume we only care about the first object selected
+
+    // get current selection
+    var currentSelection = FormIt.Selection.GetSelections();
+
+    attributesInfoObject.nSelectedTotalCount = currentSelection.length;
+
+    // if too many items are selected, skip the rest of the info-gathering below
+    if (currentSelection.length > nMaxObjectCountForAttributes || currentSelection.length == 0)
+    {
+        return attributesInfoObject;
+    }
+
+    // if not in the Main History, calculate the depth to extract the correct history data
+    var nEditingHistoryDepth = currentSelection[0]["ids"].length - 1;
+
+    // get the object ID
+    attributesInfoObject.nSelectedObjectID = currentSelection[0]["ids"][nEditingHistoryDepth]["Object"];
+
+    // get the object attributes
+    attributesInfoObject.aSelectedObjectStringAttributes = PropertiesPlus.getStringAttributesForObject(attributesInfoObject.nEditingHistoryID, attributesInfoObject.nSelectedObjectID);
+
+    var objectType = WSM.APIGetObjectTypeReadOnly(attributesInfoObject.nEditingHistoryID, attributesInfoObject.nSelectedObjectID);
+
+    // if the selected object is an instance, get its history ID
+    if (objectType == WSM.nInstanceType)
+    {
+        // get the Group ID
+        var groupID = WSM.APIGetObjectsByTypeReadOnly(attributesInfoObject.nEditingHistoryID, attributesInfoObject.nSelectedObjectID, WSM.nGroupType, true)[0];
+
+        // get the history ID for this instance
+        attributesInfoObject.nSelectedInstanceHistoryID = WSM.APIGetGroupReferencedHistoryReadOnly(attributesInfoObject.nEditingHistoryID, groupID);
+
+        // get the history attributes for this instance
+        attributesInfoObject.aSelectedObjectHistoryStringAttributes = PropertiesPlus.getStringAttributesForHistory(attributesInfoObject.nSelectedInstanceHistoryID);
+    }
+
+    return attributesInfoObject;
+}
+
+PropertiesPlus.getStringAttributesForHistory = function(nHistoryID) 
+{
+    var aHistoryStringAttributes = [];
+
+    // get the string attributes attached to this history
+    var aHistoryStringAttributeIDs = WSM.APIGetAllObjectsByTypeReadOnly(nHistoryID, WSM.nStringAttributeType, true);
+
+    // for each ID, get the string attribute key and value
+    // and add it to the array
+    for (var i = 0; i < aHistoryStringAttributeIDs.length; i++)
+    {
+        // string attribute object
+        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aHistoryStringAttributeIDs[i]);
+
+        // push the attribute into the array
+        aHistoryStringAttributes.push(stringAttributeObject);
+    }
+
+    return aHistoryStringAttributes;
+}
+
+PropertiesPlus.getStringAttributesForObject = function(nHistoryID, nObjectID)
+{
+    var aObjectStringAttributes = [];
+
+    // get the group instance attributes if there are any
+    var aObjectStringAttributeIDs = WSM.APIGetObjectsByTypeReadOnly(nHistoryID, nObjectID, WSM.nStringAttributeType);
+
+    // for each ID, get the string attribute key and value
+    // and add it to the array
+    for (var i = 0; i < aObjectStringAttributeIDs.length; i++)
+    {
+        // string attribute object
+        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aObjectStringAttributeIDs[i]);
+
+        // push the attribute into the array
+        aObjectStringAttributes.push(stringAttributeObject);
+    }
+
+    return aObjectStringAttributes;
 }
 
 PropertiesPlus.deselectObjectsByType = function(args)
