@@ -50,6 +50,7 @@ PropertiesPlus.initializeAttributesInfoObject = function()
 {
     var attributesInfoObject = {
         "nEditingHistoryID" : 0,
+        "aEditingHistoryStringAttributes" : [],
         "nSelectedTotalCount" : 0,
         "nSelectedObjectID" : 0,
         "nSelectedInstanceHistoryID" : -1,
@@ -249,6 +250,9 @@ PropertiesPlus.getAttributeInfo = function()
     // get current history
     attributesInfoObject.nEditingHistoryID = FormIt.GroupEdit.GetEditingHistoryID();
     //console.log("Current history: " + JSON.stringify(nHistoryID));
+
+    // get attributes attached to the editing history
+    attributesInfoObject.aEditingHistoryStringAttributes = PropertiesPlus.getStringAttributesForHistory(attributesInfoObject.nEditingHistoryID);
 
     // attribute info is only supported on a single object or history
     // so assume we only care about the first object selected
