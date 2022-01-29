@@ -319,7 +319,8 @@ PropertiesPlus.getStringAttributeIDsForHistory = function(nHistoryID)
     {
         var aAttributeOwners = WSM.APIGetTopLevelOwnersReadOnly(nHistoryID, aHistoryStringAttributeIDs[i]);
 
-        if (aAttributeOwners[i] == undefined)
+        // assume there's one attribute owner per attribute ID
+        if (aAttributeOwners[0] == null)
         {
             // add to the filtered list
             aFilteredHistoryStringAttributeIDs.push(aHistoryStringAttributeIDs[i]);
