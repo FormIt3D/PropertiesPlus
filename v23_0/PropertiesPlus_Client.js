@@ -50,10 +50,12 @@ PropertiesPlus.initializeAttributesInfoObject = function()
 {
     var attributesInfoObject = {
         "nEditingHistoryID" : 0,
+        "aEditingHistoryStringAttributeIDs" : [],
         "aEditingHistoryStringAttributes" : [],
         "nSelectedTotalCount" : 0,
         "nSelectedObjectID" : 0,
         "nSelectedInstanceHistoryID" : -1,
+        "aSelectedObjectStringAttributeIDs" : [],
         "aSelectedObjectStringAttributes" : [],
         "aSelectedObjectHistoryStringAttributes" : []
     }
@@ -251,6 +253,9 @@ PropertiesPlus.getAttributeInfo = function()
     attributesInfoObject.nEditingHistoryID = FormIt.GroupEdit.GetEditingHistoryID();
     //console.log("Current history: " + JSON.stringify(nHistoryID));
 
+    // get attribute IDs attached to the editing history
+    attributesInfoObject.aEditingHistoryStringAttributeIDs = PropertiesPlus.getStringAttributeIDsForHistory(attributesInfoObject.nEditingHistoryID);
+
     // get attributes attached to the editing history
     attributesInfoObject.aEditingHistoryStringAttributes = PropertiesPlus.getStringAttributesForHistory(attributesInfoObject.nEditingHistoryID);
 
@@ -274,6 +279,9 @@ PropertiesPlus.getAttributeInfo = function()
     // get the object ID
     attributesInfoObject.nSelectedObjectID = currentSelection[0]["ids"][nEditingHistoryDepth]["Object"];
 
+    // get the object attribute IDs
+    attributesInfoObject.aSelectedObjectStringAttributeIDs = PropertiesPlus.getStringAttributeIDsForObject(attributesInfoObject.nEditingHistoryID, attributesInfoObject.nSelectedObjectID);
+
     // get the object attributes
     attributesInfoObject.aSelectedObjectStringAttributes = PropertiesPlus.getStringAttributesForObject(attributesInfoObject.nEditingHistoryID, attributesInfoObject.nSelectedObjectID);
 
@@ -295,9 +303,9 @@ PropertiesPlus.getAttributeInfo = function()
     return attributesInfoObject;
 }
 
-PropertiesPlus.getStringAttributesForHistory = function(nHistoryID) 
+PropertiesPlus.getStringAttributeIDsForHistory = function(nHistoryID)
 {
-    var aHistoryStringAttributes = [];
+    var aFilteredHistoryStringAttributeIDs = [];
 
     // get the string attributes attached to this history
     var aHistoryStringAttributeIDs = WSM.APIGetAllObjectsByTypeReadOnly(nHistoryID, WSM.nStringAttributeType, false);
@@ -318,12 +326,22 @@ PropertiesPlus.getStringAttributesForHistory = function(nHistoryID)
         }
     }
 
+        return aFilteredHistoryStringAttributeIDs;
+}
+
+PropertiesPlus.getStringAttributesForHistory = function(nHistoryID) 
+{
+    var aHistoryStringAttributes = [];
+    
+    // get the string attributes attached to this history
+    var aHistoryStringAttributeIDs = PropertiesPlus.getStringAttributeIDsForHistory(nHistoryID);
+
     // for each ID, get the string attribute key and value
     // and add it to the array
-    for (var i = 0; i < aFilteredHistoryStringAttributeIDs.length; i++)
+    for (var i = 0; i < aHistoryStringAttributeIDs.length; i++)
     {
         // string attribute object
-        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aFilteredHistoryStringAttributeIDs[i]);
+        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aHistoryStringAttributeIDs[i]);
 
         // push the attribute into the array
         aHistoryStringAttributes.push(stringAttributeObject);
@@ -332,10 +350,8 @@ PropertiesPlus.getStringAttributesForHistory = function(nHistoryID)
     return aHistoryStringAttributes;
 }
 
-PropertiesPlus.getStringAttributesForObject = function(nHistoryID, nObjectID)
+PropertiesPlus.getStringAttributeIDsForObject = function(nHistoryID, nObjectID)
 {
-    var aObjectStringAttributes = [];
-
     // get all attributes on this object
     var aObjectStringAttributeIDs = WSM.APIGetObjectAttributesReadOnly(nHistoryID, nObjectID);
 
@@ -354,12 +370,22 @@ PropertiesPlus.getStringAttributesForObject = function(nHistoryID, nObjectID)
         }
     }
 
+    return aFilteredObjectStringAttributeIDs;
+}
+
+PropertiesPlus.getStringAttributesForObject = function(nHistoryID, nObjectID)
+{
+    var aObjectStringAttributes = [];
+
+    // get all attributes on this object
+    var aObjectStringAttributeIDs = PropertiesPlus.getStringAttributeIDsForObject(nHistoryID, nObjectID);
+
     // for each filtered ID, get the string attribute key and value
     // and add it to the array
-    for (var i = 0; i < aFilteredObjectStringAttributeIDs.length; i++)
+    for (var i = 0; i < aObjectStringAttributeIDs.length; i++)
     {
         // string attribute object
-        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aFilteredObjectStringAttributeIDs[i]);
+        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aObjectStringAttributeIDs[i]);
 
         // push the attribute into the array
         aObjectStringAttributes.push(stringAttributeObject);
