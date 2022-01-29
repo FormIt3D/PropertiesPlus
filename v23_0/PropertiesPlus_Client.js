@@ -300,14 +300,30 @@ PropertiesPlus.getStringAttributesForHistory = function(nHistoryID)
     var aHistoryStringAttributes = [];
 
     // get the string attributes attached to this history
-    var aHistoryStringAttributeIDs = WSM.APIGetAllObjectsByTypeReadOnly(nHistoryID, WSM.nStringAttributeType, true);
+    var aHistoryStringAttributeIDs = WSM.APIGetAllObjectsByTypeReadOnly(nHistoryID, WSM.nStringAttributeType, false);
+
+    // the filtered list is only the attributes on the object ID
+    // not including its owned objects/children
+    var aFilteredHistoryStringAttributeIDs = [];
+
+    // for each ID, check that the owner is the selected object
+    for (var i = 0; i < aHistoryStringAttributeIDs.length; i++)
+    {
+        var aAttributeOwners = WSM.APIGetTopLevelOwnersReadOnly(nHistoryID, aHistoryStringAttributeIDs[i]);
+
+        if (aAttributeOwners[i] == undefined)
+        {
+            // add to the filtered list
+            aFilteredHistoryStringAttributeIDs.push(aHistoryStringAttributeIDs[i]);
+        }
+    }
 
     // for each ID, get the string attribute key and value
     // and add it to the array
-    for (var i = 0; i < aHistoryStringAttributeIDs.length; i++)
+    for (var i = 0; i < aFilteredHistoryStringAttributeIDs.length; i++)
     {
         // string attribute object
-        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aHistoryStringAttributeIDs[i]);
+        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aFilteredHistoryStringAttributeIDs[i]);
 
         // push the attribute into the array
         aHistoryStringAttributes.push(stringAttributeObject);
@@ -320,15 +336,30 @@ PropertiesPlus.getStringAttributesForObject = function(nHistoryID, nObjectID)
 {
     var aObjectStringAttributes = [];
 
-    // get the group instance attributes if there are any
-    var aObjectStringAttributeIDs = WSM.APIGetObjectsByTypeReadOnly(nHistoryID, nObjectID, WSM.nStringAttributeType);
+    // get all attributes on this object
+    var aObjectStringAttributeIDs = WSM.APIGetObjectAttributesReadOnly(nHistoryID, nObjectID);
 
-    // for each ID, get the string attribute key and value
-    // and add it to the array
+    // the filtered list is only string attribute type
+    var aFilteredObjectStringAttributeIDs = [];
+
+    // for each ID, check that its attribute is string attribute type
     for (var i = 0; i < aObjectStringAttributeIDs.length; i++)
     {
+        var attributeType = WSM.APIGetObjectTypeReadOnly(nHistoryID, aObjectStringAttributeIDs[i]);
+
+        if (attributeType == WSM.nStringAttributeType)
+        {
+            // add to the filtered list
+            aFilteredObjectStringAttributeIDs.push(aObjectStringAttributeIDs[i]);
+        }
+    }
+
+    // for each filtered ID, get the string attribute key and value
+    // and add it to the array
+    for (var i = 0; i < aFilteredObjectStringAttributeIDs.length; i++)
+    {
         // string attribute object
-        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aObjectStringAttributeIDs[i]);
+        var stringAttributeObject = WSM.APIGetStringAttributeKeyValueReadOnly(nHistoryID, aFilteredObjectStringAttributeIDs[i]);
 
         // push the attribute into the array
         aObjectStringAttributes.push(stringAttributeObject);
