@@ -178,20 +178,20 @@ PropertiesPlus.getSelectionInfo = function(args)
     }
 
     // determine if the instances come from the same group family
-    var groupFamilyHistoryIDComparisonResultsArray = testForIdentical(selectionInfoObject.aSelectedGroupHistoryIDs);
-    selectionInfoObject.bIsConsistentGroupHistoryIDs = booleanReduce(groupFamilyHistoryIDComparisonResultsArray);
+    var groupFamilyHistoryIDComparisonResultsArray = FormIt.PluginUtils.Array.testSiblingEquality(selectionInfoObject.aSelectedGroupHistoryIDs);
+    selectionInfoObject.bIsConsistentGroupHistoryIDs = FormIt.PluginUtils.Array.booleanReduce(groupFamilyHistoryIDComparisonResultsArray);
 
     // determine unique group history IDs
-    var aUniqueGroupHistoryIDs = eliminateDuplicatesInArray(selectionInfoObject.aSelectedGroupHistoryIDs);
+    var aUniqueGroupHistoryIDs = FormIt.PluginUtils.Array.testSiblingEquality(selectionInfoObject.aSelectedGroupHistoryIDs);
     selectionInfoObject.nSelectedUniqueGroupHistoryCount = aUniqueGroupHistoryIDs.length;
 
     // determine if the group families are all of the same name
-    var groupFamilyNameComparisonResultsArray = testForIdentical(selectionInfoObject.aSelectedGroupNames);
-    selectionInfoObject.bIsConsistentGroupNames = booleanReduce(groupFamilyNameComparisonResultsArray);
+    var groupFamilyNameComparisonResultsArray = FormIt.PluginUtils.Array.testSiblingEquality(selectionInfoObject.aSelectedGroupNames);
+    selectionInfoObject.bIsConsistentGroupNames = FormIt.PluginUtils.Array.booleanReduce(groupFamilyNameComparisonResultsArray);
 
     // determine if the group instances are all of the same name
-    var groupInstanceNameComparisonResultsArray = testForIdentical(selectionInfoObject.aSelectedGroupInstanceNames);
-    selectionInfoObject.bIsConsistentGroupInstanceNames = booleanReduce(groupInstanceNameComparisonResultsArray);
+    var groupInstanceNameComparisonResultsArray = FormIt.PluginUtils.Array.testSiblingEquality(selectionInfoObject.aSelectedGroupInstanceNames);
+    selectionInfoObject.bIsConsistentGroupInstanceNames = FormIt.PluginUtils.Array.booleanReduce(groupInstanceNameComparisonResultsArray);
     //console.log("Are group instance names consistent? " + isConsistentGroupInstanceNames);
 
     // fill out arrays for object types in the selection
