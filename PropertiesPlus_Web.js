@@ -398,7 +398,7 @@ PropertiesPlus.initializeUI = function()
     let singleGroupFamilyDetailsHeaderDiv = document.createElement('div');
     singleGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
-    singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group';
+    singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group History';
 
     infoCardsContainer.appendChild(singleGroupFamilyDetailsContainerDiv);
     singleGroupFamilyDetailsContainerDiv.appendChild(singleGroupFamilyDetailsHeaderDiv);
@@ -417,7 +417,7 @@ PropertiesPlus.initializeUI = function()
     let multiGroupFamilyDetailsHeaderDiv = document.createElement('div');
     multiGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     multiGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
-    multiGroupFamilyDetailsHeaderDiv.innerHTML = 'Multiple Groups';
+    multiGroupFamilyDetailsHeaderDiv.innerHTML = 'Multiple Group Histories';
 
     infoCardsContainer.appendChild(multiGroupFamilyDetailsContainerDiv);
     multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyDetailsHeaderDiv);
