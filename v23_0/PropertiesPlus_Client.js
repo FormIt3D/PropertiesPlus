@@ -26,6 +26,7 @@ PropertiesPlus.initializeSelectionInfoObject = function()
         "aSelectedGroupInstanceIDs" : [],
         "aSelectedGroupInstanceNames" : [],
         "aSelectedGroupInstanceAttributes" : [],
+        "aSelectedGroupInstanceAttributeIDs" : [],
         "aSelectedDoesUseLevelsBools" : [],
         "nSelectedTotalCount" : 0,
         "nSelectedVertexCount" : 0,
@@ -175,6 +176,9 @@ PropertiesPlus.getSelectionInfo = function(args)
         // determine how many total instances of this Group are in the model
         selectionInfoObject.nSelectedIdenticalGroupInstanceCount += WSM.APIGetAllAggregateTransf3dsReadOnly(referenceHistoryID, 0).paths.length;
         console.log("Number of instances in model: " + selectionInfoObject.nSelectedIdenticalGroupInstanceCount);
+
+        // get the object attribute IDs
+        selectionInfoObject.aSelectedGroupInstanceAttributeIDs = PropertiesPlus.getStringAttributeIDsForObject(selectionInfoObject.nEditingHistoryID, selectionInfoObject.aSelectedGroupInstanceIDs[0]);
     }
 
     // determine if the instances come from the same group family
