@@ -4,7 +4,8 @@
     "PluginType": "Panel",
     "Scripts": [
         "PLUGINLOCATION/PropertiesPlus_Client.js",
-        "https://formit3d.github.io/FormItWorkflowPlugins/Utils.js"
+        "https://formit3d.github.io/FormItWorkflowPlugins/Utils.js",
+        "https://formit3d.github.io/SharedPluginUtilities/FormItPluginUtils.js"
     ]
     ,"Panel": "PLUGINLOCATION/index.html",
     "PanelIcon": "PLUGINLOCATION/img/properties_plus@2x.png"
