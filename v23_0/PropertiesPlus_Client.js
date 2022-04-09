@@ -455,7 +455,7 @@ PropertiesPlus.calculateVolume = function()
 
 PropertiesPlus.renameGroupFamilies = function(args)
 {
-    if (PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs.length === 1 || eliminateDuplicatesInArray(PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs).length === 1)
+    if (PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs.length === 1 || FormIt.PluginUtils.Array.eliminateDuplicates(PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs).length === 1)
     {
         WSM.APISetRevitFamilyInformation(PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs[0], false, false, "", args.singleGroupFamilyRename, "", "");
     }
