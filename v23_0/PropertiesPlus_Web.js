@@ -54,16 +54,22 @@ PropertiesPlus.bIsSingleGroupInstance = false;
 PropertiesPlus.bIsOneOrMoreGroupInstances = false;
 PropertiesPlus.bIsMultipleGroupInstances = false;
 
-// elements that will be updated (contents or visibility) when the selection or editing history changes
+// all possible info cards to display, based on the selection set
+// contents or visibility of these will change when the selection or editing history changes
 PropertiesPlus.editingContextInfoCard = undefined;
 PropertiesPlus.selectionCountInfoCard = undefined;
+
+PropertiesPlus.singleObjectDetailsInfoCard = undefined;
 
 PropertiesPlus.singleGroupFamilyDetailsInfoCard = undefined;
 PropertiesPlus.singleGroupInstanceDetailsInfoCard = undefined;
 PropertiesPlus.singleGroupInstanceToolsInfoCard = undefined;
 PropertiesPlus.singleGroupInstanceAttributesInfoCard = undefined;
 
-PropertiesPlus.multiGroupInstanceDetailsContainerDiv = undefined;
+PropertiesPlus.multiGroupInstanceDetailsInfoCard = undefined;
+
+// info card sub-elements that need to be updated
+PropertiesPlus.singleObjectIDDiv = undefined;
 
 // ID for the top-level checkbox that controls whether Properties Plus recomputes on selection
 let recomputeOnSelectionInputID = 'recomputeOnSelectionInput';
@@ -162,6 +168,25 @@ PropertiesPlus.initializeUI = function()
     infoCardsContainer.appendChild(PropertiesPlus.selectionCountInfoCard.element);
     // append the too many objects div now that it has a parent
     PropertiesPlus.selectionCountInfoCard.appendTooManyObjectsMessage();
+
+    //
+    // create the single object details container - starts hidden
+    //
+    PropertiesPlus.singleObjectDetailsInfoCard = document.createElement('div');
+    PropertiesPlus.singleObjectDetailsInfoCard.id = 'singleObjectInfoContainer';
+    PropertiesPlus.singleObjectDetailsInfoCard.className = 'hide';
+
+    let singleObjectDetailsHeaderDiv = document.createElement('div');
+    singleObjectDetailsHeaderDiv.id = 'objectInfoHeaderDiv';
+    singleObjectDetailsHeaderDiv.className = 'infoHeader';
+    singleObjectDetailsHeaderDiv.innerHTML = 'Object Details';
+    PropertiesPlus.singleObjectDetailsInfoCard.appendChild(singleObjectDetailsHeaderDiv);
+
+    PropertiesPlus.singleObjectIDDiv = document.createElement('div');
+    PropertiesPlus.singleObjectIDDiv.id = 'objectIDHeaderDiv';
+    PropertiesPlus.singleObjectDetailsInfoCard.appendChild(PropertiesPlus.singleObjectIDDiv);
+
+    infoCardsContainer.appendChild(PropertiesPlus.singleObjectDetailsInfoCard);
 
     //
     // create the single group family details container - starts hidden
@@ -273,21 +298,21 @@ PropertiesPlus.initializeUI = function()
     //
     // create the multi group instance details container - starts hidden
     //
-    PropertiesPlus.multiGroupInstanceDetailsContainerDiv = document.createElement('div');
-    PropertiesPlus.multiGroupInstanceDetailsContainerDiv.id = 'multiGroupInfoContainer';
-    PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'hide';
+    PropertiesPlus.multiGroupInstanceDetailsInfoCard = document.createElement('div');
+    PropertiesPlus.multiGroupInstanceDetailsInfoCard.id = 'multiGroupInfoContainer';
+    PropertiesPlus.multiGroupInstanceDetailsInfoCard.className = 'hide';
 
     let multiGroupInstanceDetailsHeaderDiv = document.createElement('div');
     multiGroupInstanceDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     multiGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
     multiGroupInstanceDetailsHeaderDiv.innerHTML = 'Multiple Group Instances';
 
-    infoCardsContainer.appendChild(PropertiesPlus.multiGroupInstanceDetailsContainerDiv);
-    PropertiesPlus.multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceDetailsHeaderDiv);
+    infoCardsContainer.appendChild(PropertiesPlus.multiGroupInstanceDetailsInfoCard);
+    PropertiesPlus.multiGroupInstanceDetailsInfoCard.appendChild(multiGroupInstanceDetailsHeaderDiv);
 
     // rename module
     let multiGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainerStandalone', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
-    PropertiesPlus.multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceNameContainer.element);
+    PropertiesPlus.multiGroupInstanceDetailsInfoCard.appendChild(multiGroupInstanceNameContainer.element);
 
     //
     // create the footer
@@ -352,6 +377,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
 
     // TODO: simplify the remainder below
     // and move monolithic update code into separate functions
+
     objectCount = PropertiesPlus.currentSelectionInfo.nSelectedTotalCount;
 
     // if too many items are selected
@@ -406,6 +432,17 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     //
     // update counts or hide UI based on flags 
     //
+
+    // if a single non-instance object is selected, enable that info card and update it
+    if (objectCount == 1 && !PropertiesPlus.bIsSingleGroupInstance)
+    {
+        PropertiesPlus.singleObjectDetailsInfoCard.className = 'infoContainer';
+        PropertiesPlus.singleObjectIDDiv.innerHTML = 'ID: ' + PropertiesPlus.currentSelectionInfo.aSelectedObjectIDs[0];
+    }
+    else 
+    {
+        PropertiesPlus.singleObjectDetailsInfoCard.className = 'hide';
+    }
 
     // if a single instance is selected, enable HTML and update it
     if (PropertiesPlus.bIsSingleGroupInstance)
@@ -475,7 +512,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
             }
         }
 
-        PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'infoContainer';
+        PropertiesPlus.multiGroupInstanceDetailsInfoCard.className = 'infoContainer';
 
         // if all of the instance names are consistent, display the common name as placeholder text
         if (PropertiesPlus.currentSelectionInfo.bIsConsistentGroupInstanceNames === true)
@@ -496,22 +533,23 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     {       
         // hide the multi details containers
         multiGroupFamilyDetailsContainerDiv.className = 'hide';
-        PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'hide'; 
+        PropertiesPlus.multiGroupInstanceDetailsInfoCard.className = 'hide'; 
     }
     
     // hide elements that shouldn't display with no selection
     if (objectCount === 0)
     {
+        PropertiesPlus.singleObjectDetailsInfoCard.className = 'hide';
         PropertiesPlus.singleGroupInstanceDetailsInfoCard.className = 'hide';
         PropertiesPlus.singleGroupInstanceToolsInfoCard.className = 'hide';
         PropertiesPlus.singleGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.hide();
-        PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'hide';
+        PropertiesPlus.multiGroupInstanceDetailsInfoCard.className = 'hide';
     }
     
     // hide elements that shouldn't display with just 1 object in the selection
     if (objectCount == 1)
     {
-        PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'hide'; 
+        PropertiesPlus.multiGroupInstanceDetailsInfoCard.className = 'hide'; 
     }
 }
 
