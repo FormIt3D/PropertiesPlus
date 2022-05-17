@@ -70,6 +70,8 @@ PropertiesPlus.multiGroupInstanceDetailsInfoCard = undefined;
 
 // info card sub-elements that need to be updated
 PropertiesPlus.singleObjectIDDiv = undefined;
+PropertiesPlus.singleGroupHistoryIDDiv = undefined;
+PropertiesPlus.singleGroupInstanceIDDiv = undefined;
 
 // ID for the top-level checkbox that controls whether Properties Plus recomputes on selection
 let recomputeOnSelectionInputID = 'recomputeOnSelectionInput';
@@ -183,6 +185,7 @@ PropertiesPlus.initializeUI = function()
     PropertiesPlus.singleObjectDetailsInfoCard.appendChild(singleObjectDetailsHeaderDiv);
 
     PropertiesPlus.singleObjectIDDiv = document.createElement('div');
+    PropertiesPlus.singleObjectIDDiv.className = 'infoList';
     PropertiesPlus.singleObjectIDDiv.id = 'objectIDHeaderDiv';
     PropertiesPlus.singleObjectDetailsInfoCard.appendChild(PropertiesPlus.singleObjectIDDiv);
 
@@ -198,13 +201,19 @@ PropertiesPlus.initializeUI = function()
     let singleGroupFamilyDetailsHeaderDiv = document.createElement('div');
     singleGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
-    singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group History';
+    singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group History Details';
 
     infoCardsContainer.appendChild(PropertiesPlus.singleGroupFamilyDetailsInfoCard);
     PropertiesPlus.singleGroupFamilyDetailsInfoCard.appendChild(singleGroupFamilyDetailsHeaderDiv);
 
+    // ID module
+    PropertiesPlus.singleGroupHistoryIDDiv = document.createElement('div');
+    PropertiesPlus.singleGroupHistoryIDDiv.id = 'groupHistoryIDDiv';
+    PropertiesPlus.singleGroupHistoryIDDiv.className = 'infoList';
+    PropertiesPlus.singleGroupFamilyDetailsInfoCard.appendChild(PropertiesPlus.singleGroupHistoryIDDiv);
+
     // rename module
-    let singleGroupNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupNameContainer', 'inputModuleContainerStandalone', singleGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    let singleGroupNameContainer = new FormIt.PluginUI.TextInputModule('History Name: ', 'singleGroupNameContainer', 'inputModuleContainerStandalone', singleGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
     PropertiesPlus.singleGroupFamilyDetailsInfoCard.appendChild(singleGroupNameContainer.element);
 
     //
@@ -223,7 +232,7 @@ PropertiesPlus.initializeUI = function()
     multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyDetailsHeaderDiv);
 
     // rename module
-    let multiGroupFamilyNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupFamilyNameContainer', 'inputModuleContainerStandalone', multiGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    let multiGroupFamilyNameContainer = new FormIt.PluginUI.TextInputModule('History Name: ', 'multiGroupFamilyNameContainer', 'inputModuleContainerStandalone', multiGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
     multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyNameContainer.element);
 
     //
@@ -236,13 +245,19 @@ PropertiesPlus.initializeUI = function()
     let singleGroupInstanceDetailsHeaderDiv = document.createElement('div');
     singleGroupInstanceDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
-    singleGroupInstanceDetailsHeaderDiv.innerHTML = 'Group Instance';
+    singleGroupInstanceDetailsHeaderDiv.innerHTML = 'Group Instance Details';
 
     infoCardsContainer.appendChild(PropertiesPlus.singleGroupInstanceDetailsInfoCard);
     PropertiesPlus.singleGroupInstanceDetailsInfoCard.appendChild(singleGroupInstanceDetailsHeaderDiv);
 
+    // ID module
+    PropertiesPlus.singleGroupInstanceIDDiv = document.createElement('div');
+    PropertiesPlus.singleGroupInstanceIDDiv.id = 'groupInstanceIDDiv';
+    PropertiesPlus.singleGroupInstanceIDDiv.className = 'infoList';
+    PropertiesPlus.singleGroupInstanceDetailsInfoCard.appendChild(PropertiesPlus.singleGroupInstanceIDDiv);
+
     // rename module
-    let singleGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainerStandalone', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    let singleGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Instance Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainerStandalone', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
     PropertiesPlus.singleGroupInstanceDetailsInfoCard.appendChild(singleGroupInstanceNameContainer.element);
 
     //
@@ -311,7 +326,7 @@ PropertiesPlus.initializeUI = function()
     PropertiesPlus.multiGroupInstanceDetailsInfoCard.appendChild(multiGroupInstanceDetailsHeaderDiv);
 
     // rename module
-    let multiGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainerStandalone', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    let multiGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Instance Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainerStandalone', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
     PropertiesPlus.multiGroupInstanceDetailsInfoCard.appendChild(multiGroupInstanceNameContainer.element);
 
     //
@@ -437,7 +452,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     if (objectCount == 1 && !PropertiesPlus.bIsSingleGroupInstance)
     {
         PropertiesPlus.singleObjectDetailsInfoCard.className = 'infoContainer';
-        PropertiesPlus.singleObjectIDDiv.innerHTML = 'ID: ' + PropertiesPlus.currentSelectionInfo.aSelectedObjectIDs[0];
+        PropertiesPlus.singleObjectIDDiv.innerHTML = 'Object ID: ' + PropertiesPlus.currentSelectionInfo.aSelectedObjectIDs[0];
     }
     else 
     {
@@ -453,13 +468,17 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         PropertiesPlus.singleGroupInstanceToolsInfoCard.className = 'infoContainer';
         PropertiesPlus.singleGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.show();
 
-        let groupInstanceName = PropertiesPlus.currentSelectionInfo.aSelectedObjectNames[0];
-        let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
-        singleGroupInstanceNameInput.value = groupInstanceName;
-
+        // update group history details
+        PropertiesPlus.singleGroupHistoryIDDiv.innerHTML = 'History ID: ' + PropertiesPlus.currentSelectionInfo.aSelectedGroupHistoryIDs[0];
         let groupFamilyName = PropertiesPlus.currentSelectionInfo.aSelectedGroupNames[0];
         let singleGroupFamilyNameInput = document.getElementById(singleGroupFamilyNameInputID);
         singleGroupFamilyNameInput.value = groupFamilyName;
+
+        // update group instance details
+        PropertiesPlus.singleGroupInstanceIDDiv.innerHTML = 'Instance ID: ' + PropertiesPlus.currentSelectionInfo.aSelectedObjectIDs[0];
+        let groupInstanceName = PropertiesPlus.currentSelectionInfo.aSelectedObjectNames[0];
+        let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
+        singleGroupInstanceNameInput.value = groupInstanceName;
 
         // update the attributes list
         PropertiesPlus.singleGroupInstanceAttributesInfoCard.update(PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceAttributeIDs, PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceAttributes);
