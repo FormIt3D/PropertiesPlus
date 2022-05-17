@@ -50,21 +50,20 @@ PropertiesPlus.nMaxObjectCount = 1000;
 PropertiesPlus.currentSelectionInfo = {};
 
 // post-processed data to determine which HTML elements to display
-let bIsSingleGroupInstance = false;
-let bIsOneOrMoreGroupInstances = false;
-let bIsMultipleGroupInstances = false;
+PropertiesPlus.bIsSingleGroupInstance = false;
+PropertiesPlus.bIsOneOrMoreGroupInstances = false;
+PropertiesPlus.bIsMultipleGroupInstances = false;
 
 // elements that will be updated (contents or visibility) when the selection or editing history changes
 PropertiesPlus.editingContextInfoCard = undefined;
 PropertiesPlus.selectionCountInfoCard = undefined;
 
+PropertiesPlus.singleGroupFamilyDetailsInfoCard = undefined;
+PropertiesPlus.singleGroupInstanceDetailsInfoCard = undefined;
+PropertiesPlus.singleGroupInstanceToolsInfoCard = undefined;
+PropertiesPlus.singleGroupInstanceAttributesInfoCard = undefined;
 
-let singleGroupFamilyDetailsContainerDiv;
-let singleGroupInstanceDetailsContainerDiv;
-let singleGroupInstanceToolsContainerDiv;
-PropertiesPlus.selectedGroupInstanceAttributesInfoCard = undefined;
-
-let multiGroupInstanceDetailsContainerDiv;
+PropertiesPlus.multiGroupInstanceDetailsContainerDiv = undefined;
 
 // ID for the top-level checkbox that controls whether Properties Plus recomputes on selection
 let recomputeOnSelectionInputID = 'recomputeOnSelectionInput';
@@ -167,21 +166,21 @@ PropertiesPlus.initializeUI = function()
     //
     // create the single group family details container - starts hidden
     //
-    singleGroupFamilyDetailsContainerDiv = document.createElement('div');
-    singleGroupFamilyDetailsContainerDiv.id = 'singleGroupInfoContainer';
-    singleGroupFamilyDetailsContainerDiv.className = 'hide';
+    PropertiesPlus.singleGroupFamilyDetailsInfoCard = document.createElement('div');
+    PropertiesPlus.singleGroupFamilyDetailsInfoCard.id = 'singleGroupInfoContainer';
+    PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'hide';
 
     let singleGroupFamilyDetailsHeaderDiv = document.createElement('div');
     singleGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
     singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group History';
 
-    infoCardsContainer.appendChild(singleGroupFamilyDetailsContainerDiv);
-    singleGroupFamilyDetailsContainerDiv.appendChild(singleGroupFamilyDetailsHeaderDiv);
+    infoCardsContainer.appendChild(PropertiesPlus.singleGroupFamilyDetailsInfoCard);
+    PropertiesPlus.singleGroupFamilyDetailsInfoCard.appendChild(singleGroupFamilyDetailsHeaderDiv);
 
     // rename module
     let singleGroupNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupNameContainer', 'inputModuleContainerStandalone', singleGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
-    singleGroupFamilyDetailsContainerDiv.appendChild(singleGroupNameContainer.element);
+    PropertiesPlus.singleGroupFamilyDetailsInfoCard.appendChild(singleGroupNameContainer.element);
 
     //
     // create the multi group family details container - starts hidden
@@ -205,51 +204,51 @@ PropertiesPlus.initializeUI = function()
     //
     // create the single group instance details container - starts hidden
     //
-    singleGroupInstanceDetailsContainerDiv = document.createElement('div');
-    singleGroupInstanceDetailsContainerDiv.id = 'singleGroupInstanceInfoContainer';
-    singleGroupInstanceDetailsContainerDiv.className = 'hide';
+    PropertiesPlus.singleGroupInstanceDetailsInfoCard = document.createElement('div');
+    PropertiesPlus.singleGroupInstanceDetailsInfoCard.id = 'singleGroupInstanceInfoContainer';
+    PropertiesPlus.singleGroupInstanceDetailsInfoCard.className = 'hide';
 
     let singleGroupInstanceDetailsHeaderDiv = document.createElement('div');
     singleGroupInstanceDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
     singleGroupInstanceDetailsHeaderDiv.innerHTML = 'Group Instance';
 
-    infoCardsContainer.appendChild(singleGroupInstanceDetailsContainerDiv);
-    singleGroupInstanceDetailsContainerDiv.appendChild(singleGroupInstanceDetailsHeaderDiv);
+    infoCardsContainer.appendChild(PropertiesPlus.singleGroupInstanceDetailsInfoCard);
+    PropertiesPlus.singleGroupInstanceDetailsInfoCard.appendChild(singleGroupInstanceDetailsHeaderDiv);
 
     // rename module
     let singleGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainerStandalone', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
-    singleGroupInstanceDetailsContainerDiv.appendChild(singleGroupInstanceNameContainer.element);
+    PropertiesPlus.singleGroupInstanceDetailsInfoCard.appendChild(singleGroupInstanceNameContainer.element);
 
     //
     // create the single group instance tools container - starts hidden
     //
-    singleGroupInstanceToolsContainerDiv = document.createElement('div');
-    singleGroupInstanceToolsContainerDiv.id = 'singleGroupInstanceToolsContainer';
-    singleGroupInstanceToolsContainerDiv.className = 'hide';
+    PropertiesPlus.singleGroupInstanceToolsInfoCard = document.createElement('div');
+    PropertiesPlus.singleGroupInstanceToolsInfoCard.id = 'singleGroupInstanceToolsContainer';
+    PropertiesPlus.singleGroupInstanceToolsInfoCard.className = 'hide';
 
     let singleGroupInstanceToolsHeaderDiv = document.createElement('div');
     singleGroupInstanceToolsHeaderDiv.id = 'groupInstanceToolsHeaderDiv';
     singleGroupInstanceToolsHeaderDiv.className = 'infoHeader';
     singleGroupInstanceToolsHeaderDiv.innerHTML = 'Group Instance Tools';
 
-    infoCardsContainer.appendChild(singleGroupInstanceToolsContainerDiv);
-    singleGroupInstanceToolsContainerDiv.appendChild(singleGroupInstanceToolsHeaderDiv);
+    infoCardsContainer.appendChild(PropertiesPlus.singleGroupInstanceToolsInfoCard);
+    PropertiesPlus.singleGroupInstanceToolsInfoCard.appendChild(singleGroupInstanceToolsHeaderDiv);
 
     // make unique button module
     let singleGroupInstanceMakeUniqueButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique', 'Make this Group instance unique, including all of its children.', PropertiesPlus.submitGroupInstanceMakeUnique);
-    singleGroupInstanceToolsContainerDiv.appendChild(singleGroupInstanceMakeUniqueButtonModule.element);
+    PropertiesPlus.singleGroupInstanceToolsInfoCard.appendChild(singleGroupInstanceMakeUniqueButtonModule.element);
 
     // make unique (non-recursive) button module
     let singleGroupInstanceMakeUniqueNRButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique (non-recursive)', 'Make this Group instance unique, but skip all of its children.', PropertiesPlus.submitGroupInstanceMakeUniqueNR);
-    singleGroupInstanceToolsContainerDiv.appendChild(singleGroupInstanceMakeUniqueNRButtonModule.element);
+    PropertiesPlus.singleGroupInstanceToolsInfoCard.appendChild(singleGroupInstanceMakeUniqueNRButtonModule.element);
 
     //
     // create the single group instance attributes container - starts hidden
     //
 
-    PropertiesPlus.selectedGroupInstanceAttributesInfoCard = new FormIt.PluginUI.StringAttributeListViewOnly('Group Instance Attributes', false, 200);
-    infoCardsContainer.appendChild(PropertiesPlus.selectedGroupInstanceAttributesInfoCard.element);
+    PropertiesPlus.singleGroupInstanceAttributesInfoCard = new FormIt.PluginUI.StringAttributeListViewOnly('Group Instance Attributes', false, 200);
+    infoCardsContainer.appendChild(PropertiesPlus.singleGroupInstanceAttributesInfoCard.element);
 
     // this is a work in progress
     if (displayWIP)
@@ -259,7 +258,7 @@ PropertiesPlus.initializeUI = function()
         spacerDiv2.className = 'horizontalSpacer';
 
         // position modules
-        let positionCoordinatesContainerDiv = FormIt.PluginUI.createHorizontalModuleContainer(singleGroupInstanceDetailsContainerDiv);
+        let positionCoordinatesContainerDiv = FormIt.PluginUI.createHorizontalModuleContainer(PropertiesPlus.singleGroupInstanceDetailsInfoCard);
 
         let positionCoordinatesXModule = new FormIt.PluginUI.TextInputModule('Position X: ', 'positionCoordinatesX', 'inputModuleContainer', singleGroupInstancePosXInputID, PropertiesPlus.submitGroupInstanceRename);
         positionCoordinatesContainerDiv.appendChild(positionCoordinatesXModule.element);
@@ -274,21 +273,21 @@ PropertiesPlus.initializeUI = function()
     //
     // create the multi group instance details container - starts hidden
     //
-    multiGroupInstanceDetailsContainerDiv = document.createElement('div');
-    multiGroupInstanceDetailsContainerDiv.id = 'multiGroupInfoContainer';
-    multiGroupInstanceDetailsContainerDiv.className = 'hide';
+    PropertiesPlus.multiGroupInstanceDetailsContainerDiv = document.createElement('div');
+    PropertiesPlus.multiGroupInstanceDetailsContainerDiv.id = 'multiGroupInfoContainer';
+    PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'hide';
 
     let multiGroupInstanceDetailsHeaderDiv = document.createElement('div');
     multiGroupInstanceDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     multiGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
     multiGroupInstanceDetailsHeaderDiv.innerHTML = 'Multiple Group Instances';
 
-    infoCardsContainer.appendChild(multiGroupInstanceDetailsContainerDiv);
-    multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceDetailsHeaderDiv);
+    infoCardsContainer.appendChild(PropertiesPlus.multiGroupInstanceDetailsContainerDiv);
+    PropertiesPlus.multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceDetailsHeaderDiv);
 
     // rename module
     let multiGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainerStandalone', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
-    multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceNameContainer.element);
+    PropertiesPlus.multiGroupInstanceDetailsContainerDiv.appendChild(multiGroupInstanceNameContainer.element);
 
     //
     // create the footer
@@ -371,11 +370,11 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     if (PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs.length == 1)
     {
         //console.log("Only a single instance selected.");
-        bIsSingleGroupInstance = true;
+        PropertiesPlus.bIsSingleGroupInstance = true;
     }
     else 
     {
-        bIsSingleGroupInstance = false;
+        PropertiesPlus.bIsSingleGroupInstance = false;
     }
 
     // if one or more Group instances (WSM object #24) are selected, set a flag
@@ -384,12 +383,12 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         if (PropertiesPlus.currentSelectionInfo.aSelectedObjectTypes[i] == 24)
         {
             //console.log("At least one instance is selected.");
-            bIsOneOrMoreGroupInstances = true;
+            PropertiesPlus.bIsOneOrMoreGroupInstances = true;
             break;
         }
         else
         {
-            bIsOneOrMoreGroupInstances = false;
+            PropertiesPlus.bIsOneOrMoreGroupInstances = false;
         }
     }
 
@@ -397,11 +396,11 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     if (PropertiesPlus.currentSelectionInfo.nSelectedGroupInstanceCount > 1)
     {
         //console.log("At least one instance is selected.");
-        bIsMultipleGroupInstances = true;
+        PropertiesPlus.bIsMultipleGroupInstances = true;
     }
     else
     {
-        bIsMultipleGroupInstances = false;
+        PropertiesPlus.bIsMultipleGroupInstances = false;
     }
 
     //
@@ -409,13 +408,13 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     //
 
     // if a single instance is selected, enable HTML and update it
-    if (bIsSingleGroupInstance)
+    if (PropertiesPlus.bIsSingleGroupInstance)
     {
         // enable the group family and instance info containers
-        singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
-        singleGroupInstanceDetailsContainerDiv.className = 'infoContainer';
-        singleGroupInstanceToolsContainerDiv.className = 'infoContainer';
-        PropertiesPlus.selectedGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.show();
+        PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'infoContainer';
+        PropertiesPlus.singleGroupInstanceDetailsInfoCard.className = 'infoContainer';
+        PropertiesPlus.singleGroupInstanceToolsInfoCard.className = 'infoContainer';
+        PropertiesPlus.singleGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.show();
 
         let groupInstanceName = PropertiesPlus.currentSelectionInfo.aSelectedObjectNames[0];
         let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
@@ -426,25 +425,25 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         singleGroupFamilyNameInput.value = groupFamilyName;
 
         // update the attributes list
-        PropertiesPlus.selectedGroupInstanceAttributesInfoCard.update(PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceAttributeIDs, PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceAttributes);
+        PropertiesPlus.singleGroupInstanceAttributesInfoCard.update(PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceAttributeIDs, PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceAttributes);
     }
     else
     {
-        singleGroupFamilyDetailsContainerDiv.className = 'hide';
-        singleGroupInstanceDetailsContainerDiv.className = 'hide';
-        singleGroupInstanceToolsContainerDiv.className = 'hide';
-        PropertiesPlus.selectedGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.hide();
+        PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'hide';
+        PropertiesPlus.singleGroupInstanceDetailsInfoCard.className = 'hide';
+        PropertiesPlus.singleGroupInstanceToolsInfoCard.className = 'hide';
+        PropertiesPlus.singleGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.hide();
     }
 
     // if multiple group instances are selected, enable HTML and update it
-    if (bIsMultipleGroupInstances)
+    if (PropertiesPlus.bIsMultipleGroupInstances)
     {
         // if the instances come from the same Group family, display the single Group family container and show the name
         if (PropertiesPlus.currentSelectionInfo.bIsConsistentGroupHistoryIDs)
         {
             // hide the multi Group family container, and display the single Group family details container
             multiGroupFamilyDetailsContainerDiv.className = 'hide';
-            singleGroupFamilyDetailsContainerDiv.className = 'infoContainer';
+            PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'infoContainer';
 
             // update the name input with the current name
             let groupFamilyName = PropertiesPlus.currentSelectionInfo.aSelectedGroupNames[0];
@@ -455,7 +454,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         else
         {
             // hide the single Group family container, and display the multi Group family details container
-            singleGroupFamilyDetailsContainerDiv.className = 'hide';
+            PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'hide';
             multiGroupFamilyDetailsContainerDiv.className = 'infoContainer';
 
             let multiGroupFamilyNameInput = document.getElementById(multiGroupFamilyNameInputID);
@@ -476,7 +475,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
             }
         }
 
-        multiGroupInstanceDetailsContainerDiv.className = 'infoContainer';
+        PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'infoContainer';
 
         // if all of the instance names are consistent, display the common name as placeholder text
         if (PropertiesPlus.currentSelectionInfo.bIsConsistentGroupInstanceNames === true)
@@ -497,22 +496,22 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     {       
         // hide the multi details containers
         multiGroupFamilyDetailsContainerDiv.className = 'hide';
-        multiGroupInstanceDetailsContainerDiv.className = 'hide'; 
+        PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'hide'; 
     }
     
     // hide elements that shouldn't display with no selection
     if (objectCount === 0)
     {
-        singleGroupInstanceDetailsContainerDiv.className = 'hide';
-        singleGroupInstanceToolsContainerDiv.className = 'hide';
-        PropertiesPlus.selectedGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.hide();
-        multiGroupInstanceDetailsContainerDiv.className = 'hide';
+        PropertiesPlus.singleGroupInstanceDetailsInfoCard.className = 'hide';
+        PropertiesPlus.singleGroupInstanceToolsInfoCard.className = 'hide';
+        PropertiesPlus.singleGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.hide();
+        PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'hide';
     }
     
     // hide elements that shouldn't display with just 1 object in the selection
     if (objectCount == 1)
     {
-        multiGroupInstanceDetailsContainerDiv.className = 'hide'; 
+        PropertiesPlus.multiGroupInstanceDetailsContainerDiv.className = 'hide'; 
     }
 }
 
