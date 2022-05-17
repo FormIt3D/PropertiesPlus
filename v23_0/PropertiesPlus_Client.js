@@ -186,7 +186,7 @@ PropertiesPlus.getSelectionInfo = function(args)
     selectionInfoObject.bIsConsistentGroupHistoryIDs = FormIt.PluginUtils.Array.booleanReduce(groupFamilyHistoryIDComparisonResultsArray);
 
     // determine unique group history IDs
-    var aUniqueGroupHistoryIDs = FormIt.PluginUtils.Array.testSiblingEquality(selectionInfoObject.aSelectedGroupHistoryIDs);
+    var aUniqueGroupHistoryIDs = FormIt.PluginUtils.Array.eliminateDuplicates(selectionInfoObject.aSelectedGroupHistoryIDs);
     selectionInfoObject.nSelectedUniqueGroupHistoryCount = aUniqueGroupHistoryIDs.length;
 
     // determine if the group families are all of the same name
