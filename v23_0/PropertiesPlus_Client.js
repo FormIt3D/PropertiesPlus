@@ -67,7 +67,6 @@ PropertiesPlus.initializeAttributesInfoObject = function()
 // updates variables and arrays about the items in the selection set
 PropertiesPlus.getSelectionInfo = function(args)
 {    
-    console.clear();
     console.log("Properties Plus Plugin\n");
 
     // initialize an empty selection info object to be populated
