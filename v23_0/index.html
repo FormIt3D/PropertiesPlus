@@ -29,6 +29,17 @@
                 }
             });
 
+            FormItInterface.SubscribeMessage("FormIt.Message.kModelChanged", function(msg)
+            {
+                // only perform the calculations and update the UI 
+                // if the user has checked the box and if something is selected
+                if (PropertiesPlus.bRecomputeOnSelection() && PropertiesPlus.currentSelectionInfo.nSelectedTotalCount > 0)
+                {
+                    // when the FormIt selection changes, automatically update the plugin UI
+                    PropertiesPlus.updateUI();
+                }
+            });
+
             // initialize the UI
             // this must be called from here, to ensure the HTML page is loaded
             // before scripts try to access the window document
