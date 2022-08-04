@@ -61,7 +61,7 @@ PropertiesPlus.selectionCountInfoCard = undefined;
 
 PropertiesPlus.singleObjectDetailsInfoCard = undefined;
 
-PropertiesPlus.singleGroupFamilyDetailsInfoCard = undefined;
+PropertiesPlus.singleGroupHistoryDetailsInfoCard = undefined;
 PropertiesPlus.singleGroupInstanceDetailsInfoCard = undefined;
 PropertiesPlus.singleGroupInstanceToolsInfoCard = undefined;
 PropertiesPlus.singleGroupInstanceAttributesInfoCard = undefined;
@@ -70,28 +70,33 @@ PropertiesPlus.multiGroupInstanceDetailsInfoCard = undefined;
 
 // info card sub-elements that need to be updated
 PropertiesPlus.singleObjectIDDiv = undefined;
+
 PropertiesPlus.singleGroupHistoryIDDiv = undefined;
+
 PropertiesPlus.singleGroupInstanceIDDiv = undefined;
+PropertiesPlus.singleGroupInstanceScaleXInput = undefined;
+PropertiesPlus.singleGroupInstanceScaleYInput = undefined;
+PropertiesPlus.singleGroupInstanceScaleZInput = undefined;
 
 // ID for the top-level checkbox that controls whether Properties Plus recomputes on selection
-let recomputeOnSelectionInputID = 'recomputeOnSelectionInput';
+const recomputeOnSelectionInputID = 'recomputeOnSelectionInput';
 
 // IDs for containers which may be toggled in certain cases
-let disabledStateContainerID = 'disabledStateContainer';
-let infoCardsContainerID = 'infoCardsContainer';
-let selectionInfoContainerID = 'selectionInfoContainer';
+const disabledStateContainerID = 'disabledStateContainer';
+const infoCardsContainerID = 'infoCardsContainer';
+const selectionInfoContainerID = 'selectionInfoContainer';
 
 // IDs for inputs whose value will be updated when selection changes
-let singleGroupFamilyNameInputID = 'singleGroupFamilyNameInput';
-let singleGroupInstanceNameInputID = 'singleGroupInstanceNameInput';
-let singleGroupInstancePosXInputID = 'singleGroupInstancePosXInput';
-let singleGroupInstancePosYInputID = 'singleGroupInstancePosYInput';
-let singleGroupInstancePosZInputID = 'singleGroupInstancePosZInput';
-let multiGroupFamilyNameInputID = 'multiGroupFamilyNameInput';
-let multiGroupInstanceNameInputID = 'multiGroupInstanceNameInput';
+const singleGroupFamilyNameInputID = 'singleGroupFamilyNameInput';
+const singleGroupInstanceNameInputID = 'singleGroupInstanceNameInput';
+const singleGroupInstancePosXInputID = 'singleGroupInstancePosXInput';
+const singleGroupInstancePosYInputID = 'singleGroupInstancePosYInput';
+const singleGroupInstancePosZInputID = 'singleGroupInstancePosZInput';
+const multiGroupFamilyNameInputID = 'multiGroupFamilyNameInput';
+const multiGroupInstanceNameInputID = 'multiGroupInstanceNameInput';
 
 // flag to display work-in-progress features
-let displayWIP = false;
+const displayWIP = false;
 
 // all UI initialization
 // must be called from the HTML page
@@ -99,17 +104,17 @@ PropertiesPlus.initializeUI = function()
 {
     // create an overall container for all objects that comprise the "content" of the plugin
     // everything above the footer
-    let contentContainer = document.createElement('div');
+    const contentContainer = document.createElement('div');
     contentContainer.id = 'contentContainer';
     contentContainer.className = 'contentContainer';
     window.document.body.appendChild(contentContainer);
 
     // create the overall header
-    let headerContainer = new FormIt.PluginUI.HeaderModule('Properties Plus', 'View and modify properties of the current editing context and selection.', 'headerContainer');
+    const headerContainer = new FormIt.PluginUI.HeaderModule('Properties Plus', 'View and modify properties of the current editing context and selection.', 'headerContainer');
     contentContainer.appendChild(headerContainer.element);
 
     // create the context properties subheader
-    let contextPropertiesSubheader = new FormIt.PluginUI.SubheaderModule('Context Properties', 'show');
+    const contextPropertiesSubheader = new FormIt.PluginUI.SubheaderModule('Context Properties', 'show');
     contentContainer.appendChild(contextPropertiesSubheader.element);
 
     // ecreate the editing context info card
@@ -117,16 +122,16 @@ PropertiesPlus.initializeUI = function()
     contentContainer.appendChild(PropertiesPlus.editingContextInfoCard.element);
 
     // create the selection properties subheader
-    let selectionPropertiesSubheader = new FormIt.PluginUI.SubheaderModule('Selection Properties', 'show');
+    const selectionPropertiesSubheader = new FormIt.PluginUI.SubheaderModule('Selection Properties', 'show');
     contentContainer.appendChild(selectionPropertiesSubheader.element);
 
     //
     // create the on/off checkbox to disable calculations (in case of large selections)
     // 
-    let computeOnSelectionCheckboxModule = new FormIt.PluginUI.CheckboxModule('Update on Selection Change', 'computOnSelectionCheckboxModule', 'multiModuleContainer', recomputeOnSelectionInputID);
+    const computeOnSelectionCheckboxModule = new FormIt.PluginUI.CheckboxModule('Update on Selection Change', 'computOnSelectionCheckboxModule', 'multiModuleContainer', recomputeOnSelectionInputID);
     contentContainer.appendChild(computeOnSelectionCheckboxModule.element);
     
-    let computeOnSelectionCheckboxInput = document.getElementById(recomputeOnSelectionInputID);
+    const computeOnSelectionCheckboxInput = document.getElementById(recomputeOnSelectionInputID);
     computeOnSelectionCheckboxInput.checked = true;
     
     // when the user checks or unchecks, update the UI as required
@@ -145,11 +150,11 @@ PropertiesPlus.initializeUI = function()
     //
     // create the "disabled state" container, which tells the user to check the box to re-enable updates
     //
-    let disabledStateContainerDiv = document.createElement('div');
+    const disabledStateContainerDiv = document.createElement('div');
     disabledStateContainerDiv.id = disabledStateContainerID;
     disabledStateContainerDiv.className = 'hide';
 
-    let disabledStateMessageDiv = document.createElement('div');
+    const disabledStateMessageDiv = document.createElement('div');
     disabledStateMessageDiv.className = 'infoList';
     disabledStateMessageDiv.innerHTML = "Check the box to see updates.";
     disabledStateContainerDiv.appendChild(disabledStateMessageDiv);
@@ -160,7 +165,7 @@ PropertiesPlus.initializeUI = function()
     // create the selection info cards container
     // stores all info cards in one place for easier toggling
     // 
-    let infoCardsContainer = document.createElement('div');
+    const infoCardsContainer = document.createElement('div');
     infoCardsContainer.id = infoCardsContainerID;
     infoCardsContainer.className = 'show';
     contentContainer.appendChild(infoCardsContainer);
@@ -178,7 +183,7 @@ PropertiesPlus.initializeUI = function()
     PropertiesPlus.singleObjectDetailsInfoCard.id = 'singleObjectInfoContainer';
     PropertiesPlus.singleObjectDetailsInfoCard.className = 'hide';
 
-    let singleObjectDetailsHeaderDiv = document.createElement('div');
+    const singleObjectDetailsHeaderDiv = document.createElement('div');
     singleObjectDetailsHeaderDiv.id = 'objectInfoHeaderDiv';
     singleObjectDetailsHeaderDiv.className = 'infoHeader';
     singleObjectDetailsHeaderDiv.innerHTML = 'Object Details';
@@ -194,27 +199,27 @@ PropertiesPlus.initializeUI = function()
     //
     // create the single group family details container - starts hidden
     //
-    PropertiesPlus.singleGroupFamilyDetailsInfoCard = document.createElement('div');
-    PropertiesPlus.singleGroupFamilyDetailsInfoCard.id = 'singleGroupInfoContainer';
-    PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'hide';
+    PropertiesPlus.singleGroupHistoryDetailsInfoCard = document.createElement('div');
+    PropertiesPlus.singleGroupHistoryDetailsInfoCard.id = 'singleGroupInfoContainer';
+    PropertiesPlus.singleGroupHistoryDetailsInfoCard.className = 'hide';
 
-    let singleGroupFamilyDetailsHeaderDiv = document.createElement('div');
+    const singleGroupFamilyDetailsHeaderDiv = document.createElement('div');
     singleGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
     singleGroupFamilyDetailsHeaderDiv.innerHTML = 'Group History Details';
 
-    infoCardsContainer.appendChild(PropertiesPlus.singleGroupFamilyDetailsInfoCard);
-    PropertiesPlus.singleGroupFamilyDetailsInfoCard.appendChild(singleGroupFamilyDetailsHeaderDiv);
+    infoCardsContainer.appendChild(PropertiesPlus.singleGroupHistoryDetailsInfoCard);
+    PropertiesPlus.singleGroupHistoryDetailsInfoCard.appendChild(singleGroupFamilyDetailsHeaderDiv);
 
     // ID module
     PropertiesPlus.singleGroupHistoryIDDiv = document.createElement('div');
     PropertiesPlus.singleGroupHistoryIDDiv.id = 'groupHistoryIDDiv';
     PropertiesPlus.singleGroupHistoryIDDiv.className = 'infoList';
-    PropertiesPlus.singleGroupFamilyDetailsInfoCard.appendChild(PropertiesPlus.singleGroupHistoryIDDiv);
+    PropertiesPlus.singleGroupHistoryDetailsInfoCard.appendChild(PropertiesPlus.singleGroupHistoryIDDiv);
 
     // rename module
-    let singleGroupNameContainer = new FormIt.PluginUI.TextInputModule('History Name: ', 'singleGroupNameContainer', 'inputModuleContainerStandalone', singleGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
-    PropertiesPlus.singleGroupFamilyDetailsInfoCard.appendChild(singleGroupNameContainer.element);
+    const singleGroupNameContainer = new FormIt.PluginUI.TextInputModule('History Name: ', 'singleGroupNameContainer', 'inputModuleContainerBottom', singleGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    PropertiesPlus.singleGroupHistoryDetailsInfoCard.appendChild(singleGroupNameContainer.element);
 
     //
     // create the multi group family details container - starts hidden
@@ -223,7 +228,7 @@ PropertiesPlus.initializeUI = function()
     multiGroupFamilyDetailsContainerDiv.id = 'multiGroupInfoContainer';
     multiGroupFamilyDetailsContainerDiv.className = 'hide';
 
-    let multiGroupFamilyDetailsHeaderDiv = document.createElement('div');
+    const multiGroupFamilyDetailsHeaderDiv = document.createElement('div');
     multiGroupFamilyDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     multiGroupFamilyDetailsHeaderDiv.className = 'infoHeader';
     multiGroupFamilyDetailsHeaderDiv.innerHTML = 'Multiple Group Histories';
@@ -232,7 +237,7 @@ PropertiesPlus.initializeUI = function()
     multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyDetailsHeaderDiv);
 
     // rename module
-    let multiGroupFamilyNameContainer = new FormIt.PluginUI.TextInputModule('History Name: ', 'multiGroupFamilyNameContainer', 'inputModuleContainerStandalone', multiGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
+    const multiGroupFamilyNameContainer = new FormIt.PluginUI.TextInputModule('History Name: ', 'multiGroupFamilyNameContainer', 'inputModuleContainerStandalone', multiGroupFamilyNameInputID, PropertiesPlus.submitGroupFamilyRename);
     multiGroupFamilyDetailsContainerDiv.appendChild(multiGroupFamilyNameContainer.element);
 
     //
@@ -242,7 +247,7 @@ PropertiesPlus.initializeUI = function()
     PropertiesPlus.singleGroupInstanceDetailsInfoCard.id = 'singleGroupInstanceInfoContainer';
     PropertiesPlus.singleGroupInstanceDetailsInfoCard.className = 'hide';
 
-    let singleGroupInstanceDetailsHeaderDiv = document.createElement('div');
+    const singleGroupInstanceDetailsHeaderDiv = document.createElement('div');
     singleGroupInstanceDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     singleGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
     singleGroupInstanceDetailsHeaderDiv.innerHTML = 'Group Instance Details';
@@ -257,8 +262,36 @@ PropertiesPlus.initializeUI = function()
     PropertiesPlus.singleGroupInstanceDetailsInfoCard.appendChild(PropertiesPlus.singleGroupInstanceIDDiv);
 
     // rename module
-    let singleGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Instance Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainerStandalone', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    const singleGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Instance Name: ', 'singleGroupInstanceNameContainer', 'inputModuleContainer', singleGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
     PropertiesPlus.singleGroupInstanceDetailsInfoCard.appendChild(singleGroupInstanceNameContainer.element);
+
+    // instance scale module - X, Y, Z
+    const singleGroupInstanceScalingLabel = document.createElement('div');
+    singleGroupInstanceScalingLabel.innerHTML = 'Instance Scaling';
+    PropertiesPlus.singleGroupInstanceDetailsInfoCard.appendChild(singleGroupInstanceScalingLabel);
+
+    const singleGroupInstanceScaleMultiModule = new FormIt.PluginUI.MultiModuleContainer();
+    PropertiesPlus.singleGroupInstanceDetailsInfoCard.appendChild(singleGroupInstanceScaleMultiModule.element);
+    singleGroupInstanceScaleMultiModule.element.style.marginBottom = '0px';
+
+    const singleGroupInstanceScaleModuleX = new FormIt.PluginUI.TextInputModuleV2('Scale X:', PropertiesPlus.submitGroupInstanceScale);
+    PropertiesPlus.singleGroupInstanceScaleXInput = singleGroupInstanceScaleModuleX.getInput();
+    singleGroupInstanceScaleMultiModule.element.appendChild(singleGroupInstanceScaleModuleX.element);
+    singleGroupInstanceScaleModuleX.element.className = 'inputModuleContainerStandalone';
+    singleGroupInstanceScaleModuleX.element.style.marginRight = '5px';
+
+    const singleGroupInstanceScaleModuleY = new FormIt.PluginUI.TextInputModuleV2('Scale Y:', PropertiesPlus.submitGroupInstanceScale);
+    PropertiesPlus.singleGroupInstanceScaleYInput = singleGroupInstanceScaleModuleY.getInput();
+    singleGroupInstanceScaleMultiModule.element.appendChild(singleGroupInstanceScaleModuleY.element);
+    singleGroupInstanceScaleModuleY.element.className = 'inputModuleContainerStandalone';
+    singleGroupInstanceScaleModuleY.element.style.marginLeft = '5px';
+    singleGroupInstanceScaleModuleY.element.style.marginRight = '5px';
+
+    const singleGroupInstanceScaleModuleZ = new FormIt.PluginUI.TextInputModuleV2('Scale Z:', PropertiesPlus.submitGroupInstanceScale);
+    PropertiesPlus.singleGroupInstanceScaleZInput = singleGroupInstanceScaleModuleZ.getInput();
+    singleGroupInstanceScaleMultiModule.element.appendChild(singleGroupInstanceScaleModuleZ.element);
+    singleGroupInstanceScaleModuleZ.element.className = 'inputModuleContainerStandalone';
+    singleGroupInstanceScaleModuleZ.element.style.marginLeft = '5px';
 
     //
     // create the single group instance tools container - starts hidden
@@ -267,7 +300,7 @@ PropertiesPlus.initializeUI = function()
     PropertiesPlus.singleGroupInstanceToolsInfoCard.id = 'singleGroupInstanceToolsContainer';
     PropertiesPlus.singleGroupInstanceToolsInfoCard.className = 'hide';
 
-    let singleGroupInstanceToolsHeaderDiv = document.createElement('div');
+    const singleGroupInstanceToolsHeaderDiv = document.createElement('div');
     singleGroupInstanceToolsHeaderDiv.id = 'groupInstanceToolsHeaderDiv';
     singleGroupInstanceToolsHeaderDiv.className = 'infoHeader';
     singleGroupInstanceToolsHeaderDiv.innerHTML = 'Group Instance Tools';
@@ -276,11 +309,11 @@ PropertiesPlus.initializeUI = function()
     PropertiesPlus.singleGroupInstanceToolsInfoCard.appendChild(singleGroupInstanceToolsHeaderDiv);
 
     // make unique button module
-    let singleGroupInstanceMakeUniqueButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique', 'Make this Group instance unique, including all of its children.', PropertiesPlus.submitGroupInstanceMakeUnique);
+    const singleGroupInstanceMakeUniqueButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique', 'Make this Group instance unique, including all of its children.', PropertiesPlus.submitGroupInstanceMakeUnique);
     PropertiesPlus.singleGroupInstanceToolsInfoCard.appendChild(singleGroupInstanceMakeUniqueButtonModule.element);
 
     // make unique (non-recursive) button module
-    let singleGroupInstanceMakeUniqueNRButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique (non-recursive)', 'Make this Group instance unique, but skip all of its children.', PropertiesPlus.submitGroupInstanceMakeUniqueNR);
+    const singleGroupInstanceMakeUniqueNRButtonModule = new FormIt.PluginUI.ButtonWithInfoToggleModule('Make Unique (non-recursive)', 'Make this Group instance unique, but skip all of its children.', PropertiesPlus.submitGroupInstanceMakeUniqueNR);
     PropertiesPlus.singleGroupInstanceToolsInfoCard.appendChild(singleGroupInstanceMakeUniqueNRButtonModule.element);
 
     //
@@ -294,19 +327,19 @@ PropertiesPlus.initializeUI = function()
     if (displayWIP)
     {
         // spacer
-        let spacerDiv2 = document.createElement('div');
+        const spacerDiv2 = document.createElement('div');
         spacerDiv2.className = 'horizontalSpacer';
 
         // position modules
-        let positionCoordinatesContainerDiv = FormIt.PluginUI.createHorizontalModuleContainer(PropertiesPlus.singleGroupInstanceDetailsInfoCard);
+        const positionCoordinatesContainerDiv = FormIt.PluginUI.createHorizontalModuleContainer(PropertiesPlus.singleGroupInstanceDetailsInfoCard);
 
-        let positionCoordinatesXModule = new FormIt.PluginUI.TextInputModule('Position X: ', 'positionCoordinatesX', 'inputModuleContainer', singleGroupInstancePosXInputID, PropertiesPlus.submitGroupInstanceRename);
+        const positionCoordinatesXModule = new FormIt.PluginUI.TextInputModule('Position X: ', 'positionCoordinatesX', 'inputModuleContainer', singleGroupInstancePosXInputID, PropertiesPlus.submitGroupInstanceRename);
         positionCoordinatesContainerDiv.appendChild(positionCoordinatesXModule.element);
 
-        let positionCoordinatesYModule = new FormIt.PluginUI.TextInputModule('Position Y: ', 'positionCoordinatesY', 'inputModuleContainer', singleGroupInstancePosYInputID, PropertiesPlus.submitGroupInstanceRename);
+        const positionCoordinatesYModule = new FormIt.PluginUI.TextInputModule('Position Y: ', 'positionCoordinatesY', 'inputModuleContainer', singleGroupInstancePosYInputID, PropertiesPlus.submitGroupInstanceRename);
         positionCoordinatesContainerDiv.appendChild(positionCoordinatesYModule.element);
 
-        let positionCoordinatesZModule = new FormIt.PluginUI.TextInputModule(positionCoordinatesContainerDiv, 'Position Z: ', 'positionCoordinatesZ', 'inputModuleContainer', singleGroupInstancePosZInputID, PropertiesPlus.submitGroupInstanceRename);
+        const positionCoordinatesZModule = new FormIt.PluginUI.TextInputModule(positionCoordinatesContainerDiv, 'Position Z: ', 'positionCoordinatesZ', 'inputModuleContainer', singleGroupInstancePosZInputID, PropertiesPlus.submitGroupInstanceRename);
         positionCoordinatesContainerDiv.append(positionCoordinatesZModule.element);
     }
 
@@ -317,7 +350,7 @@ PropertiesPlus.initializeUI = function()
     PropertiesPlus.multiGroupInstanceDetailsInfoCard.id = 'multiGroupInfoContainer';
     PropertiesPlus.multiGroupInstanceDetailsInfoCard.className = 'hide';
 
-    let multiGroupInstanceDetailsHeaderDiv = document.createElement('div');
+    const multiGroupInstanceDetailsHeaderDiv = document.createElement('div');
     multiGroupInstanceDetailsHeaderDiv.id = 'groupInfoHeaderDiv';
     multiGroupInstanceDetailsHeaderDiv.className = 'infoHeader';
     multiGroupInstanceDetailsHeaderDiv.innerHTML = 'Multiple Group Instances';
@@ -326,13 +359,13 @@ PropertiesPlus.initializeUI = function()
     PropertiesPlus.multiGroupInstanceDetailsInfoCard.appendChild(multiGroupInstanceDetailsHeaderDiv);
 
     // rename module
-    let multiGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Instance Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainerStandalone', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
+    const multiGroupInstanceNameContainer = new FormIt.PluginUI.TextInputModule('Instance Name: ', 'multiGroupInstanceNameContainer', 'inputModuleContainerStandalone', multiGroupInstanceNameInputID, PropertiesPlus.submitGroupInstanceRename);
     PropertiesPlus.multiGroupInstanceDetailsInfoCard.appendChild(multiGroupInstanceNameContainer.element);
 
     //
     // create the footer
     //
-    let footerModule = new FormIt.PluginUI.FooterModule;
+    const footerModule = new FormIt.PluginUI.FooterModule;
     window.document.body.appendChild(footerModule.element)
 }
 
@@ -463,7 +496,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     if (PropertiesPlus.bIsSingleGroupInstance)
     {
         // enable the group family and instance info containers
-        PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'infoContainer';
+        PropertiesPlus.singleGroupHistoryDetailsInfoCard.className = 'infoContainer';
         PropertiesPlus.singleGroupInstanceDetailsInfoCard.className = 'infoContainer';
         PropertiesPlus.singleGroupInstanceToolsInfoCard.className = 'infoContainer';
         PropertiesPlus.singleGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.show();
@@ -476,6 +509,11 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
 
         // update group instance details
         PropertiesPlus.singleGroupInstanceIDDiv.innerHTML = 'Instance ID: ' + PropertiesPlus.currentSelectionInfo.aSelectedObjectIDs[0];
+
+        PropertiesPlus.singleGroupInstanceScaleXInput.value = PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleX;
+        PropertiesPlus.singleGroupInstanceScaleYInput.value = PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleY;
+        PropertiesPlus.singleGroupInstanceScaleZInput.value = PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleZ;
+
         let groupInstanceName = PropertiesPlus.currentSelectionInfo.aSelectedObjectNames[0];
         let singleGroupInstanceNameInput = document.getElementById(singleGroupInstanceNameInputID);
         singleGroupInstanceNameInput.value = groupInstanceName;
@@ -485,7 +523,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
     }
     else
     {
-        PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'hide';
+        PropertiesPlus.singleGroupHistoryDetailsInfoCard.className = 'hide';
         PropertiesPlus.singleGroupInstanceDetailsInfoCard.className = 'hide';
         PropertiesPlus.singleGroupInstanceToolsInfoCard.className = 'hide';
         PropertiesPlus.singleGroupInstanceAttributesInfoCard.stringAttributeListInfoCard.hide();
@@ -499,7 +537,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         {
             // hide the multi Group family container, and display the single Group family details container
             multiGroupFamilyDetailsContainerDiv.className = 'hide';
-            PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'infoContainer';
+            PropertiesPlus.singleGroupHistoryDetailsInfoCard.className = 'infoContainer';
 
             // update the name input with the current name
             let groupFamilyName = PropertiesPlus.currentSelectionInfo.aSelectedGroupNames[0];
@@ -510,7 +548,7 @@ PropertiesPlus.updateQuantification = function(currentSelectionData)
         else
         {
             // hide the single Group family container, and display the multi Group family details container
-            PropertiesPlus.singleGroupFamilyDetailsInfoCard.className = 'hide';
+            PropertiesPlus.singleGroupHistoryDetailsInfoCard.className = 'hide';
             multiGroupFamilyDetailsContainerDiv.className = 'infoContainer';
 
             let multiGroupFamilyNameInput = document.getElementById(multiGroupFamilyNameInputID);
@@ -608,6 +646,21 @@ PropertiesPlus.submitGroupInstanceRename = function()
     }
 
     window.FormItInterface.CallMethod("PropertiesPlus.renameGroupInstances", args);
+}
+
+// update an instance's scale
+PropertiesPlus.submitGroupInstanceScale = function()
+{
+    const args = {
+        "nEditingHistoryID" : PropertiesPlus.currentSelectionInfo.nEditingHistoryID,
+        "nSingleGroupInstanceID" : PropertiesPlus.currentSelectionInfo.aSelectedObjectIDs[0],
+        "singleGroupInstanceTransform" : PropertiesPlus.currentSelectionInfo.selectedInstanceTransform,
+        "fSingleGroupInstanceScaleX" : PropertiesPlus.singleGroupInstanceScaleXInput.value,
+        "fSingleGroupInstanceScaleY" : PropertiesPlus.singleGroupInstanceScaleYInput.value,
+        "fSingleGroupInstanceScaleZ" : PropertiesPlus.singleGroupInstanceScaleZInput.value
+    }
+
+    window.FormItInterface.CallMethod("PropertiesPlus.setGroupInstanceScale", args);
 }
 
 // make a single selected Group instance unique

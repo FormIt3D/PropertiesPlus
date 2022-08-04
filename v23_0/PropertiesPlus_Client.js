@@ -28,6 +28,10 @@ PropertiesPlus.initializeSelectionInfoObject = function()
         "aSelectedGroupInstanceAttributes" : [],
         "aSelectedGroupInstanceAttributeIDs" : [],
         "aSelectedDoesUseLevelsBools" : [],
+        "selectedInstanceTransform" : { },
+        "fSelectedInstanceTransformScaleX" : 1,
+        "fSelectedInstanceTransformScaleY" : 1,
+        "fSelectedInstanceTransformScaleZ" : 1,
         "nSelectedTotalCount" : 0,
         "nSelectedVertexCount" : 0,
         "nSelectedEdgeCount" : 0,
@@ -178,6 +182,12 @@ PropertiesPlus.getSelectionInfo = function(args)
 
         // get the object attribute IDs
         selectionInfoObject.aSelectedGroupInstanceAttributeIDs = PropertiesPlus.getStringAttributeIDsForObject(selectionInfoObject.nEditingHistoryID, selectionInfoObject.aSelectedGroupInstanceIDs[0]);
+
+        // get the instance transform
+        selectionInfoObject.selectedInstanceTransform = WSM.APIGetInstanceTransf3dReadOnly(selectionInfoObject.nEditingHistoryID, selectionInfoObject.aSelectedGroupInstanceIDs[0]);
+        selectionInfoObject.fSelectedInstanceTransformScaleX = PropertiesPlus.getScaleXFromInstanceTransform(selectionInfoObject.selectedInstanceTransform);
+        selectionInfoObject.fSelectedInstanceTransformScaleY = PropertiesPlus.getScaleYFromInstanceTransform(selectionInfoObject.selectedInstanceTransform);
+        selectionInfoObject.fSelectedInstanceTransformScaleZ = PropertiesPlus.getScaleZFromInstanceTransform(selectionInfoObject.selectedInstanceTransform);
     }
 
     // determine if the instances come from the same group family
@@ -304,6 +314,93 @@ PropertiesPlus.getAttributeInfo = function()
     }
 
     return attributesInfoObject;
+}
+
+PropertiesPlus.getScaleXFromInstanceTransform = function(instanceTransform)
+{
+    var coordinateSystem = WSM.Transf3d.GetCoordinateSystem(instanceTransform);
+    var scaleX = WSM.Vector3d.Length(coordinateSystem.xDir);
+    return scaleX;
+}
+
+PropertiesPlus.setScaleXOnInstanceTransform = function(nHistoryID, nInstanceID, instanceTransform, fDesiredScaleX)
+{
+    // capture the operation in a single undo delta
+    FormIt.UndoManagement.BeginState();
+
+    // first, transform the instance to the origin
+    var invertedTransform = WSM.Transf3d.Invert(instanceTransform);
+    WSM.APITransformObject(nHistoryID, nInstanceID, invertedTransform);
+    // determine the scaling to apply
+    var coordinateSystem = WSM.Transf3d.GetCoordinateSystem(instanceTransform);
+    var origin = WSM.Geom.Point3d(0,0,0); // use the world origin
+    var fNewScaleX = fDesiredScaleX / (WSM.Vector3d.Length(coordinateSystem.xDir));
+    var newVector3d = WSM.Vector3d.Vector3d(fNewScaleX, 1, 1);
+    var transform = WSM.Transf3d.MakeScalingTransform(origin, newVector3d);
+    // apply the scaling
+    WSM.APITransformObject(nHistoryID, nInstanceID, transform);
+    // move the instance back to its original position
+    WSM.APITransformObject(nHistoryID, nInstanceID, instanceTransform);
+
+    FormIt.UndoManagement.EndState("Scale instance X");
+}
+
+PropertiesPlus.getScaleYFromInstanceTransform = function(instanceTransform)
+{
+    var coordinateSystem = WSM.Transf3d.GetCoordinateSystem(instanceTransform);
+    var scaleY = WSM.Vector3d.Length(coordinateSystem.yDir);
+    return scaleY;
+}
+
+PropertiesPlus.setScaleYOnInstanceTransform = function(nHistoryID, nInstanceID, instanceTransform, fDesiredScaleY)
+{
+    // capture the operation in a single undo delta
+    FormIt.UndoManagement.BeginState();
+
+    // first, transform the instance to the origin
+    var invertedTransform = WSM.Transf3d.Invert(instanceTransform);
+    WSM.APITransformObject(nHistoryID, nInstanceID, invertedTransform);
+    // determine the scaling to apply
+    var coordinateSystem = WSM.Transf3d.GetCoordinateSystem(instanceTransform);
+    var origin = WSM.Geom.Point3d(0,0,0); // use the world origin
+    var fNewScaleY = fDesiredScaleY / (WSM.Vector3d.Length(coordinateSystem.yDir));
+    var newVector3d = WSM.Vector3d.Vector3d(1, fNewScaleY, 1);
+    var transform = WSM.Transf3d.MakeScalingTransform(origin, newVector3d);
+    // apply the scaling
+    WSM.APITransformObject(nHistoryID, nInstanceID, transform);
+    // move the instance back to its original position
+    WSM.APITransformObject(nHistoryID, nInstanceID, instanceTransform);
+
+    FormIt.UndoManagement.EndState("Scale instance Y");
+}
+
+PropertiesPlus.getScaleZFromInstanceTransform = function(instanceTransform)
+{
+    var coordinateSystem = WSM.Transf3d.GetCoordinateSystem(instanceTransform);
+    var scaleZ = WSM.Vector3d.Length(coordinateSystem.zDir);
+    return scaleZ;
+}
+
+PropertiesPlus.setScaleZOnInstanceTransform = function(nHistoryID, nInstanceID, instanceTransform, fDesiredScaleZ)
+{
+    // capture the operation in a single undo delta
+    FormIt.UndoManagement.BeginState();
+
+    // first, transform the instance to the origin
+    var invertedTransform = WSM.Transf3d.Invert(instanceTransform);
+    WSM.APITransformObject(nHistoryID, nInstanceID, invertedTransform);
+    // determine the scaling to apply
+    var coordinateSystem = WSM.Transf3d.GetCoordinateSystem(instanceTransform);
+    var origin = WSM.Geom.Point3d(0,0,0); // use the world origin
+    var fNewScaleZ = fDesiredScaleZ / (WSM.Vector3d.Length(coordinateSystem.zDir));
+    var newVector3d = WSM.Vector3d.Vector3d(1, 1, fNewScaleZ);
+    var transform = WSM.Transf3d.MakeScalingTransform(origin, newVector3d);
+    // apply the scaling
+    WSM.APITransformObject(nHistoryID, nInstanceID, transform);
+    // move the instance back to its original position
+    WSM.APITransformObject(nHistoryID, nInstanceID, instanceTransform);
+
+    FormIt.UndoManagement.EndState("Scale instance Z");
 }
 
 PropertiesPlus.getStringAttributeIDsForHistory = function(nHistoryID)
@@ -480,6 +577,25 @@ PropertiesPlus.renameGroupInstances = function(args)
         {
             WSM.APISetObjectProperties(PropertiesPlus.currentSelectionInfo.nEditingHistoryID, PropertiesPlus.currentSelectionInfo.aSelectedGroupInstanceIDs[i], args.multiGroupInstanceRename, PropertiesPlus.currentSelectionInfo.aSelectedDoesUseLevelsBools[i]);
         }
+    }
+}
+
+PropertiesPlus.setGroupInstanceScale = function(args)
+{
+    // for the X, Y, and Z inputs, check if the value changed and set it
+    if (args.singleGroupInstanceScaleX != PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleX)
+    {
+        PropertiesPlus.setScaleXOnInstanceTransform(args.nEditingHistoryID, args.nSingleGroupInstanceID, args.singleGroupInstanceTransform, args.fSingleGroupInstanceScaleX);
+    }
+
+    if (args.singleGroupInstanceScaleY != PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleY)
+    {
+        PropertiesPlus.setScaleYOnInstanceTransform(args.nEditingHistoryID, args.nSingleGroupInstanceID, args.singleGroupInstanceTransform, args.fSingleGroupInstanceScaleY);
+    }
+
+    if (args.singleGroupInstanceScaleX != PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleZ)
+    {
+        PropertiesPlus.setScaleZOnInstanceTransform(args.nEditingHistoryID, args.nSingleGroupInstanceID, args.singleGroupInstanceTransform, args.fSingleGroupInstanceScaleZ);
     }
 }
 
