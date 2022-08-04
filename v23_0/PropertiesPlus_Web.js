@@ -661,6 +661,9 @@ PropertiesPlus.submitGroupInstanceScale = function()
     }
 
     window.FormItInterface.CallMethod("PropertiesPlus.setGroupInstanceScale", args);
+
+    // update the quantification so Properties Plus shows the latest data
+    PropertiesPlus.updateUI();
 }
 
 // make a single selected Group instance unique
