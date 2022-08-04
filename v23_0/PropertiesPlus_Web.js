@@ -128,7 +128,7 @@ PropertiesPlus.initializeUI = function()
     //
     // create the on/off checkbox to disable calculations (in case of large selections)
     // 
-    const computeOnSelectionCheckboxModule = new FormIt.PluginUI.CheckboxModule('Update on Selection Change', 'computOnSelectionCheckboxModule', 'multiModuleContainer', recomputeOnSelectionInputID);
+    const computeOnSelectionCheckboxModule = new FormIt.PluginUI.CheckboxModule('Update on selection change', 'computOnSelectionCheckboxModule', 'multiModuleContainer', recomputeOnSelectionInputID);
     contentContainer.appendChild(computeOnSelectionCheckboxModule.element);
     
     const computeOnSelectionCheckboxInput = document.getElementById(recomputeOnSelectionInputID);
