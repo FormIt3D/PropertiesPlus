@@ -583,17 +583,17 @@ PropertiesPlus.renameGroupInstances = function(args)
 PropertiesPlus.setGroupInstanceScale = function(args)
 {
     // for the X, Y, and Z inputs, check if the value changed and set it
-    if (args.singleGroupInstanceScaleX != PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleX)
+    if (args.fSingleGroupInstanceScaleX != PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleX)
     {
         PropertiesPlus.setScaleXOnInstanceTransform(args.nEditingHistoryID, args.nSingleGroupInstanceID, args.singleGroupInstanceTransform, args.fSingleGroupInstanceScaleX);
     }
 
-    if (args.singleGroupInstanceScaleY != PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleY)
+    if (args.fSingleGroupInstanceScaleY != PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleY)
     {
         PropertiesPlus.setScaleYOnInstanceTransform(args.nEditingHistoryID, args.nSingleGroupInstanceID, args.singleGroupInstanceTransform, args.fSingleGroupInstanceScaleY);
     }
 
-    if (args.singleGroupInstanceScaleX != PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleZ)
+    if (args.fSingleGroupInstanceScaleZ != PropertiesPlus.currentSelectionInfo.fSelectedInstanceTransformScaleZ)
     {
         PropertiesPlus.setScaleZOnInstanceTransform(args.nEditingHistoryID, args.nSingleGroupInstanceID, args.singleGroupInstanceTransform, args.fSingleGroupInstanceScaleZ);
     }
